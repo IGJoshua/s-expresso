@@ -347,3 +347,15 @@
   before returning."
   []
   (GLFW/glfwPollEvents))
+
+(defn window-should-close?
+  "Predicate for if a window should close."
+  [window]
+  (GLFW/glfwWindowShouldClose (:id window)))
+
+(defn window-should-close
+  "Sets if a window should close.
+  Returns the window."
+  [window should-close?]
+  (GLFW/glfwSetWindowShouldClose (:id window) (if should-close? GLFW/GLFW_TRUE GLFW/GLFW_FALSE))
+  window)
