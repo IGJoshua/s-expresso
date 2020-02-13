@@ -331,3 +331,12 @@
   [window]
   (GLFW/glfwMakeContextCurrent (when window (:id window)))
   window)
+
+(defn set-vsync
+  "Sets vsync to swap at every `interval` vblanks.
+  If `interval` is a non-numeric truthy value, defaults to 1, and 0 if falsey."
+  [interval]
+  (GLFW/glfwSwapInterval (or (if-not (number? interval)
+                               (and interval 1)
+                               (int interval))
+                             0)))
