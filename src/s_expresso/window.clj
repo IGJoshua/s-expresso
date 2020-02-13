@@ -324,3 +324,10 @@
   [window]
   (GLFW/glfwHideWindow (:id window))
   window)
+
+(defn make-context-current-to-window
+  "Takes a window and makes the OpenGL context current to that window.
+  If window is nil, this releases the context which is current on the thread."
+  [window]
+  (GLFW/glfwMakeContextCurrent (when window (:id window)))
+  window)
