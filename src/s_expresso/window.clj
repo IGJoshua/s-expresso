@@ -338,3 +338,12 @@
                                (and interval 1)
                                (int interval))
                              0)))
+
+(defn poll-events
+  "Polls for GLFW events.
+  This should be called periodically to ensure that input callbacks on windows
+  are called, and to ensure the desktop environment knows the program is
+  responsive. Should never block, but all callbacks are called on this thread
+  before returning."
+  []
+  (GLFW/glfwPollEvents))
