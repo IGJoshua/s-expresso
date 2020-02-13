@@ -4,5 +4,6 @@ All notable changes to this project will be documented in this file. This change
 ## [Unreleased]
 ### Added
 - Protocol for unmanaged resources, defining a method to free the resource
+- Initialize GLFW
 
 [Unreleased]: https://github.com/IGJoshua/s-expresso/compare/master..develop
