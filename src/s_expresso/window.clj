@@ -180,6 +180,7 @@
                               (when (and (= key :escape)
                                          (= action :release))
                                 (GLFW/glfwSetWindowShouldClose (:id window) true)))
+               cursor-mode :normal
                gl-major-version 4
                gl-minor-version 5
                resizable true
