@@ -1,0 +1,24 @@
+{:paths ["src" "resources"]
+ :deps {org.clojure/clojure {:mvn/version "1.10.1"}
+        org.clojure/core.async {:mvn/version "0.6.532"}
+        com.taoensso/timbre {:mvn/version "4.10.0"}
+
+        org.lwjgl/lwjgl {:mvn/version "3.2.3"}
+        org.lwjgl/lwjgl-opengl {:mvn/version "3.2.3"}
+        org.lwjgl/lwjgl-glfw {:mvn/version "3.2.3"}}
+ :aliases
+ {:linux {:extra-deps {org.lwjgl/lwjgl$natives-linux {:mvn/version "3.2.3"}
+                       org.lwjgl/lwjgl-opengl$natives-linux {:mvn/version "3.2.3"}
+                       org.lwjgl/lwjgl-glfw$natives-linux {:mvn/version "3.2.3"}}}
+  :windows {:extra-deps {org.lwjgl/lwjgl$natives-windows {:mvn/version "3.2.3"}
+                         org.lwjgl/lwjgl-opengl$natives-windows {:mvn/version "3.2.3"}
+                         org.lwjgl/lwjgl-glfw$natives-windows {:mvn/version "3.2.3"}}}
+  :dev {:extra-paths ["dev"]}
+  :test {:extra-paths ["test"]
+         :extra-deps {org.clojure/test.check {:mvn/version "0.10.0"}}}
+  :runner
+  {:extra-deps {com.cognitect/test-runner
+                {:git/url "https://github.com/cognitect-labs/test-runner"
+                 :sha "f7ef16dc3b8332b0d77bc0274578ad5270fbfedd"}}
+   :main-opts ["-m" "cognitect.test-runner"
+               "-d" "test"]}}}
