@@ -1,5 +1,6 @@
 (ns s-expresso.window
   "Functions for creating and managing a window with an OpenGL context."
+  (:refer-clojure :exclude [time])
   (:require
    [clojure.reflect :as refl]
    [clojure.string :as str]
@@ -359,3 +360,21 @@
   [window should-close?]
   (GLFW/glfwSetWindowShouldClose (:id window) (if should-close? GLFW/GLFW_TRUE GLFW/GLFW_FALSE))
   window)
+
+(defn time
+  "Gets the time in seconds.
+  Counts from the passed value, or starts with 0 at when glfw-init was called."
+  ([start] (GLFW/glfwSetTime (double start)))
+  ([] (GLFW/glfwGetTime)))
+
+(defn raw-time
+  "Gets the time in raw temporal units.
+  The current time in seconds will be this value divided by the value
+  of [[raw-time-frequency]]"
+  []
+  (GLFW/glfwGetTimerValue))
+
+(defn raw-time-frequency
+  "Gets the frequency of the raw timer."
+  []
+  (GLFW/glfwGetTimerFrequency))
