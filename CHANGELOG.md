@@ -7,5 +7,6 @@ All notable changes to this project will be documented in this file. This change
 - Initialize GLFW
 - Create windows
 - Set callbacks on most types of input
+- Hide and show windows
 
 [Unreleased]: https://github.com/IGJoshua/s-expresso/compare/master..develop

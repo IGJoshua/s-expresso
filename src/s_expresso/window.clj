@@ -310,3 +310,17 @@
       (/ (- (.width vid-mode) (first width)) 2)
       (/ (- (.height vid-mode) (first height)) 2)))
    window))
+
+(defn show-window
+  "Takes a window and shows it.
+  Returns the window."
+  [window]
+  (GLFW/glfwShowWindow (:id window))
+  window)
+
+(defn hide-window
+  "Takes a window and hides it.
+  Returns the window."
+  [window]
+  (GLFW/glfwHideWindow (:id window))
+  window)
