@@ -215,11 +215,8 @@
          (throw (ex-info "Failed to create a window!" {})))
 
        (GLFW/glfwSetInputMode id GLFW/GLFW_LOCK_KEY_MODS GLFW/GLFW_TRUE)
-       (GLFW/glfwSetInputMode id GLFW/GLFW_CURSOR (cursor-mode->mode-int cursor-mode))
-       (when (and (= :disabled cursor-mode)
-                  raw-mouse-motion
-                  (GLFW/glfwRawMouseMotionSupported))
-         (GLFW/glfwSetInputMode id GLFW/GLFW_RAW_MOUSE_MOTION GLFW/GLFW_TRUE))
+       (set-window-cursor-mode (->Window id) cursor-mode)
+       (set-raw-mouse-motion (->Window id) (and (= :disabled cursor-mode) raw-mouse-motion))
 
        ;; set the callbacks
        (GLFW/glfwSetKeyCallback
