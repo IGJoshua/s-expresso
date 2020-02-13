@@ -1,8 +1,10 @@
 (ns s-expresso.window
   "Functions for creating and managing a window with an OpenGL context."
+  (:require
+   [s-expresso.resource :refer [Resource]])
   (:import
    (org.lwjgl.glfw
-    GLFW
+    Callbacks GLFW
     GLFWErrorCallback)))
 
 (defn init-glfw
@@ -33,3 +35,9 @@
     (.free callback))
   (GLFW/glfwTerminate))
 
+(defrecord Window [id]
+  Resource
+  (free [_]
+    (Callbacks/glfwFreeCallbacks id)
+    (GLFW/glfwDestroyWindow id)
+    nil))
