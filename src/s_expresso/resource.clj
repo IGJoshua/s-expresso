@@ -6,3 +6,13 @@
 (defprotocol Resource
   "Resources handle the process of freeing unmanaged resources."
   (free [live-resource] "Frees a live resource"))
+
+(defmacro with-free
+  [resources & body]
+  (if (seq resources)
+    `(try
+       (with-free ~(vec (rest resources))
+         ~@body)
+       (finally
+         (free ~(first resources))))
+    (cons `do body)))
