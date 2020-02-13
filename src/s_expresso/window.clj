@@ -349,6 +349,14 @@
   []
   (GLFW/glfwPollEvents))
 
+(defn swap-buffers
+  "Swaps the framebuffer on the given window.
+  This call will block until a future v-blank based on your vsync
+  configuration. Returns the window."
+  [window]
+  (GLFW/glfwSwapBuffers (:id window))
+  window)
+
 (defn window-should-close?
   "Predicate for if a window should close."
   [window]
