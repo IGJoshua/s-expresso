@@ -296,3 +296,17 @@
 
        ;; create the window object to return
        (->Window id)))))
+
+(defn center-window
+  "Centers a window on the given monitor (default primary)."
+  ([window] (center-window window nil))
+  ([window monitor]
+   (let [width (int-array 1)
+         height (int-array 1)
+         _ (GLFW/glfwGetWindowSize (:id window) ^ints width ^ints height)
+         vid-mode (GLFW/glfwGetVideoMode (or monitor (GLFW/glfwGetPrimaryMonitor)))]
+     (GLFW/glfwSetWindowPos
+      (:id window)
+      (/ (- (.width vid-mode) (first width)) 2)
+      (/ (- (.height vid-mode) (first height)) 2)))
+   window))
