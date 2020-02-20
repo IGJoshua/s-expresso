@@ -107,3 +107,9 @@
                   nil)]
     (run! free shaders)
     program))
+
+(defn bind-shader-program
+  "Takes a shader `program` and binds it for drawing.
+  Unbinds the program if given nil."
+  [program]
+  (GL45/glUseProgram (if (:id program) (:id program) 0)))
