@@ -8,6 +8,82 @@
    (org.lwjgl.system
     MemoryUtil)))
 
+(defn- float->half-float
+  "Takes a floating point value and coerces it into a half-precision float."
+  [fval]
+  (let [fbits (Float/floatToIntBits fval)
+        sign (bit-and (unsigned-bit-shift-right fbits 16)
+                      0x8000)
+        value (+ (bit-and fbits 0x7fffffff)
+                 0x1000)]
+    (if (>= value 0x47800000)
+      (if (>= (bit-and fbits 0x7fffffff) 0x47800000)
+        (if (< value 0x7f800000)
+          (bit-or sign 0x7c00)
+          (bit-or sign 0x7c00
+                  (unsigned-bit-shift-right
+                   (bit-and fbits 0x007fffff)
+                   13)))
+        (bit-or sign 0x7bff))
+      (if (>= value 0x38800000)
+        (bit-or sign (unsigned-bit-shift-right
+                      (- value 0x38000000)
+                      13))
+        (if (< value 0x33000000)
+          sign
+          (let [value (unsigned-bit-shift-right
+                       (bit-and fbits 0x7fffffff)
+                       23)]
+            (bit-or sign
+                    (unsigned-bit-shift-right
+                     (+ (bit-or (bit-and fbits 0x7fffff)
+                                0x800000)
+                        (unsigned-bit-shift-right
+                         0x800000
+                         (- value 102)))
+                     (- 126 value)))))))))
+
+(defn- half-float->float
+  "Takes a half-precision float and coerces it into a floating point value."
+  [hbits]
+  (letfn [(combine [exp mant]
+            (Float/intBitsToFloat
+             (unchecked-int
+              (bit-or (bit-shift-left
+                       (bit-and hbits 0x8000)
+                       16)
+                      (bit-shift-left
+                       (bit-or exp mant)
+                       13)))))
+          (normalize [exp mant]
+            (if-not (zero? mant)
+              (let [exp 0x1c400]
+                (loop [mant (bit-shift-left mant 1)
+                       exp (- exp 0x400)]
+                  (if-not (zero? (bit-and mant 0x400))
+                    [exp (bit-and mant 0x3ff)]
+                    (recur (bit-shift-left mant 1)
+                           (- exp 0x400)))))
+              [exp mant]))]
+    (let [mant (bit-and hbits 0x03ff)
+          exp (bit-and hbits 0x7c00)]
+      (if (= exp 0x7c00)
+        (combine 0x3fc00 mant)
+        (if-not (zero? exp)
+          (let [exp (+ exp 0x1c000)]
+            (if (and (zero? mant)
+                     (> exp 0x1c400))
+              (Float/intBitsToFloat
+               (unchecked-int
+                (bit-or
+                 (bit-shift-left
+                  (bit-and hbits 0x8000)
+                  16)
+                 (bit-shift-left exp 13)
+                 0x3ff)))
+              (combine exp mant)))
+          (apply combine (normalize exp mant)))))))
+
 (s/def ::vertex map?)
 (s/def ::vertices (s/coll-of ::vertex :kind vector?))
 (s/def ::indices (s/coll-of nat-int? :kind vector?))
@@ -36,6 +112,17 @@
    :ubyte 1
    :ushort 2
    :uint 4})
+(def ^:private attrib-type->coersion-fn
+  "Map from an attribute type to a coersion function used to create the value."
+  {:half-float (comp unchecked-short float->half-float float)
+   :float float
+   :double double
+   :byte byte
+   :short short
+   :int int
+   :ubyte unchecked-byte
+   :ushort unchecked-short
+   :uint unchecked-int})
 (def attrib-types (set (keys attrib-type->glenum)))
 (s/def ::type attrib-types)
 (s/def ::count pos-int?)
