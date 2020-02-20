@@ -58,3 +58,33 @@
         (GL45/glDeleteShader id)
         nil)
       (->Shader id source stage))))
+
+(defn link-shader-program
+  "Links shaders into a shader program.
+  Takes a seq of [[Shader]]s which must contain either a vertex shader (and
+  optionally other shaders, but not compute), or exactly one compute shader. If
+  a linker error occurs it will be displayed, along with the whole program text
+  in pipeline order, each stage separated by three newlines, and nil will be
+  returned."
+  [shaders]
+  {:pre [(distinct? (map :stage shaders))
+         (every? shader-stages (map :stage shaders))
+         (or (and (:vertex (set (map :stage shaders)))
+                  (not (:compute (set (map :stage shaders)))))
+             (and (= 1 (count shaders))
+                  (:compute (set (map :stage shaders)))))]}
+  (let [shaders (sort-by (comp shader-stage->ordering :stage) shaders)
+        program (GL45/glCreateProgram)]
+    (doseq [shader shaders]
+      (GL45/glAttachShader program (:id shader)))
+    (GL45/glLinkProgram program)
+    (let [status (int-array 1)]
+      (GL45/glGetProgramiv program GL45/GL_LINK_STATUS status)
+      (when (zero? (first status))
+        (let [info-log (GL45/glGetProgramInfoLog program)]
+          (log/errorf "Shader program failed to link with message: %s\n%s"
+                      info-log
+                      (apply str (interpose "\n\n\n" (map :source shaders))))
+          (GL45/glDeleteProgram program)
+          nil)))
+    (->ShaderProgram program shaders)))
