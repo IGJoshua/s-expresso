@@ -231,3 +231,54 @@
   :args (s/cat :layout ::mesh-layout
                :mesh ::mesh-data)
   :ret ::packed-mesh)
+
+(defn make-mesh
+  "Takes a `layout` and a `packed-mesh`, and returns a [[Mesh]] [[Resource]].
+  The `layout` must match the `packed-mesh`. This function asserts that the
+  number of buffers the `layout` expects matches the number of buffers in the
+  `packed-mesh`, and that if one has indices, both do."
+  [layout packed-mesh]
+  {:pre [(= (count (:buffer-layouts layout))
+            (count (:buffers packed-mesh)))
+         (or (and (:has-indices layout)
+                  (:indices packed-mesh))
+             (and (not (:has-indices layout))
+                  (not (:indices packed-mesh))))]}
+  (let [vao (GL45/glCreateVertexArrays)
+        buffers (MemoryUtil/memAllocInt (+ (if (:indices packed-mesh) 1 0)
+                                           (count (:buffers packed-mesh))))
+        attrib-idx (volatile! 0)]
+    (doseq [[idx buffer-layout buffer] (map vector
+                                            (range)
+                                            (:buffer-layouts layout)
+                                            (:buffers packed-mesh))]
+      (let [buffer-array (GL45/glCreateBuffers)
+            stride (reduce (fn [acc v]
+                             (+ acc (* (attrib-type->size-in-bytes (:type v))
+                                       (:count v))))
+                           0 (:attrib-layouts buffer-layout))]
+        (.put buffers (int buffer-array))
+        (GL45/glNamedBufferStorage buffer-array buffer
+                                   (usage-flags->flags-int (:usage-flags buffer-layout)))
+        (GL45/glVertexArrayVertexBuffer vao idx buffer-array 0 stride)
+
+        (loop [attrib-layouts (:attrib-layouts buffer-layout)
+               offset 0]
+          (let [attrib-layout (first attrib-layouts)]
+            (GL45/glEnableVertexArrayAttrib vao @attrib-idx)
+            (GL45/glVertexArrayAttribBinding vao @attrib-idx idx)
+            (GL45/glVertexArrayAttribFormat vao @attrib-idx
+                                            (:count attrib-layout)
+                                            (attrib-type->glenum (:type attrib-layout))
+                                            (boolean (:normalized attrib-layout))
+                                            offset)
+            (vswap! attrib-idx inc)
+            (when (seq (rest attrib-layouts))
+              (recur (rest attrib-layouts)
+                     (+ offset (attrib-type->size-in-bytes (:type attrib-layout)))))))))
+    (.flip buffers)
+    (->Mesh vao buffers (boolean (:indices packed-mesh)))))
+(s/fdef make-mesh
+  :args (s/cat :layout ::mesh-layout
+               :packed-mesh ::packed-mesh)
+  :ret (partial instance? Mesh))
