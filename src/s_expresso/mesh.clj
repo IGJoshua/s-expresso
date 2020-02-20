@@ -1,4 +1,5 @@
 (ns s-expresso.mesh
+  "Functions for dealing with mesh data and buffer layouts."
   (:require
    [clojure.spec.alpha :as s]
    [s-expresso.memory :refer [alloc-bytes put put-seq]]

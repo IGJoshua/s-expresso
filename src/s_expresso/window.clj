@@ -1,5 +1,19 @@
 (ns s-expresso.window
-  "Functions for creating and managing a window with an OpenGL context."
+  "Functions for creating and managing a window with an OpenGL context.
+  The system needs to be initialized before any of the functions are called,
+  with [[init-glfw]], and once everything is shut down [[shutdown-glfw]] should
+  be called to ensure all resources are returned to the windowing system.
+
+  All functions in this namespace should be called from the main thread, except
+  for the time functions. This will prevent any issues with cross-platform
+  windowing.
+
+  Before any OpenGL rendering is done on a thread, a context must be made
+  current for that thread. Only one context can be created per window, however
+  if a window is created with a parent and is never shown, it can be used as an
+  additional context, and passed to another thread for its use. However, only
+  one context may be current at a time, and each thread should release its
+  context before another thread takes one."
   (:refer-clojure :exclude [time])
   (:require
    [clojure.reflect :as refl]
