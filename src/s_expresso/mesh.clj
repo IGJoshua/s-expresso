@@ -14,9 +14,29 @@
 (s/def ::mesh-data (s/keys :req-un [::vertices]
                            :opt-un [::indices]))
 
-(def attrib-types #{:half-float :float :double
-                    :byte :short :int
-                    :ubyte :ushort :uint})
+(def ^:private attrib-type->glenum
+  "Map from an attribute type to the GLEnum value for that type."
+  {:half-float GL45/GL_HALF_FLOAT
+   :float GL45/GL_FLOAT
+   :double GL45/GL_DOUBLE
+   :byte GL45/GL_BYTE
+   :short GL45/GL_SHORT
+   :int GL45/GL_INT
+   :ubyte GL45/GL_UNSIGNED_BYTE
+   :ushort GL45/GL_UNSIGNED_SHORT
+   :uint GL45/GL_UNSIGNED_INT})
+(def ^:private attrib-type->size-in-bytes
+  "Map from an attribute type to the size of that type in bytes."
+  {:half-float 2
+   :float 4
+   :double 8
+   :byte 1
+   :short 2
+   :int 4
+   :ubyte 1
+   :ushort 2
+   :uint 4})
+(def attrib-types (set (keys attrib-type->glenum)))
 (s/def ::type attrib-types)
 (s/def ::count pos-int?)
 (s/def ::name keyword?)
