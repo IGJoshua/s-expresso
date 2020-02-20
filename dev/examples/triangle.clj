@@ -1,0 +1,88 @@
+(ns examples.triangle
+  (:require
+   [examples.window :as e.w]
+   [s-expresso.memory :as mem :refer [with-stack-allocator]]
+   [s-expresso.mesh :as m]
+   [s-expresso.resource :refer [with-free]]
+   [s-expresso.shader :as sh]
+   [s-expresso.window :as w]
+   [taoensso.timbre :as log])
+  (:import
+   (org.lwjgl.opengl
+    GL GL45
+    GLDebugMessageCallback GLDebugMessageCallbackI)
+   (org.lwjgl.system
+    MemoryStack)))
+
+(defn step
+  [window mesh]
+  (GL45/glClear (bit-or GL45/GL_COLOR_BUFFER_BIT GL45/GL_DEPTH_BUFFER_BIT))
+
+  ;; do rendering
+  (GL45/glBindVertexArray (:vao-id mesh))
+  (GL45/glDrawArrays GL45/GL_TRIANGLES 0 3)
+
+  (w/swap-buffers window)
+  (w/poll-events))
+
+(def vert-shader
+  {:source "
+#version 450 core
+layout (location = 0) in vec3 aPos;
+void main()
+{
+    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+}
+"
+   :stage :vertex})
+
+(def frag-shader
+  {:source "
+#version 450 core
+out vec4 fragColor;
+void main()
+{
+    fragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+}
+"
+   :stage :fragment})
+
+(defn window-loop
+  [window]
+  ;; init anything on the opengl side
+  (let [flags (int-array 1)]
+    (GL45/glGetIntegerv GL45/GL_CONTEXT_FLAGS flags)
+    (when-not (zero? (bit-and GL45/GL_CONTEXT_FLAG_DEBUG_BIT
+                              (first flags)))
+      (GL45/glEnable GL45/GL_DEBUG_OUTPUT)
+      (GL45/glEnable GL45/GL_DEBUG_OUTPUT_SYNCHRONOUS)
+      (GL45/glDebugMessageControl GL45/GL_DONT_CARE GL45/GL_DONT_CARE GL45/GL_DONT_CARE (int-array 0) true)
+      (GL45/glDebugMessageCallback
+       (reify GLDebugMessageCallbackI
+         (invoke [this source type id severity length message user-param]
+           (log/debug (GLDebugMessageCallback/getMessage length message))))
+       0)))
+
+  (let [mesh-data {:vertices [{:pos [-0.5 -0.5 0.0]}
+                              {:pos [0.5 -0.5 0.0]}
+                              {:pos [0.0 0.5 0.0]}]}
+        mesh-layout {:buffer-layouts [{:attrib-layouts [{:name :pos
+                                                         :type :float
+                                                         :count 3}]}]}]
+    (GL45/glClearColor 0 0 0 1)
+    (GL45/glClearDepth 1)
+    (with-free [mesh (with-stack-allocator
+                       (m/make-mesh mesh-layout (m/pack-verts mesh-layout mesh-data)))
+                shader-program (sh/make-shader-program-from-sources [vert-shader frag-shader])]
+      (GL45/glUseProgram (:id shader-program))
+      (while (not (w/window-should-close? window))
+        (step window mesh))))
+  window)
+
+(defn start
+  []
+  (e.w/init)
+  (-> (e.w/start-window e.w/window-opts)
+      (window-loop)
+      (e.w/shutdown-window))
+  (e.w/shutdown))

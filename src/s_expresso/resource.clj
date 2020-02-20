@@ -8,11 +8,12 @@
   (free [live-resource] "Frees a live resource"))
 
 (defmacro with-free
-  [resources & body]
-  (if (seq resources)
-    `(try
-       (with-free ~(vec (rest resources))
-         ~@body)
-       (finally
-         (free ~(first resources))))
+  [bindings & body]
+  (assert (even? (count bindings)))
+  (if (seq bindings)
+    `(let ~(vec (take 2 bindings))
+       (try
+         (with-free ~(vec (drop 2 bindings)) ~@body)
+         (finally
+           (free ~(first bindings)))))
     (cons `do body)))
