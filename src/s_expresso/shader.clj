@@ -1,7 +1,8 @@
 (ns s-expresso.shader
   "Functions to compile and link GLSL shader programs."
   (:require
-   [s-expresso.resource :refer [Resource]])
+   [s-expresso.resource :refer [Resource]]
+   [taoensso.timbre :as log])
   (:import
    (org.lwjgl.opengl
     GL45)))
@@ -39,3 +40,21 @@
    :tess-eval 3
    :geometry 4
    :fragment 5})
+
+(defn compile-shader
+  "Compiles a shader, returning a shader object.
+  Takes a `source` and a `stage` and returns a [[Shader]] record which has been
+  compiled. If the shader is invalid, the compilation error is logged nil is
+  returned."
+  [source stage]
+  (let [id (GL45/glCreateShader (shader-stage->shader-stage-int stage))
+        status (int-array 1)]
+    (GL45/glShaderSource id ^CharSequence source)
+    (GL45/glCompileShader id)
+    (GL45/glGetShaderiv id GL45/GL_COMPILE_STATUS status)
+    (if (zero? (first status))
+      (let [info-log (GL45/glGetShaderInfoLog id)]
+        (log/errorf "Shader stage %s failed to compile with message: %s\n%s" (str stage) info-log source)
+        (GL45/glDeleteShader id)
+        nil)
+      (->Shader id source stage))))
