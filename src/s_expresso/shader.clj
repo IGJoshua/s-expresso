@@ -1,7 +1,7 @@
 (ns s-expresso.shader
   "Functions to compile and link GLSL shader programs."
   (:require
-   [s-expresso.resource :refer [Resource]]
+   [s-expresso.resource :refer [Resource free]]
    [taoensso.timbre :as log])
   (:import
    (org.lwjgl.opengl
@@ -88,3 +88,22 @@
           (GL45/glDeleteProgram program)
           nil)))
     (->ShaderProgram program shaders)))
+
+(defn make-shader-program-from-sources
+  "Compiles the given sources as shaders and links them, returning the program.
+  All of the shaders are released to the driver after linking, meaning when the
+  program is freed, the shaders will be as well.
+
+  If a compilation error occurs in any shader, all shaders will still be
+  compiled and all errors displayed, and if all compile successfully but a link
+  error occurs the error will again be displayed, and nil will be returned in
+  either case."
+  [shader-sources]
+  (let [shaders (map (comp (partial apply compile-shader)
+                           (juxt :source :stage))
+                     shader-sources)
+        program (if (every? some? shaders)
+                  (link-shader-program shaders)
+                  nil)]
+    (run! free shaders)
+    program))
