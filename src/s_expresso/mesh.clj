@@ -1,8 +1,11 @@
 (ns s-expresso.mesh
   (:require
    [clojure.spec.alpha :as s]
+   [s-expresso.memory :refer [alloc-bytes put put-seq]]
    [s-expresso.resource :refer [Resource]])
   (:import
+   (java.nio
+    Buffer)
    (org.lwjgl.opengl
     GL45)
    (org.lwjgl.system
@@ -172,3 +175,59 @@
     (GL45/glDeleteBuffers buffers)
     (MemoryUtil/memFree buffers)
     (GL45/glDeleteVertexArrays vao-id)))
+
+(s/def :s-expresso.mesh.packed/buffers (s/coll-of (partial instance? Buffer)))
+(s/def :s-expresso.mesh.packed/indices (partial instance? Buffer))
+(s/def ::packed-mesh (s/keys :req-un [:s-expresso.mesh.packed/buffers]
+                             :opt-un [:s-expresso.mesh.packed/indices]))
+
+(defn pack-verts
+  "Takes in a buffer `layout` definition and a `mesh`, and returns packed buffers.
+  Return value is a map with the keys `:indices` (if an index buffer is defined)
+  and `:buffers`. `:indices` will have a value of an int array, and `:buffers`
+  will be a vector of arrays based on the type specified in the `layout`."
+  [layout mesh]
+  (let [indices (when (:has-indices layout)
+                  (doto (put-seq (alloc-bytes (* Integer/BYTES (count (:indices mesh))))
+                                 (map int (:indices mesh)))
+                    (.flip)))
+        vert-count (count (:vertices mesh))
+        buffers (vec
+                 (for [buffer (:buffer-layouts layout)]
+                   (let [stride (reduce (fn [acc v]
+                                          (+ acc (* (attrib-type->size-in-bytes (:type v))
+                                                    (:count v))))
+                                        0 (:attrib-layouts buffer))
+                         mem-buf (alloc-bytes (* stride vert-count))]
+                     (if (:interleaved buffer)
+                       (loop [verts (:vertices mesh)]
+                         (let [vert (first verts)]
+                           (doseq [{:keys [name type count convert-fn]} (:attrib-layouts buffer)]
+                             (let [v (map (attrib-type->coersion-fn type)
+                                          (take count (if convert-fn
+                                                        (convert-fn vert)
+                                                        (name vert))))]
+                               (put-seq mem-buf v))))
+                         (when (seq (rest verts))
+                           (recur (rest verts))))
+                       (doseq [{:keys [name type count convert-fn]} (:attrib-layouts buffer)]
+                         (transduce (comp (map (if convert-fn convert-fn name))
+                                          (take count)
+                                          cat
+                                          (map (attrib-type->coersion-fn type)))
+                                    (completing
+                                     (fn [buf v]
+                                       (put v buf)
+                                       buf))
+                                    mem-buf
+                                    (:vertices mesh))))
+                     (.flip mem-buf)
+                     mem-buf)))
+        ret {:buffers buffers}]
+    (if indices
+      (assoc ret :indices indices)
+      ret)))
+(s/fdef pack-verts
+  :args (s/cat :layout ::mesh-layout
+               :mesh ::mesh-data)
+  :ret ::packed-mesh)

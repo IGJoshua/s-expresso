@@ -9,5 +9,7 @@ All notable changes to this project will be documented in this file. This change
 - Set callbacks on most types of input
 - Hide and show windows
 - Allocation library functions with ability to stack-allocate data
+- Vertex attribute layout format
+- Functions to pack meshes into vertex attribute layouts
 
 [Unreleased]: https://github.com/IGJoshua/s-expresso/compare/master..develop
