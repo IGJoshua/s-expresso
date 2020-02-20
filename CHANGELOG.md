@@ -8,5 +8,6 @@ All notable changes to this project will be documented in this file. This change
 - Create windows
 - Set callbacks on most types of input
 - Hide and show windows
+- Allocation library functions with ability to stack-allocate data
 
 [Unreleased]: https://github.com/IGJoshua/s-expresso/compare/master..develop
