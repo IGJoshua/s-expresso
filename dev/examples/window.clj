@@ -31,8 +31,8 @@
    :title "Window Test"})
 
 (defn start-window
-  []
-  (let [wnd (-> (wnd/make-window window-opts)
+  [opts]
+  (let [wnd (-> (wnd/make-window opts)
                 (wnd/make-context-current-to-window)
                 (wnd/center-window)
                 (wnd/show-window))]
@@ -63,7 +63,7 @@
 (defn start
   []
   (init)
-  (-> (start-window)
+  (-> (start-window window-opts)
       (window-loop)
       (shutdown-window))
   (shutdown))
