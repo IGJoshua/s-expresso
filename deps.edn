@@ -15,6 +15,7 @@
                          org.lwjgl/lwjgl-glfw$natives-windows {:mvn/version "3.2.3"}}}
   :dev {:extra-paths ["dev"]}
   :examples/triangle {:main-opts ["-e" "(require,'[examples.triangle,:refer,[start]]),(start)"]}
+  :debug/leak-check {:jvm-opts ["-Dorg.lwjgl.util.Debug=true"]}
   :test {:extra-paths ["test"]
          :extra-deps {org.clojure/test.check {:mvn/version "0.10.0"}}}
   :runner
