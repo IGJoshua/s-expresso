@@ -19,8 +19,10 @@
   (GL45/glClear (bit-or GL45/GL_COLOR_BUFFER_BIT GL45/GL_DEPTH_BUFFER_BIT))
 
   ;; do rendering
-  (GL45/glBindVertexArray (:vao-id mesh))
-  (GL45/glDrawArrays GL45/GL_TRIANGLES 0 3)
+  (GL45/glDrawElements (:element-type mesh)
+                       (:element-count mesh)
+                       (:index-type mesh)
+                       (:start-offset mesh))
 
   (w/swap-buffers window)
   (w/poll-events))
@@ -65,16 +67,21 @@ void main()
 
   (let [mesh-data {:vertices [{:pos [-0.5 -0.5 0.0]}
                               {:pos [0.5 -0.5 0.0]}
-                              {:pos [0.0 0.5 0.0]}]}
+                              {:pos [-0.5 0.5 0.0]}
+                              {:pos [0.5 0.5 0.0]}]
+                   :indices [0 1 2 2 1 3]}
         mesh-layout {:buffer-layouts [{:attrib-layouts [{:name :pos
                                                          :type :float
-                                                         :count 3}]}]}]
+                                                         :count 3}]}]
+                     :indices {}
+                     :element-type :triangles}]
     (GL45/glClearColor 0 0 0 1)
     (GL45/glClearDepth 1)
     (with-free [mesh (with-stack-allocator
                        (m/make-mesh mesh-layout (m/pack-verts mesh-layout mesh-data)))
                 shader-program (sh/make-shader-program-from-sources [vert-shader frag-shader])]
       (GL45/glUseProgram (:id shader-program))
+      (GL45/glBindVertexArray (:vao-id mesh))
       (while (not (w/window-should-close? window))
         (step window mesh))))
   window)
