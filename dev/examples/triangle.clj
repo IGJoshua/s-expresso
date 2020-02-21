@@ -49,6 +49,18 @@ void main()
 "
    :stage :fragment})
 
+(def quad-mesh-data {:vertices [{:pos [-0.5 -0.5 0.0]}
+                                {:pos [0.5 -0.5 0.0]}
+                                {:pos [-0.5 0.5 0.0]}
+                                {:pos [0.5 0.5 0.0]}]
+                     :indices [0 1 2 2 1 3]})
+
+(def pos-mesh-layout {:buffer-layouts [{:attrib-layouts [{:name :pos
+                                                          :type :float
+                                                          :count 3}]}]
+                      :indices {}
+                      :element-type :triangles})
+
 (defn window-loop
   [window]
   ;; init anything on the opengl side
@@ -65,26 +77,16 @@ void main()
            (log/debug (GLDebugMessageCallback/getMessage length message))))
        0)))
 
-  (let [mesh-data {:vertices [{:pos [-0.5 -0.5 0.0]}
-                              {:pos [0.5 -0.5 0.0]}
-                              {:pos [-0.5 0.5 0.0]}
-                              {:pos [0.5 0.5 0.0]}]
-                   :indices [0 1 2 2 1 3]}
-        mesh-layout {:buffer-layouts [{:attrib-layouts [{:name :pos
-                                                         :type :float
-                                                         :count 3}]}]
-                     :indices {}
-                     :element-type :triangles}]
-    (GL45/glClearColor 0 0 0 1)
-    (GL45/glClearDepth 1)
-    (with-free [mesh (with-stack-allocator
-                       (m/make-mesh mesh-layout (m/pack-verts mesh-layout mesh-data)))
-                shader-program (sh/make-shader-program-from-sources [vert-shader frag-shader])]
-      (sh/bind-shader-program shader-program)
-      (GL45/glBindVertexArray (:vao-id mesh))
-      (while (not (w/window-should-close? window))
-        (step window mesh))
-      (sh/bind-shader-program nil)))
+  (GL45/glClearColor 0 0 0 1)
+  (GL45/glClearDepth 1)
+  (with-free [mesh (with-stack-allocator
+                     (m/make-mesh pos-mesh-layout (m/pack-verts pos-mesh-layout quad-mesh-data)))
+              shader-program (sh/make-shader-program-from-sources [vert-shader frag-shader])]
+    (sh/bind-shader-program shader-program)
+    (GL45/glBindVertexArray (:vao-id mesh))
+    (while (not (w/window-should-close? window))
+      (step window mesh))
+    (sh/bind-shader-program nil))
   window)
 
 (defn start
