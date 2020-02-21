@@ -80,10 +80,11 @@ void main()
     (with-free [mesh (with-stack-allocator
                        (m/make-mesh mesh-layout (m/pack-verts mesh-layout mesh-data)))
                 shader-program (sh/make-shader-program-from-sources [vert-shader frag-shader])]
-      (GL45/glUseProgram (:id shader-program))
+      (sh/bind-shader-program shader-program)
       (GL45/glBindVertexArray (:vao-id mesh))
       (while (not (w/window-should-close? window))
-        (step window mesh))))
+        (step window mesh))
+      (sh/bind-shader-program nil)))
   window)
 
 (defn start
