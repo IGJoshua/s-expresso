@@ -4,6 +4,8 @@
    [s-expresso.resource :refer [Resource free]]
    [taoensso.timbre :as log])
   (:import
+   (java.nio
+    ByteBuffer FloatBuffer IntBuffer)
    (org.lwjgl.opengl
     GL45)))
 

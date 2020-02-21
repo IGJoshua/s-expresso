@@ -1,5 +1,8 @@
 (ns s-expresso.memory
+  "Namespace with helper functions for allocating memory and stack allocation."
   (:import
+   (java.nio
+    ByteBuffer)
    (org.lwjgl
     BufferUtils)
    (org.lwjgl.opengl
@@ -34,33 +37,33 @@
 (extend-protocol IntoByteBuffer
   Float
   (put [v buf]
-    (.putFloat buf v))
+    (.putFloat ^ByteBuffer buf v))
   (put-at [v buf byte-offset]
-    (.putFloat buf (/ byte-offset Float/BYTES) v))
+    (.putFloat ^ByteBuffer buf (/ byte-offset Float/BYTES) v))
 
   Double
   (put [v buf]
-    (.putDouble buf v))
+    (.putDouble ^ByteBuffer buf v))
   (put-at [v buf byte-offset]
-    (.putDouble buf (/ byte-offset Double/BYTES) v))
+    (.putDouble ^ByteBuffer buf (/ byte-offset Double/BYTES) v))
 
   Byte
   (put [v buf]
-    (.putByte buf v))
+    (.put ^ByteBuffer buf v))
   (put-at [v buf byte-offset]
-    (.putByte buf byte-offset v))
+    (.put ^ByteBuffer buf byte-offset v))
 
   Short
   (put [v buf]
-    (.putShort buf v))
+    (.putShort ^ByteBuffer buf v))
   (put-at [v buf byte-offset]
-    (.putShort buf (/ byte-offset Short/BYTES) v))
+    (.putShort ^ByteBuffer buf (/ byte-offset Short/BYTES) v))
 
   Integer
   (put [v buf]
-    (.putInt buf v))
+    (.putInt ^ByteBuffer buf v))
   (put-at [v buf byte-offset]
-    (.putInt buf (/ byte-offset Integer/BYTES) v)))
+    (.putInt ^ByteBuffer buf (/ byte-offset Integer/BYTES) v)))
 
 (defn put-seq
   "Puts each item from a sequence onto a memory buffer.
@@ -78,7 +81,7 @@
   if this is called within the dynamic extent of a [[with-stack-allocator]] use,
   it will allocate the buffer on the stack, and it will be invalid outside of
   that scope."
-  [num-bytes]
+  ^ByteBuffer [num-bytes]
   (if *memory-stack*
-    (.calloc *memory-stack* num-bytes)
+    (.calloc ^MemoryStack *memory-stack* num-bytes)
     (BufferUtils/createByteBuffer num-bytes)))
