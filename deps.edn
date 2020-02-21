@@ -4,15 +4,18 @@
         com.taoensso/timbre {:mvn/version "4.10.0"}
 
         org.lwjgl/lwjgl {:mvn/version "3.2.3"}
+        org.lwjgl/lwjgl-glfw {:mvn/version "3.2.3"}
         org.lwjgl/lwjgl-opengl {:mvn/version "3.2.3"}
-        org.lwjgl/lwjgl-glfw {:mvn/version "3.2.3"}}
+        org.lwjgl/lwjgl-stb {:mvn/version "3.2.3"}}
  :aliases
  {:linux {:extra-deps {org.lwjgl/lwjgl$natives-linux {:mvn/version "3.2.3"}
+                       org.lwjgl/lwjgl-glfw$natives-linux {:mvn/version "3.2.3"}
                        org.lwjgl/lwjgl-opengl$natives-linux {:mvn/version "3.2.3"}
-                       org.lwjgl/lwjgl-glfw$natives-linux {:mvn/version "3.2.3"}}}
+                       org.lwjgl/lwjgl-stb$natives-linux {:mvn/version "3.2.3"}}}
   :windows {:extra-deps {org.lwjgl/lwjgl$natives-windows {:mvn/version "3.2.3"}
+                         org.lwjgl/lwjgl-glfw$natives-windows {:mvn/version "3.2.3"}
                          org.lwjgl/lwjgl-opengl$natives-windows {:mvn/version "3.2.3"}
-                         org.lwjgl/lwjgl-glfw$natives-windows {:mvn/version "3.2.3"}}}
+                         org.lwjgl/lwjgl-stb$natives-windows {:mvn/version "3.2.3"}}}
   :dev {:extra-paths ["dev"]}
   :examples/triangle {:main-opts ["-e" "(require,'[examples.triangle,:refer,[start]]),(start)"]}
   :examples/textured-quad {:main-opts ["-e" "(require,'[examples.textured-quad,:refer,[start]]),(start)"]}
