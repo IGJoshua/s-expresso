@@ -61,9 +61,8 @@ void main()
                       :indices {}
                       :element-type :triangles})
 
-(defn window-loop
+(defn enable-debug-logging
   [window]
-  ;; init anything on the opengl side
   (let [flags (int-array 1)]
     (GL45/glGetIntegerv GL45/GL_CONTEXT_FLAGS flags)
     (when-not (zero? (bit-and GL45/GL_CONTEXT_FLAG_DEBUG_BIT
@@ -75,7 +74,12 @@ void main()
        (reify GLDebugMessageCallbackI
          (invoke [this source type id severity length message user-param]
            (log/debug (GLDebugMessageCallback/getMessage length message))))
-       0)))
+       0))))
+
+(defn window-loop
+  [window]
+  ;; init anything on the opengl side
+  (enable-debug-logging window)
 
   (GL45/glClearColor 0 0 0 1)
   (GL45/glClearDepth 1)
