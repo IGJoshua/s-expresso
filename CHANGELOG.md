@@ -13,5 +13,6 @@ All notable changes to this project will be documented in this file. This change
 - Functions to pack meshes into vertex attribute layouts
 - Can upload meshes to the GPU
 - Ability to compile and link shader programs
+- Ability for meshes to be indexed
 
 [Unreleased]: https://github.com/IGJoshua/s-expresso/compare/master..develop

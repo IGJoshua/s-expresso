@@ -167,10 +167,29 @@
 (s/def ::buffer-layout (s/keys :req-un [::attrib-layouts]
                                :opt-un [::interleaved ::usage-flags]))
 (s/def ::buffer-layouts (s/coll-of ::buffer-layout :kind vector?))
-(s/def ::has-indices boolean?)
-(s/def ::mesh-layout (s/keys :req-un [::buffer-layouts ::has-indices]))
+(s/def :s-expresso.mesh.layout/indices (s/nilable
+                                        (s/keys :opt-un [::usage-flags ::type])))
 
-(defrecord Mesh [vao-id buffers indexed?]
+(def ^:private element-type->glenum
+  "Map from an element type to the glenum value used in rendering that type."
+  {:points GL45/GL_POINTS
+   :lines GL45/GL_LINES
+   :lines-adjacency GL45/GL_LINES_ADJACENCY
+   :line-loop GL45/GL_LINE_LOOP
+   :line-strip GL45/GL_LINE_STRIP
+   :line-strip-adjacency GL45/GL_LINE_STRIP_ADJACENCY
+   :triangles GL45/GL_TRIANGLES
+   :triangles-adjacency GL45/GL_TRIANGLES_ADJACENCY
+   :triangle-fan GL45/GL_TRIANGLE_FAN
+   :triangle-strip GL45/GL_TRIANGLE_STRIP
+   :triangle-strip-adjacency GL45/GL_TRIANGLE_STRIP_ADJACENCY
+   :patches GL45/GL_PATCHES})
+(def element-types (set (keys element-type->glenum)))
+(s/def ::element-type element-types)
+(s/def ::mesh-layout (s/keys :req-un [::buffer-layouts ::element-type]
+                             :opt-un [:s-expresso.mesh.layout/indices]))
+
+(defrecord Mesh [vao-id buffers index-type element-count element-type start-offset]
   Resource
   (free [mesh]
     (GL45/glDeleteBuffers buffers)
@@ -179,7 +198,11 @@
 
 (s/def :s-expresso.mesh.packed/buffers (s/coll-of (partial instance? Buffer)))
 (s/def :s-expresso.mesh.packed/indices (partial instance? Buffer))
-(s/def ::packed-mesh (s/keys :req-un [:s-expresso.mesh.packed/buffers]
+(s/def :s-expresso.mesh.packed/element-count nat-int?)
+(s/def :s-expresso.mesh.packed/offset nat-int?)
+(s/def ::packed-mesh (s/keys :req-un [:s-expresso.mesh.packed/buffers
+                                      :s-expresso.mesh.packed/element-count
+                                      :s-expresso.mesh.packed/offset]
                              :opt-un [:s-expresso.mesh.packed/indices]))
 
 (defn pack-verts
@@ -188,9 +211,12 @@
   and `:buffers`. `:indices` will have a value of an int array, and `:buffers`
   will be a vector of arrays based on the type specified in the `layout`."
   [layout mesh]
-  (let [indices (when (:has-indices layout)
-                  (doto (put-seq (alloc-bytes (* Integer/BYTES (count (:indices mesh))))
-                                 (map int (:indices mesh)))
+  (let [index-type (or (:type (:indices layout))
+                       :uint)
+        indices (when (:indices layout)
+                  (doto (put-seq (alloc-bytes (* (attrib-type->size-in-bytes index-type)
+                                                 (count (:indices mesh))))
+                                 (map (attrib-type->coersion-fn index-type) (:indices mesh)))
                     (.flip)))
         vert-count (count (:vertices mesh))
         buffers (vec
@@ -213,7 +239,7 @@
                            (recur (rest verts))))
                        (doseq [{:keys [name type count convert-fn]} (:attrib-layouts buffer)]
                          (transduce (comp (map (if convert-fn convert-fn name))
-                                          (take count)
+                                          (map #(take count %))
                                           cat
                                           (map (attrib-type->coersion-fn type)))
                                     (completing
@@ -224,7 +250,11 @@
                                     (:vertices mesh))))
                      (.flip mem-buf)
                      mem-buf)))
-        ret {:buffers buffers}]
+        ret {:buffers buffers
+             :element-count (int (if (:indices mesh)
+                                   (count (:indices mesh))
+                                   vert-count))
+             :offset (int 0)}]
     (if indices
       (assoc ret :indices indices)
       ret)))
@@ -241,14 +271,22 @@
   [layout packed-mesh]
   {:pre [(= (count (:buffer-layouts layout))
             (count (:buffers packed-mesh)))
-         (or (and (:has-indices layout)
+         (or (and (:indices layout)
                   (:indices packed-mesh))
-             (and (not (:has-indices layout))
+             (and (not (:indices layout))
                   (not (:indices packed-mesh))))]}
   (let [vao (GL45/glCreateVertexArrays)
         buffers (MemoryUtil/memAllocInt (+ (if (:indices packed-mesh) 1 0)
                                            (count (:buffers packed-mesh))))
         attrib-idx (volatile! 0)]
+    (when (:indices packed-mesh)
+      (let [idx-buffer (GL45/glCreateBuffers)]
+        (.put buffers (int idx-buffer))
+        (GL45/glNamedBufferStorage idx-buffer (:indices packed-mesh)
+                                   (usage-flags->flags-int
+                                    (or (:usage-flags (:indices layout))
+                                        #{})))
+        (GL45/glVertexArrayElementBuffer vao idx-buffer)))
     (doseq [[idx buffer-layout buffer] (map vector
                                             (range)
                                             (:buffer-layouts layout)
@@ -278,7 +316,12 @@
               (recur (rest attrib-layouts)
                      (+ offset (attrib-type->size-in-bytes (:type attrib-layout)))))))))
     (.flip buffers)
-    (->Mesh vao buffers (boolean (:indices packed-mesh)))))
+    (->Mesh vao buffers (when (:indices packed-mesh)
+                          (attrib-type->glenum (or (:type (:indices layout))
+                                                   :uint)))
+            (:element-count packed-mesh)
+            (element-type->glenum (:element-type layout))
+            (:offset packed-mesh))))
 (s/fdef make-mesh
   :args (s/cat :layout ::mesh-layout
                :packed-mesh ::packed-mesh)
