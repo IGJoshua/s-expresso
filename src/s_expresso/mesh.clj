@@ -209,7 +209,11 @@
   "Takes in a buffer `layout` definition and a `mesh`, and returns packed buffers.
   Return value is a map with the keys `:indices` (if an index buffer is defined)
   and `:buffers`. `:indices` will have a value of an int array, and `:buffers`
-  will be a vector of arrays based on the type specified in the `layout`."
+  will be a vector of arrays based on the type specified in the `layout`.
+
+  If inside a [[s-expresso.memory/with-stack-allocator]] call, the buffers will
+  be allocated on the stack and will become invalid as soon as the call is
+  complete."
   [layout mesh]
   (let [index-type (or (:type (:indices layout))
                        :uint)
