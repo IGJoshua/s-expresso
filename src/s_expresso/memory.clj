@@ -40,8 +40,9 @@
     ~@body))
 
 (defprotocol IntoByteBuffer
-  (put [v buf])
-  (put-at [v buf byte-offset]))
+  "Provides a way to serialize a type into a [[java.nio.ByteBuffer]]."
+  (put [v buf] "Puts the value into the byte buffer at the cursor.")
+  (put-at [v buf byte-offset] "Puts the value into the byte buffor at the given offset."))
 
 (extend-protocol IntoByteBuffer
   Float
