@@ -197,7 +197,7 @@
                                                 :type (glenum->uniform-type (.getInt uniform-type))
                                                 :count (.getInt array-size)}))))
             {}
-            (range (first num-uniforms)))))
+            (range num-uniforms))))
 
 (defn link-shader-program
   "Links shaders into a shader program.
