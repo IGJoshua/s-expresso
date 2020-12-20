@@ -172,13 +172,12 @@
 
 (def uniform-types (set (vals glenum->uniform-type)))
 
-(defn uniform-map
-  "Fetches all active uniforms from a shader `program`.
+(defn- uniform-map
+  "Fetches all active uniforms from a shader program with the given `id`.
   Returns a map from the string name of the uniform to its uniform location in
   the shader program."
-  [program]
-  (let [id (:id program)
-        num-uniforms (with-stack-allocator
+  [id]
+  (let [num-uniforms (with-stack-allocator
                        (let [num-uniforms (m/alloc-bytes Integer/BYTES)]
                          (GL45/glGetProgramiv ^int id GL45/GL_ACTIVE_UNIFORMS
                                               ^IntBuffer (.asIntBuffer
@@ -227,8 +226,7 @@
                       (apply str (interpose "\n\n\n" (map :source shaders))))
           (GL45/glDeleteProgram program)
           nil)))
-    (let [prog (->ShaderProgram program shaders nil)]
-      (assoc prog :uniforms (uniform-map prog)))))
+    (->ShaderProgram program shaders (uniform-map program))))
 
 (defn make-shader-program-from-sources
   "Compiles the given sources as shaders and links them, returning the program.
