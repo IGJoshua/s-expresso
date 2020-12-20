@@ -22,13 +22,22 @@
 (defmacro with-stack-allocator
   "Creates a stack allocator within the dynamic scope of this macro body.
   This should be used carefully. Places which directly interact with lwjgl's
-  memory utils are unaffected, however any code which allocates buffers by usage
-  of the code here will allocate to the stack. Any memory allocated on the stack
-  which escapes the scope and is used is a use-after-free bug."
+  memory utils are unaffected. Any memory allocated on the stack which escapes
+  the scope and is used is a use-after-free bug."
   [& body]
   `(with-open [stack# (MemoryStack/stackPush)]
      (binding [*memory-stack* stack#]
        ~@body)))
+
+(defmacro with-heap-allocator
+  "Ensures allocations within the dynamic scope of this macro body are on the heap.
+  The primary usage of this is for functions which wish to provide an interface
+  compatible with usage of [[s-expresso.memory/with-stack-allocator]] but which
+  needs to create a long-lived allocation. Places which directly interact with
+  lwjgl's memory utils are unaffected."
+  [& body]
+  `(binding [*memory-stack* nil]
+    ~@body))
 
 (defprotocol IntoByteBuffer
   (put [v buf])
