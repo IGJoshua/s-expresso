@@ -30,7 +30,10 @@
 (defn load-image
   "Loads an image into a ByteBuffer, returning an [[Image]] [[Resource]].
   The image is attempted to be loaded from the resource bundle, then the path,
-  then as a [[java.io.File]]."
+  then as a [[java.io.File]].
+
+  If `desired-channels` is set, then an `:original-channels` key will be present
+  in the result with the number of channels in the read file."
   ([file-or-path] (load-image file-or-path nil))
   ([file-or-path desired-channels]
    (with-open [file (RandomAccessFile. (if (string? file-or-path)
