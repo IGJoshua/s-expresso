@@ -36,7 +36,7 @@
                                        "r")]
      (let [mapped-buffer (.map (.getChannel file)
                                FileChannel$MapMode/READ_ONLY
-                               (or desired-channels 0)
+                               0
                                (.length file))]
        (with-stack-allocator
          (let [width (m/alloc-bytes Integer/BYTES)
@@ -50,7 +50,7 @@
                       height)
                      (.asIntBuffer
                       channels)
-                     (int 0))
+                     (int (or desired-channels 0)))
                width (.getInt width)
                height (.getInt height)
                channels (.getInt channels)
