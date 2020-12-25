@@ -1,6 +1,7 @@
 (ns s-expresso.shader
   "Functions to compile and link GLSL shader programs."
   (:require
+   [clojure.spec.alpha :as s]
    [s-expresso.memory :as m :refer [with-stack-allocator]]
    [s-expresso.resource :refer [Resource free]]
    [taoensso.timbre :as log])
@@ -61,6 +62,10 @@
         (GL45/glDeleteShader id)
         nil)
       (->Shader id source stage))))
+(s/fdef compile-shader
+  :args (s/cat :source string?
+               :stage shader-stages)
+  :ret (s/nilable (partial instance? Shader)))
 
 (def ^:private glenum->uniform-type
   "Map from glenum to the uniform type keyword."
@@ -227,6 +232,13 @@
           (GL45/glDeleteProgram program)
           nil)))
     (->ShaderProgram program shaders (uniform-map program))))
+(s/fdef link-shader-program
+  :args (s/cat :shaders (s/coll-of (partial instance? Shader)))
+  :ret (s/nilable (partial instance? ShaderProgram)))
+
+(s/def ::source string?)
+(s/def ::stage shader-stages)
+(s/def ::shader-map (s/keys :req-un [::source ::stage]))
 
 (defn make-shader-program-from-sources
   "Compiles the given sources as shaders and links them, returning the program.
@@ -246,12 +258,18 @@
                   nil)]
     (run! free shaders)
     program))
+(s/fdef make-shader-program-from-sources
+  :args (s/cat :shader-sources (s/coll-of ::shader-map))
+  :ret (s/nilable (partial instance? ShaderProgram)))
 
 (defn bind-shader-program
   "Takes a shader `program` and binds it for drawing.
   Unbinds the program if given nil."
   [program]
   (GL45/glUseProgram (if (:id program) (:id program) 0)))
+(s/fdef bind-shader-program
+  :args (s/cat :program (partial instance? ShaderProgram))
+  :ret nil?)
 
 (defn upload-uniform-float
   "Uploads floating-point values to a uniform.
