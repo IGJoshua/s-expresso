@@ -3,7 +3,8 @@
   (:require
    [clojure.java.io :as io]
    [clojure.spec.alpha :as s]
-   [s-expresso.memory :as m :refer [with-stack-allocator]])
+   [s-expresso.memory :as m :refer [with-stack-allocator]]
+   [s-expresso.resource :refer [Resource]])
   (:import
    (java.io
     File RandomAccessFile)
@@ -20,11 +21,14 @@
 (s/def ::data (partial instance? ByteBuffer))
 (s/def ::channels nat-int?)
 (s/def ::original-channels nat-int?)
-(s/def ::image (s/keys :req-un [::data ::dimensions ::channels]
-                       :opt-un [::original-channels]))
+
+(defrecord Image [data dimensions channels]
+  Resource
+  (free [img]
+    (STBImage/stbi_image_free data)))
 
 (defn load-image
-  "Loads an image into a ByteBuffer.
+  "Loads an image into a ByteBuffer, returning an [[Image]] [[Resource]].
   The image is attempted to be loaded from the resource bundle, then the path,
   then as a [[java.io.File]]."
   ([file-or-path] (load-image file-or-path nil))
@@ -58,14 +62,15 @@
                     :dimensions [width height]
                     :channels (or desired-channels
                                   channels)}]
-           (if desired-channels
-             (assoc ret :original-channels channels)
-             ret)))))))
+           (map->Image
+            (if desired-channels
+              (assoc ret :original-channels channels)
+              ret))))))))
 (s/fdef load-image
   :args (s/cat :file-or-path (s/or :file (partial instance? File)
                                    :path string?)
                :desired-channels (s/? nat-int?))
-  :ret ::image)
+  :ret (partial instance? Image))
 
 (defn upload-image
   "Uploads an `image` to the GPU."
