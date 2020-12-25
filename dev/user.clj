@@ -17,6 +17,7 @@
 (defn on-load
   "Runs any user code which should be run at startup when developing."
   []
+  (set! *warn-on-reflection* true)
   (add-javadocs)
   true)
 
