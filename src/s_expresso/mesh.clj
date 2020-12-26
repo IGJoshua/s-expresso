@@ -292,7 +292,7 @@
                                         #{})))
         (GL45/glVertexArrayElementBuffer vao idx-buffer)))
     (doseq [[idx buffer-layout buffer] (map vector
-                                            (range)
+                                            (range (count (:buffers packed-mesh)))
                                             (:buffer-layouts layout)
                                             (:buffers packed-mesh))]
       (let [buffer-array (GL45/glCreateBuffers)
