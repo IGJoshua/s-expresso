@@ -7,6 +7,7 @@
    [s-expresso.mesh :as m]
    [s-expresso.resource :refer [with-free]]
    [s-expresso.shader :as sh]
+   [s-expresso.texture :as tex]
    [s-expresso.window :as w]
    [taoensso.timbre :as log])
   (:import
@@ -84,7 +85,7 @@ void main()
                                                           :type :float
                                                           :count 3}
                                                          {:name :uv
-                                                          :type :float
+                                                          :type :half-float
                                                           :count 2}]
                                         :interleaved true}]
                       :indices {}
@@ -98,11 +99,20 @@ void main()
   (GL45/glClearDepth 1)
   (with-free [mesh (with-stack-allocator
                      (m/make-mesh pos-mesh-layout (m/pack-verts pos-mesh-layout quad-mesh-data)))
-              shader-program (sh/make-shader-program-from-sources [vert-shader frag-shader])]
+              shader-program (sh/make-shader-program-from-sources [vert-shader frag-shader])
+              image (tex/load-image "textures/octostone/octostoneAlbedo.png" 3)
+              texture (tex/make-texture {:format GL45/GL_RGB8
+                                         :dimensions (:dimensions image)}
+                                        {:data (:data image)
+                                         :format GL45/GL_RGB
+                                         :type GL45/GL_UNSIGNED_BYTE})]
     (sh/bind-shader-program shader-program)
     (GL45/glBindVertexArray (:vao-id mesh))
+    (tex/bind-texture texture 0)
+    (sh/upload-uniform-int shader-program "sam" 0)
     (while (not (w/window-should-close? window))
       (step window mesh))
+    (tex/bind-texture nil 0)
     (sh/bind-shader-program nil))
   window)
 
