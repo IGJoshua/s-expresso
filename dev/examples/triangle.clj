@@ -19,10 +19,9 @@
   (GL45/glClear (bit-or GL45/GL_COLOR_BUFFER_BIT GL45/GL_DEPTH_BUFFER_BIT))
 
   ;; do rendering
-  (GL45/glDrawElements (:element-type mesh)
-                       (:element-count mesh)
-                       (:index-type mesh)
-                       (:start-offset mesh))
+  (GL45/glDrawArrays (:element-type mesh)
+                     (:start-offset mesh)
+                     (:element-count mesh))
 
   (w/swap-buffers window)
   (w/poll-events))
@@ -30,9 +29,14 @@
 (def vert-shader
   {:source "
 #version 450 core
-layout (location = 0) in vec3 aPos;
+layout (location=0) in vec3 aPos;
+layout (location=1) in vec3 aCol;
+
+out vec3 vCol;
+
 void main()
 {
+    vCol = aCol;
     gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
 }
 "
@@ -41,24 +45,30 @@ void main()
 (def frag-shader
   {:source "
 #version 450 core
+
+in vec3 vCol;
+
 out vec4 fragColor;
 void main()
 {
-    fragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+    fragColor = vec4(vCol.x, vCol.y, vCol.z, 1.0f);
 }
 "
    :stage :fragment})
 
-(def quad-mesh-data {:vertices [{:pos [-0.5 -0.5 0.0]}
-                                {:pos [0.5 -0.5 0.0]}
-                                {:pos [-0.5 0.5 0.0]}
-                                {:pos [0.5 0.5 0.0]}]
-                     :indices [0 1 2 2 1 3]})
+(def quad-mesh-data {:vertices [{:pos [-0.5 -0.5 0.0]
+                                 :col [1.0 0.0 0.0]}
+                                {:pos [0.5 -0.5 0.0]
+                                 :col [0.0 1.0 0.0]}
+                                {:pos [0.0 0.5 0.0]
+                                 :col [0.0 0.0 1.0]}]})
 
 (def pos-mesh-layout {:buffer-layouts [{:attrib-layouts [{:name :pos
                                                           :type :float
+                                                          :count 3}
+                                                         {:name :col
+                                                          :type :float
                                                           :count 3}]}]
-                      :indices {}
                       :element-type :triangles})
 
 (defn enable-debug-logging
@@ -69,7 +79,11 @@ void main()
                               (first flags)))
       (GL45/glEnable GL45/GL_DEBUG_OUTPUT)
       (GL45/glEnable GL45/GL_DEBUG_OUTPUT_SYNCHRONOUS)
-      (GL45/glDebugMessageControl GL45/GL_DONT_CARE GL45/GL_DONT_CARE GL45/GL_DONT_CARE (int-array 0) true)
+      (GL45/glDebugMessageControl GL45/GL_DONT_CARE
+                                  GL45/GL_DONT_CARE
+                                  GL45/GL_DONT_CARE
+                                  (int-array 0)
+                                  true)
       (GL45/glDebugMessageCallback
        (reify GLDebugMessageCallbackI
          (invoke [this source type id severity length message user-param]
