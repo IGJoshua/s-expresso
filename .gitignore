@@ -10,3 +10,6 @@
 .hgignore
 .hg/
 **/.dir-locals.el
+
+/resources/textures/*
+!/resources/textures/.keep

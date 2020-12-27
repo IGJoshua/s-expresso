@@ -5,6 +5,7 @@
 
 (defprotocol Resource
   "Resources handle the process of freeing unmanaged resources."
+  :extend-via-metadata true
   (free [live-resource] "Frees a live resource"))
 
 (defmacro with-free

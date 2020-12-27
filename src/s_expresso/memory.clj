@@ -1,5 +1,8 @@
 (ns s-expresso.memory
+  "Namespace with helper functions for allocating memory and stack allocation."
   (:import
+   (java.nio
+    ByteBuffer)
    (org.lwjgl
     BufferUtils)
    (org.lwjgl.opengl
@@ -19,48 +22,59 @@
 (defmacro with-stack-allocator
   "Creates a stack allocator within the dynamic scope of this macro body.
   This should be used carefully. Places which directly interact with lwjgl's
-  memory utils are unaffected, however any code which allocates buffers by usage
-  of the code here will allocate to the stack. Any memory allocated on the stack
-  which escapes the scope and is used is a use-after-free bug."
+  memory utils are unaffected. Any memory allocated on the stack which escapes
+  the scope and is used is a use-after-free bug."
   [& body]
   `(with-open [stack# (MemoryStack/stackPush)]
      (binding [*memory-stack* stack#]
        ~@body)))
 
+(defmacro with-heap-allocator
+  "Ensures allocations within the dynamic scope of this macro body are on the heap.
+  The primary usage of this is for functions which wish to provide an interface
+  compatible with usage of [[s-expresso.memory/with-stack-allocator]] but which
+  needs to create a long-lived allocation. Places which directly interact with
+  lwjgl's memory utils are unaffected."
+  [& body]
+  `(binding [*memory-stack* nil]
+    ~@body))
+
 (defprotocol IntoByteBuffer
-  (put [v buf])
-  (put-at [v buf byte-offset]))
+  "Provides a way to serialize a type into a [[java.nio.ByteBuffer]]."
+  :extend-via-metadata true
+  (put [v buf] "Puts the value into the byte buffer at the cursor.")
+  (put-at [v buf byte-offset] "Puts the value into the byte buffor at the given offset."))
 
 (extend-protocol IntoByteBuffer
   Float
   (put [v buf]
-    (.putFloat buf v))
+    (.putFloat ^ByteBuffer buf v))
   (put-at [v buf byte-offset]
-    (.putFloat buf (/ byte-offset Float/BYTES) v))
+    (.putFloat ^ByteBuffer buf (/ byte-offset Float/BYTES) v))
 
   Double
   (put [v buf]
-    (.putDouble buf v))
+    (.putDouble ^ByteBuffer buf v))
   (put-at [v buf byte-offset]
-    (.putDouble buf (/ byte-offset Double/BYTES) v))
+    (.putDouble ^ByteBuffer buf (/ byte-offset Double/BYTES) v))
 
   Byte
   (put [v buf]
-    (.putByte buf v))
+    (.put ^ByteBuffer buf v))
   (put-at [v buf byte-offset]
-    (.putByte buf byte-offset v))
+    (.put ^ByteBuffer buf byte-offset v))
 
   Short
   (put [v buf]
-    (.putShort buf v))
+    (.putShort ^ByteBuffer buf v))
   (put-at [v buf byte-offset]
-    (.putShort buf (/ byte-offset Short/BYTES) v))
+    (.putShort ^ByteBuffer buf (/ byte-offset Short/BYTES) v))
 
   Integer
   (put [v buf]
-    (.putInt buf v))
+    (.putInt ^ByteBuffer buf v))
   (put-at [v buf byte-offset]
-    (.putInt buf (/ byte-offset Integer/BYTES) v)))
+    (.putInt ^ByteBuffer buf (/ byte-offset Integer/BYTES) v)))
 
 (defn put-seq
   "Puts each item from a sequence onto a memory buffer.
@@ -78,7 +92,7 @@
   if this is called within the dynamic extent of a [[with-stack-allocator]] use,
   it will allocate the buffer on the stack, and it will be invalid outside of
   that scope."
-  [num-bytes]
+  ^ByteBuffer [num-bytes]
   (if *memory-stack*
-    (.calloc *memory-stack* num-bytes)
+    (.calloc ^MemoryStack *memory-stack* num-bytes)
     (BufferUtils/createByteBuffer num-bytes)))
