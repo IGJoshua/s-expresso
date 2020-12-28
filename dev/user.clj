@@ -7,6 +7,7 @@
   This namespace should only be loaded during development, and not during
   production."
   (:require
+   [clojure.core.matrix :as mat]
    [clojure.java.javadoc :as jd]))
 
 (defn add-javadocs
@@ -18,6 +19,7 @@
   "Runs any user code which should be run at startup when developing."
   []
   (set! *warn-on-reflection* true)
+  (mat/set-current-implementation :vectorz)
   (add-javadocs)
   true)
 
