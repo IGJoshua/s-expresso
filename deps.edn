@@ -19,9 +19,8 @@
                          org.lwjgl/lwjgl-opengl$natives-windows {:mvn/version "3.2.3"}
                          org.lwjgl/lwjgl-stb$natives-windows {:mvn/version "3.2.3"}}}
   :dev {:extra-paths ["dev"]}
-  :examples/window {:main-opts ["-e" "(require,'[examples.window,:refer,[start]]),(start)"]}
-  :examples/triangle {:main-opts ["-e" "(require,'[examples.triangle,:refer,[start]]),(start)"]}
-  :examples/textured-quad {:main-opts ["-e" "(require,'[examples.textured-quad,:refer,[start]]),(start)"]}
+  :example {:extra-paths ["dev"]
+            :ns-default examples}
   :debug/leak-check {:jvm-opts ["-Dorg.lwjgl.util.Debug=true"]}
   :test {:extra-paths ["test"]
          :extra-deps {org.clojure/test.check {:mvn/version "0.10.0"}}}
