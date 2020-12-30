@@ -297,3 +297,22 @@
 (s/fdef bind-texture
   :args (s/cat :texture (partial instance? Texture))
   :ret nil?)
+
+(defmacro with-texture
+  "Binds the `texture` to `tex-unit` for the duration of the `body`.
+  Whatever texture was bound before this call will be re-bound after it exits,
+  even in the case an exception is thrown."
+  [texture tex-unit & body]
+  `(let [active-texture# (GL45/glGetInteger GL45/GL_ACTIVE_TEXTURE)
+         _# (GL45/glActiveTexture (+ GL45/GL_TEXTURE0 ~tex-unit))
+         old-texture# (GL45/glGetInteger GL45/GL_TEXTURE_BINDING_2D)
+         _# (GL45/glActiveTexture active-texture#)
+         texture# ~texture
+         tex-unit# ~tex-unit]
+     (bind-texture texture# tex-unit#)
+     (try ~@body
+          (finally (bind-texture old-texture# tex-unit#)))))
+(s/fdef with-texture
+  :args (s/cat :texture (s/or :symbol symbol?
+                              :list list?)
+               :body (s/* any?)))
