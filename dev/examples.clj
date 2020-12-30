@@ -3,7 +3,8 @@
   (:require
    [examples.window :as window]
    [examples.triangle :as tri]
-   [examples.textured-quad :as tex-quad]))
+   [examples.textured-quad :as tex-quad]
+   [examples.gravity :as grav]))
 
 (defn window
   [args]
@@ -14,3 +15,6 @@
 (defn textured-quad
   [args]
   (tex-quad/start))
+(defn gravity
+  [args]
+  (grav/start))
