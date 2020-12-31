@@ -271,6 +271,20 @@
   :args (s/cat :program (partial instance? ShaderProgram))
   :ret nil?)
 
+(defmacro with-shader-program
+  "Binds the `program` for the duration of the `body`.
+  Whatever program was bound before this call will be re-bound after it exits,
+  even in the case an exception is thrown."
+  [program & body]
+  `(let [old-shader# (GL45/glGetInteger GL45/GL_CURRENT_PROGRAM)]
+     (bind-shader-program ~program)
+     (try ~@body
+          (finally (bind-shader-program old-shader#)))))
+(s/fdef with-shader-program
+  :args (s/cat :program (s/or :symbol symbol?
+                              :list list?)
+               :body (s/coll-of any?)))
+
 (defn upload-uniform-float
   "Uploads floating-point values to a uniform.
   The floating-point values are assumed to be vectors when 2-4 values are

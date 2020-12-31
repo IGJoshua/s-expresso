@@ -18,10 +18,7 @@
   [window mesh]
   (GL45/glClear (bit-or GL45/GL_COLOR_BUFFER_BIT GL45/GL_DEPTH_BUFFER_BIT))
 
-  ;; do rendering
-  (GL45/glDrawArrays (:element-type mesh)
-                     (:start-offset mesh)
-                     (:element-count mesh))
+  (m/draw-mesh mesh)
 
   (w/swap-buffers window)
   (w/poll-events))
@@ -100,11 +97,9 @@ void main()
   (with-free [mesh (with-stack-allocator
                      (m/make-mesh pos-mesh-layout (m/pack-verts pos-mesh-layout quad-mesh-data)))
               shader-program (sh/make-shader-program-from-sources [vert-shader frag-shader])]
-    (sh/bind-shader-program shader-program)
-    (GL45/glBindVertexArray (:vao-id mesh))
-    (while (not (w/window-should-close? window))
-      (step window mesh))
-    (sh/bind-shader-program nil))
+    (sh/with-shader-program shader-program
+      (while (not (w/window-should-close? window))
+        (step window mesh))))
   window)
 
 (defn start

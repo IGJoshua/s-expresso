@@ -360,3 +360,18 @@
   :args (s/cat :layout ::mesh-layout
                :packed-mesh ::packed-mesh)
   :ret (partial instance? Mesh))
+
+(defn draw-mesh
+  "Draws the `mesh` with the current shader pipeline."
+  [mesh]
+  (let [old-bound (GL45/glGetInteger GL45/GL_VERTEX_ARRAY_BINDING)]
+    (GL45/glBindVertexArray (:vao-id mesh))
+    (if (:index-type mesh)
+      (GL45/glDrawElements (:element-type mesh)
+                           (:element-count mesh)
+                           (:index-type mesh)
+                           (:start-offset mesh))
+      (GL45/glDrawArrays (:element-type mesh)
+                         (:start-offset mesh)
+                         (:element-count mesh)))
+    (GL45/glBindVertexArray old-bound)))

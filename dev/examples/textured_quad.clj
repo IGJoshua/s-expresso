@@ -29,11 +29,7 @@
   [window mesh]
   (GL45/glClear (bit-or GL45/GL_COLOR_BUFFER_BIT GL45/GL_DEPTH_BUFFER_BIT))
 
-  ;; do rendering
-  (GL45/glDrawElements (:element-type mesh)
-                       (:element-count mesh)
-                       (:index-type mesh)
-                       (:start-offset mesh))
+  (m/draw-mesh mesh)
 
   (w/swap-buffers window)
   (w/poll-events))
@@ -106,14 +102,11 @@ void main()
                                         {:data (:data image)
                                          :format GL45/GL_RGB
                                          :type GL45/GL_UNSIGNED_BYTE})]
-    (sh/bind-shader-program shader-program)
-    (GL45/glBindVertexArray (:vao-id mesh))
-    (tex/bind-texture texture 0)
-    (sh/upload-uniform-int shader-program "sam" 0)
-    (while (not (w/window-should-close? window))
-      (step window mesh))
-    (tex/bind-texture nil 0)
-    (sh/bind-shader-program nil))
+    (sh/with-shader-program shader-program
+      (tex/with-texture texture 0
+        (sh/upload-uniform-int shader-program "sam" 0)
+        (while (not (w/window-should-close? window))
+          (step window mesh)))))
   window)
 
 (defn start
