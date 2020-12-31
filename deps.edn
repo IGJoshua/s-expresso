@@ -2,6 +2,8 @@
  :deps {org.clojure/clojure {:mvn/version "1.10.1"}
         org.clojure/core.async {:mvn/version "0.6.532"}
         com.taoensso/timbre {:mvn/version "4.10.0"}
+        net.mikera/core.matrix {:mvn/version "0.62.0"}
+        net.mikera/vectorz-clj {:mvn/version "0.48.0"}
 
         org.lwjgl/lwjgl {:mvn/version "3.2.3"}
         org.lwjgl/lwjgl-glfw {:mvn/version "3.2.3"}
