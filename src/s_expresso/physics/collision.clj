@@ -159,3 +159,25 @@
                :radius pos?
                :direction m/vec?)
   :ret m/vec?)
+
+(defn points-support
+  "Returns the furthest point in a given `direction` among a sequence of points.
+  This function is designed to be used in an implementation of [[Hull]] for
+  convex hull meshes and other structures defined with a small set of vertices.
+
+  This uses a search through the points, and as such is linear in complexity."
+  [points direction]
+  (second
+   (let [[point & points] points
+         direction (m/normalise direction)]
+     (reduce (fn [[max-dot max-point :as acc] new-point]
+               (let [new-dot (m/dot new-point direction)]
+                 (if (> new-dot max-dot)
+                   [new-dot new-point]
+                   acc)))
+             [(m/dot point direction) point]
+             points))))
+(s/fdef points-support
+  :args (s/cat :points (s/coll-of m/vec?)
+               :direction m/vec?)
+  :ret m/vec?)
