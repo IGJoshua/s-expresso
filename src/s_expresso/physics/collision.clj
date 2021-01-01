@@ -142,3 +142,20 @@
   :args (s/cat :a (partial satisfies? Hull)
                :b (partial satisfies? Hull))
   :ret boolean?)
+
+(defn sphere-support
+  "Returns the furthest point in a given `direction` around a sphere.
+  This function is designed to be used in an implementation of [[Hull]] for
+  spheres.
+
+  This constructs the point from the definition of a sphere and will be
+  incredibly fast."
+  [center radius direction]
+  (m/add center
+         (m/mul (m/normalise direction)
+                radius)))
+(s/fdef sphere-support
+  :args (s/cat :center m/vec?
+               :radius pos?
+               :direction m/vec?)
+  :ret m/vec?)
