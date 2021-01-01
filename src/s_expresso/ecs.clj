@@ -81,7 +81,7 @@
   `(defn ~symbol
      ~bindings
      (if (every? #(contains? ~entity %) ~required-keys)
-       ~@body
+       (do ~@body)
        ~entity)))
 (s/fdef defsystem
   :args (s/cat :symbol symbol?
