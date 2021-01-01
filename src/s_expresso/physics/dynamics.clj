@@ -33,7 +33,7 @@
 (defn accelleration
   [body]
   (m/div (::net-force body)
-           (::mass body)))
+         (::mass body)))
 (s/fdef accelleration
   :args (s/cat :body ::body)
   :ret m/vec?)
