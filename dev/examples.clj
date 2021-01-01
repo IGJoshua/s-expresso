@@ -4,7 +4,8 @@
    [examples.window :as window]
    [examples.triangle :as tri]
    [examples.textured-quad :as tex-quad]
-   [examples.gravity :as grav]))
+   [examples.gravity :as grav]
+   [examples.spring :as spring]))
 
 (defn window
   [args]
@@ -18,3 +19,6 @@
 (defn gravity
   [args]
   (grav/start))
+(defn spring
+  [args]
+  (spring/start))
