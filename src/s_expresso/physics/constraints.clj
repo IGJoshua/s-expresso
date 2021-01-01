@@ -18,3 +18,21 @@
                :distance number?
                :spring-constant number?)
   :ret m/vec?)
+
+(defn gravitational-force
+  "Constructs a force vector for the entity in the direction of the body.
+
+  This is used for orbital simulations and other gravity effects, not for
+  applying a constant downward velocity to objects."
+  [entity-pos entity-mass body-pos body-mass gravity-constant]
+  (let [to-body (m/sub body-pos entity-pos)]
+    (m/mul (m/normalise to-body)
+           (/ (* gravity-constant entity-mass body-mass)
+              (m/magnitude-squared to-body)))))
+(s/fdef gravitational-force
+  :args (s/cat :entity-pos m/vec?
+               :entity-mass pos?
+               :body-pos m/vec?
+               :body-mass pos?
+               :gravity-constant pos?)
+  :ret m/vec?)

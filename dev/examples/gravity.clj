@@ -10,6 +10,7 @@
    [s-expresso.window :as w]
    [s-expresso.ecs :as ecs :refer [defsystem]]
    [s-expresso.physics.dynamics :as d]
+   [s-expresso.physics.constraints :as constraint]
    [taoensso.timbre :as log])
   (:import
    (org.lwjgl.opengl
@@ -25,15 +26,12 @@
                                    second)
                              (::ecs/entities scene))
         forces (for [[id body] other-bodies
-                     :when (not= id entity-id)
-                     :let [to-other (mat/sub (::d/position body)
-                                             (::d/position entity))
-                           dir (mat/normalise to-other)]]
-                 (mat/mul dir
-                          (/ (* (::d/mass body)
-                                (::d/mass entity)
-                                gravity-constant)
-                             (mat/magnitude-squared to-other))))]
+                     :when (not= id entity-id)]
+                 (constraint/gravitational-force (::d/position entity)
+                                                 (::d/mass entity)
+                                                 (::d/position body)
+                                                 (::d/mass body)
+                                                 gravity-constant))]
     (reduce d/add-force entity forces)))
 
 (defsystem step-body [::d/mass ::d/position ::d/velocity]
