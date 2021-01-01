@@ -10,12 +10,13 @@
    [s-expresso.window :as w]
    [s-expresso.ecs :as ecs :refer [defsystem]]
    [s-expresso.physics.dynamics :as d]
+   [s-expresso.physics.constraints :as constraint]
    [taoensso.timbre :as log])
   (:import
    (org.lwjgl.opengl
     GL GL45)))
 
-(def gravity-vector (mat/array [0 -0.3]))
+(def gravity-vector (mat/array [0 -9.81]))
 
 (defsystem gravity [::d/dimensions ::d/mass]
   [_ _ entity _]
@@ -23,7 +24,8 @@
 
 (defsystem damping [::d/velocity]
   [_ _ entity _]
-  (update entity ::d/velocity mat/mul 0.99))
+  (update entity ::d/velocity mat/mul 0.99)
+  entity)
 
 (defsystem spring-constraint [::constraints ::d/dimensions ::d/position]
   [scene _ entity _]
@@ -34,13 +36,11 @@
       (let [target (:target constraint)
             target-pos (if (uuid? target)
                          (::d/position ((::ecs/entities scene) target))
-                         target)
-            to-target (mat/sub target-pos
-                               (::d/position entity))
-            magnitude (* (Math/abs (- (mat/magnitude to-target) (:distance constraint)))
-                         (:constant constraint))]
-        (mat/mul (mat/normalise to-target)
-                 magnitude))))
+                         target)]
+        (constraint/spring-force (::d/position body)
+                                 target-pos
+                                 (:distance constraint)
+                                 (:constant constraint)))))
    entity
    (::constraints entity)))
 
@@ -55,22 +55,22 @@
                             #uuid "cb77ab65-5e4f-47c7-a08e-fa5bf39949a4"
                             {::d/dimensions 2
                              ::d/position [3 0]
-                             ::d/mass 2.0
+                             ::d/mass 5.0
                              ::d/velocity [0 0]
                              ::color [0 1 0]
-                             ::constraints [{:constant 0.7
+                             ::constraints [{:constant 30
                                              :distance 3
                                              :target #uuid "a6239964-38d6-4f35-ac96-0cf831f49426"}
-                                            {:constant 0.5
+                                            {:constant 5
                                              :distance 2
                                              :target #uuid "7917af55-5469-40e3-98f8-c6b494b3f6f2"}]}
                             #uuid "7917af55-5469-40e3-98f8-c6b494b3f6f2"
                             {::d/dimensions 2
                              ::d/position [0 -3]
-                             ::d/mass 1.0
+                             ::d/mass 3.0
                              ::d/velocity [0 0]
                              ::color [0 0 1]
-                             ::constraints [{:constant 0.5
+                             ::constraints [{:constant 15
                                              :distance 2
                                              :target #uuid "cb77ab65-5e4f-47c7-a08e-fa5bf39949a4"}]}}
                  :systems [[#'gravity #'spring-constraint #'step-body #'damping]]})
@@ -90,7 +90,7 @@
 
   (try
     ;; Step the ecs and draw
-    (swap! state ecs/step-scene 0.1)
+    (swap! state ecs/step-scene 0.016)
     (catch Exception e
       (log/error "Something went wrong in the step" e)))
 
