@@ -80,8 +80,8 @@
   [symbol required-keys [_ _ entity _ :as bindings] & body]
   `(defn ~symbol
      ~bindings
-     (if (seq (select-keys ~entity ~required-keys))
-       ~@body
+     (if (every? #(contains? ~entity %) ~required-keys)
+       (do ~@body)
        ~entity)))
 (s/fdef defsystem
   :args (s/cat :symbol symbol?
