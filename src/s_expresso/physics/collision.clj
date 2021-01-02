@@ -193,3 +193,7 @@
                :bounds m/vec?
                :direction m/vec?)
   :ret m/vec?)
+
+(s/def ::penetration-depth number?)
+(s/def ::normal m/vec?)
+(s/def ::contact (s/keys :req [::normal ::penetration-depth]))
