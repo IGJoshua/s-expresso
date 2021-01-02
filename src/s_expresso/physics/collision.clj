@@ -43,7 +43,7 @@
       [(list a) ao])))
 (s/fdef evaluate-line
   :args (s/cat :line (s/and (s/coll-of m/vec?)
-                               #(= 2 (count %)))
+                            #(= 2 (count %)))
                :dir m/vec?)
   :ret (s/cat :simplex (s/coll-of m/vec?)
               :dir m/vec?))
@@ -67,7 +67,7 @@
           [(list a c b) (m/negate abc)])))))
 (s/fdef evaluate-triangle
   :args (s/cat :triangle (s/and (s/coll-of m/vec?)
-                               #(= 3 (count %)))
+                                #(= 3 (count %)))
                :dir m/vec?)
   :ret (s/cat :simplex (s/coll-of m/vec?)
               :dir m/vec?))
@@ -90,7 +90,7 @@
       :otherwise [tetrahedron nil])))
 (s/fdef evaluate-tetrahedron
   :args (s/cat :tetrahedron (s/and (s/coll-of m/vec?)
-                               #(= 4 (count %)))
+                                   #(= 4 (count %)))
                :dir m/vec?)
   :ret (s/cat :simplex (s/coll-of m/vec?)
               :dir (s/nilable m/vec?)))
