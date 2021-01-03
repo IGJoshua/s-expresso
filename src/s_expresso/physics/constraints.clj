@@ -59,12 +59,22 @@
 (defn- resolve-contact-impulse
   "Resolves velocity between two bodies for a given contact.
   Returns the modified bodies in the order they were passed."
-  [body1 body2 contact restitution]
+  [body1 body2 contact restitution dt]
   (let [closing-velocity (closing-velocity body1 body2 (::c/normal contact))]
     (if (or (zero? closing-velocity)
             (not (every? #(= ##Inf (::d/mass % ##Inf)) [body1 body2])))
       [body1 body2]
-      (let [separating-velocity (* closing-velocity restitution)
+      (let [accelleration-separation (m/dot (m/sub (::d/last-accelleration
+                                                    body1 (m/zero-vector (::d/dimensions body1)))
+                                                   (::d/last-accelleration
+                                                    body2 (m/zero-vector (::d/dimensions body2))))
+                                            (m/mul (::c/normal contact)
+                                                   dt))
+            separating-velocity (as-> (* closing-velocity restitution) vel
+                                  (if (neg? accelleration-separation)
+                                    (+ vel (* restitution accelleration-separation))
+                                    vel)
+                                  (if (neg? vel) 0 vel))
             delta-v (+ separating-velocity closing-velocity)
             total-mass (+ (::d/mass body1 0) (::d/mass body2 0))
             impulse (m/mul (::c/normal contact)
@@ -102,12 +112,13 @@
 (defn resolve-contact
   "Resolves a contact between two bodies.
   Returns the modified bodies in the order they were passed."
-  [body1 body2 contact restitution]
+  [body1 body2 contact restitution dt]
   (let [[body1 body2] (resolve-contact-impulse body1 body2 contact restitution)]
     (resolve-contact-interpenetration body1 body2 contact)))
 (s/fdef resolve-contact
   :args (s/cat :body1 ::d/body
                :body2 ::d/body
                :contact ::c/contact
-               :restitution number?)
+               :restitution number?
+               :dt number?)
   :ret (s/tuple ::d/body ::d/body))
