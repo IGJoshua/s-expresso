@@ -45,7 +45,8 @@
     (dissoc
      (assoc body
             ::velocity new-velocity
-            ::position (m/add (::position body) (m/mul new-velocity dt)))
+            ::position (m/add (::position body) (m/mul new-velocity dt))
+            ::last-accelleration accelleration)
      ::net-force)))
 (s/fdef step-body
   :args (s/cat :body ::body
