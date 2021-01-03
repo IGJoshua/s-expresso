@@ -52,7 +52,7 @@
         (if (fn? system)
           (recur (rest remaining-systems)
                  (system scene dt))
-          (letfn [(apply-systems [[entity-id entity]]
+          (letfn [(apply-systems [entity-id entity]
                     (reduce (fn [{entity entity-id :as entities} system]
                               (let [new-entities (system scene entity-id entity dt)]
                                 (if (new-entities entity-id)
@@ -62,7 +62,7 @@
                             system))]
             (recur
              (rest remaining-systems)
-             (update scene ::entities #(r/fold merge (r/filter second (r/map apply-systems %))))))))
+             (update scene ::entities #(r/fold merge (r/map apply-systems %)))))))
       scene)))
 (s/fdef step-scene
   :args (s/cat :scene ::scene
@@ -71,14 +71,16 @@
 
 (def next-entity-id #(UUID/randomUUID))
 
-(def ^:dynamic ^:private *entities-to-spawn* nil)
+(def ^:dynamic *entities-to-spawn*
+  "Dynvar for the entities to be spawned at the end of a [[defsystem]] function."
+  nil)
 
 (defn spawn-entity!
   "Queues the entity for inclusion in the next frame of the scene.
   This may be called only from within a usage of [[defsystem]]."
   [entity]
   (let [uuid (next-entity-id)]
-    (vswap! *entities-to-spawn* assoc uuid entity)
+    (set! *entities-to-spawn* (assoc *entities-to-spawn* uuid entity))
     uuid))
 (s/fdef spawn-entity!
   :args (s/cat :entity ::entity)
@@ -95,14 +97,17 @@
   Within the body of the function, [[spawn-entity!]] may be used to queue
   another entity to be spawned."
   {:arglists '([symbol [required-keys*] [scene entity-id entity dt] & body])}
-  [symbol required-keys [_ entity-id entity _ :as bindings] & body]
-  `(defn ~symbol
-     ~bindings
-     (if (every? #(contains? ~entity %) ~required-keys)
-       (binding [*entities-to-spawn* (volatile! {})]
-         (let [new-entity# ~@body]
-           (assoc @*entities-to-spawn* ~entity-id new-entity#)))
-       {~entity-id ~entity})))
+  [symbol required-keys bindings & body]
+  (let [gen-bindings (repeatedly 4 gensym)
+        [_ entity-id entity _] gen-bindings]
+    `(defn ~symbol
+       [~@gen-bindings]
+       (let [~bindings [~@gen-bindings]]
+         (if (every? #(contains? ~entity %) ~required-keys)
+           (binding [*entities-to-spawn* {}]
+             (let [new-entity# (do ~@body)]
+               (assoc *entities-to-spawn* ~entity-id new-entity#)))
+           {~entity-id ~entity})))))
 (s/fdef defsystem
   :args (s/cat :symbol symbol?
                :required-keys (s/coll-of any? :kind vector?)
