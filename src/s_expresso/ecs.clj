@@ -6,7 +6,7 @@
   (:import
    (java.util UUID)))
 
-(s/def ::scene (s/keys :req [::entities ::systems]))
+(s/def ::scene (s/keys :req [::entities ::systems ::events]))
 
 (s/def ::entity (s/map-of keyword? any?))
 (s/def ::entity-id uuid?)
@@ -25,6 +25,10 @@
 (s/def ::systems (s/coll-of (s/or :scene-system ::scene-system
                                   :entity-systems ::entity-systems)))
 
+(s/def ::target ::entity-id)
+(s/def ::event (s/keys :opt [::target]))
+(s/def ::events (s/coll-of ::event))
+
 (defn make-scene
   [{:keys [entities systems]
     :or {entities {}
@@ -34,6 +38,22 @@
 (s/fdef make-scene
   :args (s/cat :opts (s/keys :req-un [::entities ::systems]))
   :ret ::scene)
+
+(def ^:dynamic *events-to-send*
+  "Dynvar for the events to be sent at the end of an entity system."
+  nil)
+
+(defn send-event!
+  "Queues the event for inclusion in the next frame of the scene.
+  This may be called only from within a system."
+  [event]
+  (when-not *events-to-send*
+    (throw (ex-info "Attempted to send an event outside of a system." {:event event})))
+  (set! *events-to-send* (conj *events-to-send* event))
+  nil)
+(s/fdef send-event!
+  :args (s/cat :event ::event)
+  :ret nil)
 
 (defn step-scene
   "Runs all the systems over the `scene`, returning the new one.
@@ -49,9 +69,11 @@
          scene scene]
     (if (seq remaining-systems)
       (let [system (first remaining-systems)]
-        (if (fn? system)
+        (if-not (vector? system)
           (recur (rest remaining-systems)
-                 (system scene dt))
+                 (binding [*events-to-send* []]
+                   (update (system scene dt)
+                           ::events-to-send concat *events-to-send*)))
           (letfn [(apply-systems [entity-id entity]
                     (reduce (fn [{entity entity-id :as entities} system]
                               (let [new-entities (system scene entity-id entity dt)]
@@ -62,8 +84,13 @@
                             system))]
             (recur
              (rest remaining-systems)
-             (update scene ::entities #(r/fold merge (r/map apply-systems %)))))))
-      scene)))
+             (let [[scene events]
+                   (binding [*events-to-send* []]
+                     [(update scene ::entities #(r/fold merge (r/map apply-systems %)))
+                      (concat (::events-to-send scene) *events-to-send*)])]
+               (assoc scene ::events-to-send events))))))
+      (assoc (dissoc scene ::events-to-send)
+             ::events (::events-to-send scene)))))
 (s/fdef step-scene
   :args (s/cat :scene ::scene
                :dt float?)
@@ -79,6 +106,8 @@
   "Queues the entity for inclusion in the next frame of the scene.
   This may be called only from within a usage of [[defsystem]]."
   [entity]
+  (when-not *entities-to-spawn*
+    (ex-info "Attempted to spawn an entity outside of a per-entity system." {:entity entity}))
   (let [uuid (next-entity-id)]
     (set! *entities-to-spawn* (assoc *entities-to-spawn* uuid entity))
     uuid))
@@ -111,5 +140,8 @@
 (s/fdef defsystem
   :args (s/cat :symbol symbol?
                :required-keys (s/coll-of any? :kind vector?)
-               :bindings (s/coll-of symbol? :kind vector? :count 4)
+               :bindings (s/coll-of (s/or :symbol symbol?
+                                          :destructured-map map?)
+                                    :kind vector?
+                                    :count 4)
                :body (s/* any?)))
