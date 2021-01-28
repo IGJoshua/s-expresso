@@ -3,6 +3,8 @@
   (:import
    (java.nio
     ByteBuffer)
+   (mikera arrayz.INDArray
+           vectorz.AVector)
    (org.lwjgl
     BufferUtils)
    (org.lwjgl.opengl
@@ -74,7 +76,31 @@
   (put [v buf]
     (.putInt ^ByteBuffer buf v))
   (put-at [v buf byte-offset]
-    (.putInt ^ByteBuffer buf byte-offset v)))
+    (.putInt ^ByteBuffer buf byte-offset v))
+
+  AVector
+  (put [v ^ByteBuffer buf]
+    (put-seq buf (seq (.asElementList v))))
+  (put-at [v ^ByteBuffer buf byte-offset]
+    (loop [elements (seq (.asElementList v))
+           idx 0]
+      (when (seq elements)
+        (.putDouble buf (+ byte-offset
+                           (* idx Double/BYTES))
+                    (first elements))
+        (recur (rest elements) (inc idx)))))
+
+  INDArray
+  (put [v ^ByteBuffer buf]
+    (put-seq buf (seq (.asElementList v))))
+  (put-at [v ^ByteBuffer buf byte-offset]
+    (loop [elements (seq (.asElementList v))
+           idx 0]
+      (when (seq elements)
+        (.putDouble buf (+ byte-offset
+                           (* idx Double/BYTES))
+                    (first elements))
+        (recur (rest elements) (inc idx))))))
 
 (defn put-seq
   "Puts each item from a sequence onto a memory buffer.
