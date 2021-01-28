@@ -46,9 +46,9 @@
 
   `normal` must be a unit vector in the direction from `body1` to `body2`"
   [body1 body2 normal]
-  (+ (m/dot (::d/velocity body1 (m/zero-vector (::d/dimensions body1)))
+  (+ (m/dot (or (::d/velocity body1) (m/zero-vector (::d/dimensions body1)))
             normal)
-     (m/dot (::d/velocity body2 (m/zero-vector (::d/dimensions body2)))
+     (m/dot (or (::d/velocity body2) (m/zero-vector (::d/dimensions body2)))
             (m/negate normal))))
 (s/fdef closing-velocity
   :args (s/cat :body1 ::d/body
