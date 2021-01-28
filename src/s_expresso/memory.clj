@@ -47,6 +47,16 @@
   (put [v buf] "Puts the value into the byte buffer at the cursor.")
   (put-at [v buf byte-offset] "Puts the value into the byte buffor at the given offset."))
 
+(defn put-seq
+  "Puts each item from a sequence onto a memory buffer.
+  This will put each element onto the buffer in sequence, using the appropriate
+  put operation based on the item's type, meaning the sequence can be
+  heterogeneous.
+  Returns the buffer."
+  [buf s]
+  (run! #(put % buf) (seq s))
+  buf)
+
 (extend-protocol IntoByteBuffer
   Float
   (put [v buf]
@@ -101,16 +111,6 @@
                            (* idx Double/BYTES))
                     (first elements))
         (recur (rest elements) (inc idx))))))
-
-(defn put-seq
-  "Puts each item from a sequence onto a memory buffer.
-  This will put each element onto the buffer in sequence, using the appropriate
-  put operation based on the item's type, meaning the sequence can be
-  heterogeneous.
-  Returns the buffer."
-  [buf s]
-  (run! #(put % buf) (seq s))
-  buf)
 
 (defn alloc-bytes
   "Allocates a number of bytes as a [[java.nio.ByteBuffer]].
