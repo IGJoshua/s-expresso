@@ -94,7 +94,7 @@
 
 (def ^:private key-int->key
   "Map from the key value in GLFW to a keyword key name."
-  (let [key-member-names (filter #(.startsWith % "GLFW_KEY_")
+  (let [key-member-names (filter #(str/starts-with? % "GLFW_KEY_")
                                  (map (comp name :name)
                                       (:members (refl/type-reflect GLFW))))]
     (into {}
@@ -223,8 +223,10 @@
                (GLFW/glfwWindowHint GLFW/GLFW_GREEN_BITS (.greenBits vid-mode))
                (GLFW/glfwWindowHint GLFW/GLFW_BLUE_BITS (.blueBits vid-mode))
                (GLFW/glfwWindowHint GLFW/GLFW_REFRESH_RATE (.refreshRate vid-mode)))
-           id (GLFW/glfwCreateWindow (first size) (second size)
-                                     title (or monitor 0) (or (:id parent-window) 0))
+           id (GLFW/glfwCreateWindow (int (first size)) (int (second size))
+                                     ^CharSequence title
+                                     (long (or monitor 0))
+                                     (long (or (:id parent-window) 0)))
            window (->Window id)]
        (when (or (nil? id)
                  (= id 0))
@@ -316,7 +318,7 @@
   ([window monitor]
    (let [width (int-array 1)
          height (int-array 1)
-         _ (GLFW/glfwGetWindowSize (:id window) ^ints width ^ints height)
+         _ (GLFW/glfwGetWindowSize ^long (:id window) ^ints width ^ints height)
          vid-mode (GLFW/glfwGetVideoMode (or monitor (GLFW/glfwGetPrimaryMonitor)))]
      (GLFW/glfwSetWindowPos
       (:id window)
