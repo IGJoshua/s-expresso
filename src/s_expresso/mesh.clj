@@ -156,7 +156,7 @@
   "Takes a set of usage `flags` and converts it to a bitset represented as an int.
   Integer values of individual `flags` are fetched from [[usage-flag->glenum]]
   and [[bit-or]]ed together to create a bitset."
-  [flags]
+  ^long [flags]
   (if (zero? (count flags))
     0
     (if (< (count flags) 2)
@@ -344,11 +344,12 @@
             (vswap! attrib-idx inc)
             (when (seq (rest attrib-layouts))
               (recur (rest attrib-layouts)
-                     (+ offset (* (attrib-type->size-in-bytes (:type attrib-layout))
-                                  (:count attrib-layout)
-                                  (if-not (:interleaved buffer-layout)
-                                    (:element-count packed-mesh)
-                                    1)))))))))
+                     (long
+                      (+ offset (* (attrib-type->size-in-bytes (:type attrib-layout))
+                                   (:count attrib-layout)
+                                   (if-not (:interleaved buffer-layout)
+                                     (:element-count packed-mesh)
+                                     1))))))))))
     (.flip buffers)
     (->Mesh vao buffers (when (:indices packed-mesh)
                           (attrib-type->glenum (or (:type (:indices layout))

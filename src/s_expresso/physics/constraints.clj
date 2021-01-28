@@ -10,7 +10,7 @@
   "Constructs a force vector from the `origin` to the given distance from `target`."
   [origin target distance spring-constant]
   (let [to-target (m/sub target origin)
-        magnitude (* (Math/abs (- (m/magnitude to-target) distance))
+        magnitude (* (Math/abs ^double (- (m/magnitude to-target) distance))
                      spring-constant)]
     (m/mul (m/normalise to-target)
            magnitude)))

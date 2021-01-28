@@ -187,7 +187,7 @@
   This function is designed to be used in an implementation of [[Hull]] for axis
   aligned bounding boxes."
   [center bounds direction]
-  (m/add center (m/mul bounds (m/emap #(Math/signum %) direction))))
+  (m/add center (m/mul bounds (m/emap #(Math/signum ^double %) direction))))
 (s/fdef aabb-support
   :args (s/cat :center m/vec?
                :bounds m/vec?

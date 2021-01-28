@@ -26,7 +26,7 @@
 (defrecord Image [data dimensions channels]
   Resource
   (free [img]
-    (STBImage/stbi_image_free data)))
+    (STBImage/stbi_image_free ^ByteBuffer data)))
 
 (defn load-image
   "Loads an image into a ByteBuffer, returning an [[Image]] [[Resource]].
@@ -173,7 +173,7 @@
 (defrecord Texture [id tex-def opts]
   Resource
   (free [tex]
-    (GL45/glDeleteTextures id)))
+    (GL45/glDeleteTextures ^int id)))
 
 (defn- apply-parameters
   "Applies a set of parameter options to a given texture."
@@ -187,7 +187,7 @@
                               GL45/GL_TEXTURE_BASE_LEVEL
                               (int base-level)))
   (when-let [border-color (get opts :s-expresso.texture.parameter/border-color)]
-    (GL45/glTextureParameterfv tex-id
+    (GL45/glTextureParameterfv ^int tex-id
                                GL45/GL_TEXTURE_BORDER_COLOR
                                (float-array border-color)))
   (when-let [compare-fn (get opts :s-expresso.texture.parameter/compare-fn)]
@@ -239,7 +239,7 @@
                               GL45/GL_TEXTURE_SWIZZLE_A
                               (swizzle->glenum swizzle-a)))
   (when-let [swizzle-rgba (get opts :s-expresso.texture.parameter/swizzle-rgba)]
-    (GL45/glTextureParameteriv tex-id
+    (GL45/glTextureParameteriv ^int tex-id
                                GL45/GL_TEXTURE_SWIZZLE_RGBA
                                (int-array (map swizzle->glenum swizzle-rgba))))
   (when-let [wrap-s (get opts :s-expresso.texture.parameter/wrap-s)]
@@ -267,8 +267,8 @@
    (let [tex-id (GL45/glCreateTextures GL45/GL_TEXTURE_2D)]
      (when opts
        (apply-parameters tex-id opts))
-     (let [width (nth (:dimensions tex-def) 0)
-           height (nth (:dimensions tex-def) 1)]
+     (let [width (int (nth (:dimensions tex-def) 0))
+           height (int (nth (:dimensions tex-def) 1))]
        (GL45/glTextureStorage2D tex-id
                                 (or (:levels tex-def)
                                     (int
@@ -278,9 +278,9 @@
                                 width height)
        (GL45/glTextureSubImage2D tex-id 0 0 0
                                  width height
-                                 (:format tex-data)
-                                 (:type tex-data)
-                                 (:data tex-data)))
+                                 ^int (:format tex-data)
+                                 ^int (:type tex-data)
+                                 ^ByteBuffer (:data tex-data)))
      (GL45/glGenerateTextureMipmap tex-id)
      (->Texture tex-id tex-def opts))))
 (s/fdef make-texture
