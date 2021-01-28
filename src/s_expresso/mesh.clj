@@ -2,12 +2,14 @@
   "Functions for dealing with mesh data and buffer layouts."
   (:require
    [clojure.spec.alpha :as s]
-   [s-expresso.memory :refer [alloc-bytes put put-seq with-heap-allocator]]
+   [s-expresso.memory :refer [alloc-bytes put put-seq]]
    [s-expresso.resource :refer [Resource]])
   (:import
-   (java.nio ByteBuffer Buffer)
+   (java.nio IntBuffer Buffer)
    (org.lwjgl.opengl
-    GL45)))
+    GL45)
+   (org.lwjgl.system
+    MemoryUtil)))
 
 (defn- float->half-float
   "Takes a floating point value and coerces it into a half-precision float."
@@ -194,10 +196,11 @@
 (s/def ::mesh-layout (s/keys :req-un [::buffer-layouts ::element-type]
                              :opt-un [:s-expresso.mesh.layout/indices]))
 
-(defrecord Mesh [^int vao-id ^ByteBuffer buffers index-type element-count element-type start-offset]
+(defrecord Mesh [^int vao-id ^IntBuffer buffers index-type element-count element-type start-offset]
   Resource
   (free [mesh]
-    (GL45/glDeleteBuffers (.asIntBuffer buffers))
+    (GL45/glDeleteBuffers buffers)
+    (MemoryUtil/memFree buffers)
     (GL45/glDeleteVertexArrays vao-id)))
 
 (s/def :s-expresso.mesh.packed/buffers (s/coll-of (partial instance? Buffer)))
@@ -284,14 +287,12 @@
              (and (not (:indices layout))
                   (not (:indices packed-mesh))))]}
   (let [vao (GL45/glCreateVertexArrays)
-        ^ByteBuffer buffers (with-heap-allocator
-                  (alloc-bytes (* (+ (if (:indices packed-mesh) 1 0)
-                                     (count (:buffers packed-mesh)))
-                                  Integer/BYTES)))
+        buffers ^IntBuffer (MemoryUtil/memAllocInt (+ (if (:indices packed-mesh) 1 0)
+                                                      (count (:buffers packed-mesh))))
         attrib-idx (volatile! 0)]
     (when (:indices packed-mesh)
       (let [idx-buffer (GL45/glCreateBuffers)]
-        (put (int idx-buffer) buffers)
+        (.put buffers (int idx-buffer))
         (GL45/glNamedBufferStorage idx-buffer ^ByteBuffer (:indices packed-mesh)
                                    (usage-flags->flags-int
                                     (or (:usage-flags (:indices layout))
@@ -310,7 +311,7 @@
                      (let [v (first (:attrib-layouts buffer-layout))]
                        (* (attrib-type->size-in-bytes (:type v))
                           (:count v))))]
-        (put (int buffer-array) buffers)
+        (.put buffers (int buffer-array))
         (GL45/glNamedBufferStorage buffer-array ^ByteBuffer buffer
                                    (usage-flags->flags-int (:usage-flags buffer-layout)))
         (GL45/glVertexArrayVertexBuffer vao idx buffer-array 0 stride)
