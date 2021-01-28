@@ -2,15 +2,12 @@
   "Functions for dealing with mesh data and buffer layouts."
   (:require
    [clojure.spec.alpha :as s]
-   [s-expresso.memory :refer [alloc-bytes put put-seq]]
+   [s-expresso.memory :refer [alloc-bytes put put-seq with-heap-allocator]]
    [s-expresso.resource :refer [Resource]])
   (:import
-   (java.nio
-    Buffer)
+   (java.nio ByteBuffer Buffer)
    (org.lwjgl.opengl
-    GL45)
-   (org.lwjgl.system
-    MemoryUtil)))
+    GL45)))
 
 (defn- float->half-float
   "Takes a floating point value and coerces it into a half-precision float."
@@ -197,11 +194,10 @@
 (s/def ::mesh-layout (s/keys :req-un [::buffer-layouts ::element-type]
                              :opt-un [:s-expresso.mesh.layout/indices]))
 
-(defrecord Mesh [vao-id buffers index-type element-count element-type start-offset]
+(defrecord Mesh [^int vao-id ^ByteBuffer buffers index-type element-count element-type start-offset]
   Resource
   (free [mesh]
-    (GL45/glDeleteBuffers buffers)
-    (MemoryUtil/memFree buffers)
+    (GL45/glDeleteBuffers (.asIntBuffer buffers))
     (GL45/glDeleteVertexArrays vao-id)))
 
 (s/def :s-expresso.mesh.packed/buffers (s/coll-of (partial instance? Buffer)))
@@ -226,9 +222,9 @@
   (let [index-type (or (:type (:indices layout))
                        :uint)
         indices (when (:indices layout)
-                  (doto (put-seq (alloc-bytes (* (attrib-type->size-in-bytes index-type)
-                                                 (count (:indices mesh))))
-                                 (map (attrib-type->coersion-fn index-type) (:indices mesh)))
+                  (doto ^ByteBuffer (put-seq (alloc-bytes (* (attrib-type->size-in-bytes index-type)
+                                                             (count (:indices mesh))))
+                                             (map (attrib-type->coersion-fn index-type) (:indices mesh)))
                     (.flip)))
         vert-count (count (:vertices mesh))
         buffers (vec
@@ -288,13 +284,15 @@
              (and (not (:indices layout))
                   (not (:indices packed-mesh))))]}
   (let [vao (GL45/glCreateVertexArrays)
-        buffers (MemoryUtil/memAllocInt (+ (if (:indices packed-mesh) 1 0)
-                                           (count (:buffers packed-mesh))))
+        ^ByteBuffer buffers (with-heap-allocator
+                  (alloc-bytes (* (+ (if (:indices packed-mesh) 1 0)
+                                     (count (:buffers packed-mesh)))
+                                  Integer/BYTES)))
         attrib-idx (volatile! 0)]
     (when (:indices packed-mesh)
       (let [idx-buffer (GL45/glCreateBuffers)]
-        (.put buffers (int idx-buffer))
-        (GL45/glNamedBufferStorage idx-buffer (:indices packed-mesh)
+        (put (int idx-buffer) buffers)
+        (GL45/glNamedBufferStorage idx-buffer ^ByteBuffer (:indices packed-mesh)
                                    (usage-flags->flags-int
                                     (or (:usage-flags (:indices layout))
                                         #{})))
@@ -312,8 +310,8 @@
                      (let [v (first (:attrib-layouts buffer-layout))]
                        (* (attrib-type->size-in-bytes (:type v))
                           (:count v))))]
-        (.put buffers (int buffer-array))
-        (GL45/glNamedBufferStorage buffer-array buffer
+        (put (int buffer-array) buffers)
+        (GL45/glNamedBufferStorage buffer-array ^ByteBuffer buffer
                                    (usage-flags->flags-int (:usage-flags buffer-layout)))
         (GL45/glVertexArrayVertexBuffer vao idx buffer-array 0 stride)
         (loop [attrib-layouts (:attrib-layouts buffer-layout)
@@ -375,4 +373,8 @@
       (GL45/glDrawArrays (:element-type mesh)
                          (:start-offset mesh)
                          (:element-count mesh)))
-    (GL45/glBindVertexArray old-bound)))
+    (GL45/glBindVertexArray old-bound))
+  nil)
+(s/fdef draw-mesh
+  :args (s/cat :mesh (partial instance? Mesh))
+  :ret nil?)
