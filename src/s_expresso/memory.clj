@@ -50,13 +50,13 @@
   (put [v buf]
     (.putFloat ^ByteBuffer buf v))
   (put-at [v buf byte-offset]
-    (.putFloat ^ByteBuffer buf (/ byte-offset Float/BYTES) v))
+    (.putFloat ^ByteBuffer buf byte-offset v))
 
   Double
   (put [v buf]
     (.putDouble ^ByteBuffer buf v))
   (put-at [v buf byte-offset]
-    (.putDouble ^ByteBuffer buf (/ byte-offset Double/BYTES) v))
+    (.putDouble ^ByteBuffer buf byte-offset v))
 
   Byte
   (put [v buf]
@@ -68,13 +68,13 @@
   (put [v buf]
     (.putShort ^ByteBuffer buf v))
   (put-at [v buf byte-offset]
-    (.putShort ^ByteBuffer buf (/ byte-offset Short/BYTES) v))
+    (.putShort ^ByteBuffer buf byte-offset v))
 
   Integer
   (put [v buf]
     (.putInt ^ByteBuffer buf v))
   (put-at [v buf byte-offset]
-    (.putInt ^ByteBuffer buf (/ byte-offset Integer/BYTES) v)))
+    (.putInt ^ByteBuffer buf byte-offset v)))
 
 (defn put-seq
   "Puts each item from a sequence onto a memory buffer.
