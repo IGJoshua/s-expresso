@@ -1,7 +1,7 @@
 (ns examples.triangle
   (:require
    [examples.window :as e.w]
-   [s-expresso.memory :as mem :refer [with-stack-allocator]]
+   [s-expresso.memory :refer [with-stack-allocator]]
    [s-expresso.mesh :as m]
    [s-expresso.resource :refer [with-free]]
    [s-expresso.shader :as sh]
@@ -10,9 +10,7 @@
   (:import
    (org.lwjgl.opengl
     GL GL45
-    GLDebugMessageCallback GLDebugMessageCallbackI)
-   (org.lwjgl.system
-    MemoryStack)))
+    GLDebugMessageCallback GLDebugMessageCallbackI)))
 
 (defn step
   [window mesh]

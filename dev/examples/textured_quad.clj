@@ -1,29 +1,16 @@
 (ns examples.textured-quad
   (:require
-   [clojure.java.io :as io]
    [examples.window :as e.w]
    [examples.triangle :as e.t]
-   [s-expresso.memory :as mem :refer [with-stack-allocator]]
+   [s-expresso.memory :refer [with-stack-allocator]]
    [s-expresso.mesh :as m]
    [s-expresso.resource :refer [with-free]]
    [s-expresso.shader :as sh]
    [s-expresso.texture :as tex]
-   [s-expresso.window :as w]
-   [taoensso.timbre :as log])
+   [s-expresso.window :as w])
   (:import
-   (java.io
-    RandomAccessFile)
-   (java.nio
-    ByteBuffer)
-   (java.nio.channels
-    FileChannel FileChannel$MapMode)
    (org.lwjgl.opengl
-    GL GL45
-    GLDebugMessageCallback GLDebugMessageCallbackI)
-   (org.lwjgl.stb
-    STBImage)
-   (org.lwjgl.system
-    MemoryStack)))
+    GL GL45)))
 
 (defn step
   [window mesh]

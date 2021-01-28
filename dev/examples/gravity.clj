@@ -1,6 +1,5 @@
 (ns examples.gravity
   (:require
-   [clojure.core.matrix :as mat]
    [examples.window :as e.w]
    [examples.triangle :as e.t]
    [s-expresso.memory :as mem :refer [with-stack-allocator]]
