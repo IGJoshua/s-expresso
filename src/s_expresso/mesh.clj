@@ -5,7 +5,7 @@
    [s-expresso.memory :refer [alloc-bytes put put-seq]]
    [s-expresso.resource :refer [Resource]])
   (:import
-   (java.nio IntBuffer Buffer)
+   (java.nio ByteBuffer IntBuffer Buffer)
    (org.lwjgl.opengl
     GL45)
    (org.lwjgl.system
