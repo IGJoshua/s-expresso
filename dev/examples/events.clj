@@ -36,3 +36,10 @@
 (defn step-state
   []
   (swap! state ecs/step-scene 0.001))
+
+(defn start
+  []
+  (loop []
+    (step-state)
+    (Thread/sleep 1000)
+    (recur)))
