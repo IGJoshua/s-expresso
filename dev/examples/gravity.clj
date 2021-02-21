@@ -37,31 +37,31 @@
   [_ _ entity dt]
   (d/step-body entity dt))
 
-(def init-state {:entities {#uuid "1e84d01d-369c-4dd0-a561-bcd9fec6c910"
-                            {::d/dimensions 2
-                             ::d/position [0 0.5]
-                             ::d/mass 1
-                             ::d/velocity [0.25 0]
-                             ::color [1 0 0]}
-                            #uuid "f7fb1804-441c-4e2d-bbc5-eb3fb3c18c45"
-                            {::d/dimensions 2
-                             ::d/position [-0.25 0]
-                             ::d/mass 10.2
-                             ::d/velocity [0 0]
-                             ::color [0 1 0]}
-                            #uuid "af72171d-bd1c-43ca-b507-7ad2acf9b9c1"
-                            {::d/dimensions 2
-                             ::d/position [0.5 0]
-                             ::d/mass 1.15
-                             ::d/velocity [0 0.1]
-                             ::color [0 0 1]}}
-                 :systems [[#'gravity #'step-body]]})
-(defonce state (atom (ecs/make-scene init-state)))
+(def init-state {::ecs/entities {#uuid "1e84d01d-369c-4dd0-a561-bcd9fec6c910"
+                                 {::d/dimensions 2
+                                  ::d/position [0 0.5]
+                                  ::d/mass 1
+                                  ::d/velocity [0.25 0]
+                                  ::color [1 0 0]}
+                                 #uuid "f7fb1804-441c-4e2d-bbc5-eb3fb3c18c45"
+                                 {::d/dimensions 2
+                                  ::d/position [-0.25 0]
+                                  ::d/mass 10.2
+                                  ::d/velocity [0 0]
+                                  ::color [0 1 0]}
+                                 #uuid "af72171d-bd1c-43ca-b507-7ad2acf9b9c1"
+                                 {::d/dimensions 2
+                                  ::d/position [0.5 0]
+                                  ::d/mass 1.15
+                                  ::d/velocity [0 0.1]
+                                  ::color [0 0 1]}}
+                 ::ecs/systems [[#'gravity #'step-body]]})
+(defonce state (atom init-state))
 
 (comment
 
   ;; Set the state back to the init
-  (do (reset! state (ecs/make-scene init-state))
+  (do (reset! state init-state)
       nil)
 
   )

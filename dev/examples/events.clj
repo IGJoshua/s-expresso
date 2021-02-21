@@ -18,14 +18,13 @@
   (ecs/send-event! {::message "Tick!"})
   scene)
 
-(def init-state (ecs/make-scene
-                 {:entities {#uuid "2565634f-2d87-41b4-ac60-3dbeff307d9b"
-                             {::target-entity #uuid "e9feafb0-6f1d-4394-9b52-082b0bd97109"
-                              ::message "Message from entity one!"}
-                             #uuid "e9feafb0-6f1d-4394-9b52-082b0bd97109"
-                             {::target-entity #uuid "2565634f-2d87-41b4-ac60-3dbeff307d9b"
-                              ::message "Message from entity two!"}}
-                  :systems [[#'send-event] #'print-events]}))
+(def init-state {::ecs/entities {#uuid "2565634f-2d87-41b4-ac60-3dbeff307d9b"
+                                 {::target-entity #uuid "e9feafb0-6f1d-4394-9b52-082b0bd97109"
+                                  ::message "Message from entity one!"}
+                                 #uuid "e9feafb0-6f1d-4394-9b52-082b0bd97109"
+                                 {::target-entity #uuid "2565634f-2d87-41b4-ac60-3dbeff307d9b"
+                                  ::message "Message from entity two!"}}
+                 ::ecs/systems [[#'send-event] #'print-events]})
 (defonce state (atom init-state))
 (comment
 

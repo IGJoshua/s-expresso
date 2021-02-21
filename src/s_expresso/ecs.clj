@@ -31,16 +31,6 @@
                        :opt [::target]))
 (s/def ::events (s/coll-of ::event))
 
-(defn make-scene
-  [{:keys [entities systems]
-    :or {entities {}
-         systems []}}]
-  {::entities entities
-   ::systems systems})
-(s/fdef make-scene
-  :args (s/cat :opts (s/keys :req-un [::entities ::systems]))
-  :ret ::scene)
-
 (def ^:dynamic *events-to-send*
   "Dynvar for the events to be sent at the end of an entity system."
   nil)

@@ -48,38 +48,38 @@
   [_ _ entity dt]
   (d/step-body entity dt))
 
-(def init-state {:entities {#uuid "a6239964-38d6-4f35-ac96-0cf831f49426"
-                            {::d/dimensions 2
-                             ::d/position [0 7]
-                             ::color [1 0 0]}
-                            #uuid "cb77ab65-5e4f-47c7-a08e-fa5bf39949a4"
-                            {::d/dimensions 2
-                             ::d/position [3 0]
-                             ::d/mass 5.0
-                             ::d/velocity [0 0]
-                             ::color [0 1 0]
-                             ::constraints [{:constant 30
-                                             :distance 3
-                                             :target #uuid "a6239964-38d6-4f35-ac96-0cf831f49426"}
-                                            {:constant 5
-                                             :distance 2
-                                             :target #uuid "7917af55-5469-40e3-98f8-c6b494b3f6f2"}]}
-                            #uuid "7917af55-5469-40e3-98f8-c6b494b3f6f2"
-                            {::d/dimensions 2
-                             ::d/position [0 -3]
-                             ::d/mass 3.0
-                             ::d/velocity [0 0]
-                             ::color [0 0 1]
-                             ::constraints [{:constant 15
-                                             :distance 2
-                                             :target #uuid "cb77ab65-5e4f-47c7-a08e-fa5bf39949a4"}]}}
-                 :systems [[#'gravity #'spring-constraint #'step-body #'damping]]})
-(defonce state (atom (ecs/make-scene init-state)))
+(def init-state {::ecs/entities {#uuid "a6239964-38d6-4f35-ac96-0cf831f49426"
+                                 {::d/dimensions 2
+                                  ::d/position [0 7]
+                                  ::color [1 0 0]}
+                                 #uuid "cb77ab65-5e4f-47c7-a08e-fa5bf39949a4"
+                                 {::d/dimensions 2
+                                  ::d/position [3 0]
+                                  ::d/mass 5.0
+                                  ::d/velocity [0 0]
+                                  ::color [0 1 0]
+                                  ::constraints [{:constant 30
+                                                  :distance 3
+                                                  :target #uuid "a6239964-38d6-4f35-ac96-0cf831f49426"}
+                                                 {:constant 5
+                                                  :distance 2
+                                                  :target #uuid "7917af55-5469-40e3-98f8-c6b494b3f6f2"}]}
+                                 #uuid "7917af55-5469-40e3-98f8-c6b494b3f6f2"
+                                 {::d/dimensions 2
+                                  ::d/position [0 -3]
+                                  ::d/mass 3.0
+                                  ::d/velocity [0 0]
+                                  ::color [0 0 1]
+                                  ::constraints [{:constant 15
+                                                  :distance 2
+                                                  :target #uuid "cb77ab65-5e4f-47c7-a08e-fa5bf39949a4"}]}}
+                 ::ecs/systems [[#'gravity #'spring-constraint #'step-body #'damping]]})
+(defonce state (atom init-state))
 
 (comment
 
   ;; Set the state back to the init
-  (do (reset! state (ecs/make-scene init-state))
+  (do (reset! state init-state)
       nil)
 
   )
