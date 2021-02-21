@@ -12,7 +12,6 @@
 (s/def ::entity-id uuid?)
 (s/def ::entities (s/map-of ::entity-id ::entity))
 
-
 (s/def ::entity-system (s/fspec :args (s/cat :scene ::scene
                                              :entity-id ::entity-id
                                              :entity ::entity
@@ -26,7 +25,10 @@
                                   :entity-systems ::entity-systems)))
 
 (s/def ::target ::entity-id)
-(s/def ::event (s/keys :opt [::target]))
+(s/def ::source (s/or :entity ::entity-id
+                      :named-source keyword?))
+(s/def ::event (s/keys :req [::source]
+                       :opt [::target]))
 (s/def ::events (s/coll-of ::event))
 
 (defn make-scene
