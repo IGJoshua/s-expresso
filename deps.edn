@@ -1,5 +1,5 @@
 {:paths ["src" "resources"]
- :deps {org.clojure/clojure {:mvn/version "1.10.1"}
+ :deps {org.clojure/clojure {:mvn/version "1.10.2"}
         org.clojure/core.async {:mvn/version "0.6.532"}
         com.taoensso/timbre {:mvn/version "4.10.0"}
         net.mikera/core.matrix {:mvn/version "0.62.0"}
