@@ -283,7 +283,7 @@
 (s/fdef with-shader-program
   :args (s/cat :program (s/or :symbol symbol?
                               :list list?)
-               :body (s/coll-of any?)))
+               :body (s/* any?)))
 
 (defn upload-uniform-float
   "Uploads floating-point values to a uniform.
