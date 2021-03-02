@@ -24,7 +24,9 @@
   (resolved-resource [resolver]
     "Returns the resource after complete resolution."))
 
-(s/def ::game-state (s/keys :req [::systems ::interpolator]))
+(s/def ::game-state (s/keys :req [::systems ::event-handler ::events]
+                            :opt [::interpolator]))
+(s/def ::render-state (s/keys :req [::resolvers ::resources]))
 
 (s/def ::system (s/fspec :args (s/cat :state ::game-state)
                          :ret (s/coll-of (partial satisfies? RenderOp))))
@@ -33,11 +35,16 @@
                                             :old-state ::game-state
                                             :factor float?)
                                :ret ::game-state))
+(s/def ::event-handler (s/fspec :args (s/cat :render-state ::render-state
+                                             :event ::event)
+                                :ret ::render-state))
+(s/def ::type keyword?)
+(s/def ::event (s/keys :req [::type]))
+(s/def ::events (s/coll-of ::event))
 
 (s/def ::resource-id any?)
 (s/def ::resolvers (s/map-of ::resource-id (partial satisfies? Resolver)))
 (s/def ::resources (s/map-of ::resource-id any?))
-(s/def ::render-state (s/keys :req [::resolvers ::resources]))
 
 (defn prepare-ops
   "Collects all the [[RenderOps]] from the `game-state`.
@@ -104,7 +111,8 @@
   ([render-state game-state]
    (step-renderer render-state game-state nil nil))
   ([render-state game-state last-state factor]
-   (let [ops (prepare-ops game-state last-state factor)]
+   (let [render-state (reduce (::event-handler game-state) render-state (::events game-state))
+         ops (prepare-ops game-state last-state factor)]
      (render-scene! ops render-state)
      (let [new-deps (apply dissoc (collect-deps ops) (keys (::resources render-state)))
            render-state (update render-state ::resolvers #(merge new-deps %))]

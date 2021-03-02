@@ -2,11 +2,13 @@
   "Entity component system for simulating game logic."
   (:require
    [clojure.core.reducers :as r]
-   [clojure.spec.alpha :as s])
+   [clojure.spec.alpha :as s]
+   [s-expresso.render :as rndr])
   (:import
    (java.util UUID)))
 
-(s/def ::scene (s/keys :req [::entities ::systems ::events]))
+(s/def ::scene (s/merge (s/keys :req [::entities ::systems ::events])
+                        ::rndr/game-state))
 
 (s/def ::entity (s/map-of keyword? any?))
 (s/def ::entity-id uuid?)
@@ -27,7 +29,8 @@
 (s/def ::target ::entity-id)
 (s/def ::source (s/or :entity ::entity-id
                       :named-source keyword?))
-(s/def ::event (s/keys :req [::source]
+(s/def ::event-type keyword?)
+(s/def ::event (s/keys :req [::event-type ::source]
                        :opt [::target]))
 (s/def ::events (s/coll-of ::event))
 
@@ -47,6 +50,18 @@
   :args (s/cat :event ::event)
   :ret nil)
 
+(def ^:dynamic *render-events-to-send*
+  "Dynvar for the render events to be sent at the end of an entity system."
+  nil)
+
+(defn send-render-event!
+  "Queues the event to run on the next render frame.
+  This may be called only from within a system."
+  [event]
+  (when-not *render-events-to-send*
+    (throw (ex-info "Attempted to send a render event outside of a system." {:event event})))
+  (set! *render-events-to-send* (conj *events-to-send* event)))
+
 (defn step-scene
   "Runs all the systems over the `scene`, returning the new one.
   Any systems which are applied to the whole scene will be run on the thread
@@ -55,7 +70,11 @@
 
   Entity specfic systems must return a map of entities, and if the entity the
   system was called on is not included in that map, no further systems are run
-  on that entity."
+  on that entity.
+
+  The key `:s-expresso.render/events` accumulates events sent by systems. This
+  list of events will accumulate until it's [[dissoc]]ed from the game state.
+  This should be done just after it was rendered."
   [scene dt]
   (loop [remaining-systems (::systems scene)
          scene scene]
@@ -63,9 +82,12 @@
       (let [system (first remaining-systems)]
         (if-not (vector? system)
           (recur (rest remaining-systems)
-                 (binding [*events-to-send* []]
-                   (update (system scene dt)
-                           ::events-to-send concat *events-to-send*)))
+                 (binding [*events-to-send* []
+                           *render-events-to-send* []]
+                   (update
+                    (update (system scene dt)
+                            ::events-to-send concat *events-to-send*)
+                    ::rndr/events concat *render-events-to-send*)))
           (letfn [(apply-systems [entity-id entity]
                     (reduce (fn [{entity entity-id :as entities} system]
                               (let [new-entities (system scene entity-id entity dt)]
