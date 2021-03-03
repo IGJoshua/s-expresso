@@ -222,7 +222,8 @@
                (GLFW/glfwWindowHint GLFW/GLFW_RED_BITS (.redBits vid-mode))
                (GLFW/glfwWindowHint GLFW/GLFW_GREEN_BITS (.greenBits vid-mode))
                (GLFW/glfwWindowHint GLFW/GLFW_BLUE_BITS (.blueBits vid-mode))
-               (GLFW/glfwWindowHint GLFW/GLFW_REFRESH_RATE (.refreshRate vid-mode)))
+               (GLFW/glfwWindowHint GLFW/GLFW_REFRESH_RATE (.refreshRate vid-mode))
+               (GLFW/glfwWindowHint GLFW/GLFW_AUTO_ICONIFY GLFW/GLFW_FALSE))
            id (GLFW/glfwCreateWindow (int (first size)) (int (second size))
                                      ^CharSequence title
                                      (long (or monitor 0))
