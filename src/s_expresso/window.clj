@@ -363,6 +363,30 @@
   (GLFW/glfwHideWindow (.-id window))
   window)
 
+(defn visible?
+  "Checks to see if the `window` is visible."
+  [window]
+  (= (GLFW/glfwGetWindowAttrib (.-id window) GLFW/GLFW_VISIBLE) GLFW/GLFW_TRUE))
+
+(defn focus-window
+  "Forces the `window` to take input focus.
+  Returns the window."
+  [window]
+  (GLFW/glfwFocusWindow (.-id window))
+  window)
+
+(defn focused?
+  "Checks to see if the `window` has input focus."
+  [window]
+  (= (GLFW/glfwGetWindowAttrib (.-id window) GLFW/GLFW_FOCUSED) GLFW/GLFW_TRUE))
+
+(defn request-attention
+  "Highlights the `window` or application to bring it to the user's attention.
+  Returns the window."
+  [window]
+  (GLFW/glfwRequestWindowAttention (.-id window))
+  window)
+
 (defn make-context-current-to-window
   "Takes a window and makes the OpenGL context current to that window.
   If window is nil, this releases the context which is current on the thread."
