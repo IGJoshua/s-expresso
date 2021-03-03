@@ -57,7 +57,7 @@
     (.free callback))
   (GLFW/glfwTerminate))
 
-(defrecord Window [id]
+(deftype Window [id]
   Resource
   (free [_]
     (Callbacks/glfwFreeCallbacks id)
@@ -139,15 +139,15 @@
   "Sets a given cursor mode on the given window.
   Valid values for `cursor-mode` are `:normal`, `:hidden`, and `:disabled`."
   [window cursor-mode]
-  (GLFW/glfwSetInputMode (:id window) GLFW/GLFW_CURSOR (cursor-mode->mode-int cursor-mode)))
+  (GLFW/glfwSetInputMode (.-id window) GLFW/GLFW_CURSOR (cursor-mode->mode-int cursor-mode)))
 
 (defn set-raw-mouse-motion
   "Sets the mouse to use raw input for a given window."
   [window raw-mouse-motion]
   (if raw-mouse-motion
     (when (GLFW/glfwRawMouseMotionSupported)
-      (GLFW/glfwSetInputMode (:id window) GLFW/GLFW_RAW_MOUSE_MOTION GLFW/GLFW_TRUE))
-    (GLFW/glfwSetInputMode (:id window) GLFW/GLFW_RAW_MOUSE_MOTION GLFW/GLFW_FALSE)))
+      (GLFW/glfwSetInputMode (.-id window) GLFW/GLFW_RAW_MOUSE_MOTION GLFW/GLFW_TRUE))
+    (GLFW/glfwSetInputMode (.-id window) GLFW/GLFW_RAW_MOUSE_MOTION GLFW/GLFW_FALSE)))
 
 (defn make-window
   "Creates a window with the given options, returning a `Window` record.
@@ -194,7 +194,7 @@
                key-callback (fn [window key _ action _]
                               (when (and (= key :escape)
                                          (= action :release))
-                                (GLFW/glfwSetWindowShouldClose (:id window) true)))
+                                (GLFW/glfwSetWindowShouldClose (.-id window) true)))
                cursor-mode :normal
                gl-major-version 4
                gl-minor-version 5
@@ -226,7 +226,7 @@
            id (GLFW/glfwCreateWindow (int (first size)) (int (second size))
                                      ^CharSequence title
                                      (long (or monitor 0))
-                                     (long (or (:id parent-window) 0)))
+                                     (long (or (when parent-window (.-id parent-window)) 0)))
            window (->Window id)]
        (when (or (nil? id)
                  (= id 0))
@@ -318,10 +318,10 @@
   ([window monitor]
    (let [width (int-array 1)
          height (int-array 1)
-         _ (GLFW/glfwGetWindowSize ^long (:id window) ^ints width ^ints height)
+         _ (GLFW/glfwGetWindowSize ^long (.-id window) ^ints width ^ints height)
          vid-mode (GLFW/glfwGetVideoMode (or monitor (GLFW/glfwGetPrimaryMonitor)))]
      (GLFW/glfwSetWindowPos
-      (:id window)
+      (.-id window)
       (/ (- (.width vid-mode) (first width)) 2)
       (/ (- (.height vid-mode) (first height)) 2)))
    window))
@@ -330,21 +330,21 @@
   "Takes a window and shows it.
   Returns the window."
   [window]
-  (GLFW/glfwShowWindow (:id window))
+  (GLFW/glfwShowWindow (.-id window))
   window)
 
 (defn hide-window
   "Takes a window and hides it.
   Returns the window."
   [window]
-  (GLFW/glfwHideWindow (:id window))
+  (GLFW/glfwHideWindow (.-id window))
   window)
 
 (defn make-context-current-to-window
   "Takes a window and makes the OpenGL context current to that window.
   If window is nil, this releases the context which is current on the thread."
   [window]
-  (GLFW/glfwMakeContextCurrent (when window (:id window)))
+  (GLFW/glfwMakeContextCurrent (when window (.-id window)))
   window)
 
 (defn set-vsync
@@ -370,19 +370,19 @@
   This call will block until a future v-blank based on your vsync
   configuration. Returns the window."
   [window]
-  (GLFW/glfwSwapBuffers (:id window))
+  (GLFW/glfwSwapBuffers (.-id window))
   window)
 
 (defn window-should-close?
   "Predicate for if a window should close."
   [window]
-  (GLFW/glfwWindowShouldClose (:id window)))
+  (GLFW/glfwWindowShouldClose (.-id window)))
 
 (defn window-should-close
   "Sets if a window should close.
   Returns the window."
   [window should-close?]
-  (GLFW/glfwSetWindowShouldClose (:id window) (if should-close? GLFW/GLFW_TRUE GLFW/GLFW_FALSE))
+  (GLFW/glfwSetWindowShouldClose (.-id window) (if should-close? GLFW/GLFW_TRUE GLFW/GLFW_FALSE))
   window)
 
 (defn time
