@@ -24,7 +24,7 @@
   (resolved-resource [resolver]
     "Returns the resource after complete resolution."))
 
-(s/def ::game-state (s/keys :req [::systems ::event-handler ::events]
+(s/def ::game-state (s/keys :req [::systems]
                             :opt [::interpolator]))
 (s/def ::render-state (s/keys :req [::resolvers ::resources]))
 
@@ -35,12 +35,6 @@
                                             :old-state ::game-state
                                             :factor float?)
                                :ret ::game-state))
-(s/def ::event-handler (s/fspec :args (s/cat :render-state ::render-state
-                                             :event ::event)
-                                :ret ::render-state))
-(s/def ::type keyword?)
-(s/def ::event (s/keys :req [::type]))
-(s/def ::events (s/coll-of ::event))
 
 (s/def ::resource-id any?)
 (s/def ::resolvers (s/map-of ::resource-id (partial satisfies? Resolver)))
@@ -111,8 +105,7 @@
   ([render-state game-state]
    (step-renderer render-state game-state nil nil))
   ([render-state game-state last-state factor]
-   (let [render-state (reduce (::event-handler game-state) render-state (::events game-state))
-         ops (prepare-ops game-state last-state factor)]
+   (let [ops (prepare-ops game-state last-state factor)]
      (render-scene! ops render-state)
      (let [new-deps (apply dissoc (collect-deps ops) (keys (::resources render-state)))
            render-state (update render-state ::resolvers #(merge new-deps %))]
@@ -124,19 +117,3 @@
                (s/? (s/cat :last-state ::game-state
                            :factor float?)))
   :ret ::render-state)
-
-(def ^:dynamic *render-events-to-send*
-  "Dynvar for the render events to be sent at the end of an entity system."
-  nil)
-
-(defn send-render-event!
-  "Queues the event to run on the next render frame.
-  This may only be called inside a binding of [[*render-events-to-send*]]."
-  [event]
-  (when-not *render-events-to-send*
-    (throw (ex-info "Attempted to send a render event outside of a binding." {:event event})))
-  (set! *render-events-to-send* (conj *render-events-to-send* event))
-  nil)
-(s/fdef send-render-event!
-  :args (s/cat :event ::event)
-  :ret nil?)
