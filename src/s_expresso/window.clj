@@ -26,8 +26,10 @@
     GLFWCursorPosCallbackI GLFWDropCallback
     GLFWDropCallbackI GLFWErrorCallback
     GLFWErrorCallbackI GLFWFramebufferSizeCallbackI
-    GLFWKeyCallbackI GLFWMouseButtonCallbackI
-    GLFWScrollCallbackI GLFWWindowSizeCallbackI)))
+    GLFWJoystickCallbackI GLFWKeyCallbackI
+    GLFWMouseButtonCallbackI GLFWScrollCallbackI
+    GLFWWindowCloseCallbackI GLFWWindowFocusCallbackI
+    GLFWWindowSizeCallbackI)))
 
 (defn init-glfw
   "Initializes GLFW for use on the system.
@@ -153,29 +155,32 @@
   "Creates a window with the given options, returning a `Window` record.
 
   The options map takes the following keys:
-  | key                      | description |
-  |--------------------------|-------------|
-  | `:key-callback`          | Callback function which takes the window, key code, scan code, action, and modifier keys and performs any side effects from the keypress; default: sets window to close on escape being released
-  | `:resize-callback`       | Callback function which takes the window, width, and height, and performs side effects from the resize event; default: nil
-  | `:framebuffer-callback`  | Callback function which takes the window, width, and height, and performs side effects from resizing the framebuffer; default: nil
-  | `:char-callback`         | Callback function which takes the window and a string representing the input text, and performs side effects from the text input; default: nil
-  | `:cursor-pos-callback`   | Callback function which takes the window, x, and y position of the mouse, and performs side effects from the mouse move event; default: nil
-  | `:cursor-enter-callback` | Callback function which takes the window and a boolean of if the mouse is in the window; default: nil
-  | `:mouse-button-callback` | Callback function which takes the window, button code, action, and modifier keys, and performs any side effects from the mouse press; default: nil
-  | `:scroll-callback`       | Callback function which takes the window, an x offset, and a y offset, and performs any side effects from the scroll event; default: nil
-  | `:file-callback`         | Callback function which takes the window and a vector of file paths, and performs any side effects from the user dropping a file into the window; default: nil
-  | `:cursor-mode`           | Cursor mode for the window, can be `:normal`, `:hidden`, or `:disabled`; default: `:normal`
-  | `:raw-mouse-motion`      | If the cursor mode is `:disabled` and this is true, then mouse motion will be given without processing for cursor motion; default: false
-  | `:size`                  | Dimensions of the window; default: [800 600]
-  | `:monitor`               | Monitor id to create a fullscreen window on, 0 or nil when windowed; default: nil
-  | `:title`                 | Title text of the window; default: \"Clojure GLFW Window\"
-  | `:parent-window`         | Window record of the parent window to share OpenGL context and resources with; default: nil
-  | `:gl-major-version`      | The major version of OpenGL to request the context be made with; default: 4
-  | `:gl-minor-version`      | The minor version of OpenGL to request the context be made with; default: 5
-  | `:resizable`             | Whether or not the window is resizable; default: true
-  | `:debug-context`         | If true, a debug context with additional reporting will be created; default: false
-  | `:min-size`              | Minimum dimensions of the window; default: [400 300]
-  | `:max-size`              | Maximum dimensinos of the window; default: [1280 720]"
+  | key                       | description |
+  |---------------------------|-------------|
+  | `:key-callback`           | Callback function which takes the window, key code, scan code, action, and modifier keys and performs any side effects from the keypress; default: sets window to close on escape being released
+  | `:resize-callback`        | Callback function which takes the window, width, and height, and performs side effects from the resize event; default: nil
+  | `:framebuffer-callback`   | Callback function which takes the window, width, and height, and performs side effects from resizing the framebuffer; default: nil
+  | `:char-callback`          | Callback function which takes the window and a string representing the input text, and performs side effects from the text input; default: nil
+  | `:cursor-pos-callback`    | Callback function which takes the window, x, and y position of the mouse, and performs side effects from the mouse move event; default: nil
+  | `:cursor-enter-callback`  | Callback function which takes the window and a boolean of if the mouse is in the window; default: nil
+  | `:mouse-button-callback`  | Callback function which takes the window, button code, action, and modifier keys, and performs any side effects from the mouse press; default: nil
+  | `:scroll-callback`        | Callback function which takes the window, an x offset, and a y offset, and performs any side effects from the scroll event; default: nil
+  | `:file-callback`          | Callback function which takes the window and a vector of file paths, and performs any side effects from the user dropping a file into the window; default: nil
+  | `:request-close-callback` | Callback function which takes the window, and performs any side effects from the user requesting the application close; default: nil
+  | `:focus-callback`         | Callback function which takes the window and a boolean of if the window is now focused, and performs side effects from the focus event; default: nil
+  | `:cursor-mode`            | Cursor mode for the window, can be `:normal`, `:hidden`, or `:disabled`; default: `:normal`
+  | `:raw-mouse-motion`       | If the cursor mode is `:disabled` and this is true, then mouse motion will be given without processing for cursor motion; default: false
+  | `:size`                   | Dimensions of the window; default: [800 600]
+  | `:monitor`                | Monitor id to create a fullscreen window on, 0 or nil when windowed; default: nil
+  | `:title`                  | Title text of the window; default: \"Clojure GLFW Window\"
+  | `:icon`                   |
+  | `:parent-window`          | Window record of the parent window to share OpenGL context and resources with; default: nil
+  | `:gl-major-version`       | The major version of OpenGL to request the context be made with; default: 4
+  | `:gl-minor-version`       | The minor version of OpenGL to request the context be made with; default: 5
+  | `:resizable`              | Whether or not the window is resizable; default: true
+  | `:debug-context`          | If true, a debug context with additional reporting will be created; default: false
+  | `:min-size`               | Minimum dimensions of the window; default: [400 300]
+  | `:max-size`               | Maximum dimensinos of the window; default: [1280 720]"
   ([] (make-window {}))
   ([opts]
    (let [{:keys [key-callback resize-callback
@@ -183,6 +188,7 @@
                  char-callback cursor-pos-callback
                  cursor-enter-callback mouse-button-callback
                  scroll-callback file-callback
+                 request-close-callback focus-callback
                  cursor-mode raw-mouse-motion
                  size monitor
                  title parent-window
@@ -308,6 +314,21 @@
               (file-callback window
                              (mapv #(GLFWDropCallback/getName paths %) (range cnt)))))))
 
+       (when request-close-callback
+         (GLFW/glfwSetWindowCloseCallback
+          id
+          (reify GLFWWindowCloseCallbackI
+            (invoke [this wnd]
+              (request-close-callback window)))))
+
+       (when focus-callback
+         (GLFW/glfwSetWindowFocusCallback
+          id
+          (reify GLFWWindowFocusCallbackI
+            (invoke [this wnd focused?]
+              (focus-callback window
+                              focused?)))))
+
        (GLFW/glfwSetWindowSizeLimits id
                                      (first min-size) (second min-size)
                                      (first max-size) (second max-size))
@@ -404,3 +425,20 @@
   "Gets the frequency of the raw timer."
   []
   (GLFW/glfwGetTimerFrequency))
+
+(def ^:private event-id->connection-event
+  "Map from GLFW joystick connection event ids to keywords representing them."
+  {GLFW/GLFW_CONNECTED :connected
+   GLFW/GLFW_DISCONNECTED :disconnected})
+
+(defn set-joystick-callback
+  "Sets the global joystick connection event callback.
+  While these events do not require a window, [[poll-events]] must be called for
+  them to be consistently processed. If `callback` is nil, then the callback is
+  unset."
+  [callback]
+  (GLFW/glfwSetJoystickCallback
+   (when callback
+     (reify GLFWJoystickCallbackI
+       (invoke [this joystick-id event]
+         (callback joystick-id (event-id->connection-event event)))))))
