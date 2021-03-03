@@ -124,3 +124,19 @@
                (s/? (s/cat :last-state ::game-state
                            :factor float?)))
   :ret ::render-state)
+
+(def ^:dynamic *render-events-to-send*
+  "Dynvar for the render events to be sent at the end of an entity system."
+  nil)
+
+(defn send-render-event!
+  "Queues the event to run on the next render frame.
+  This may only be called inside a binding of [[*render-events-to-send*]]."
+  [event]
+  (when-not *render-events-to-send*
+    (throw (ex-info "Attempted to send a render event outside of a binding." {:event event})))
+  (set! *render-events-to-send* (conj *render-events-to-send* event))
+  nil)
+(s/fdef send-render-event!
+  :args (s/cat :event ::event)
+  :ret nil?)
