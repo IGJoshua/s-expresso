@@ -8,15 +8,18 @@
         org.lwjgl/lwjgl {:mvn/version "3.2.3"}
         org.lwjgl/lwjgl-glfw {:mvn/version "3.2.3"}
         org.lwjgl/lwjgl-opengl {:mvn/version "3.2.3"}
+        org.lwjgl/lwjgl-openal {:mvn/version "3.2.3"}
         org.lwjgl/lwjgl-stb {:mvn/version "3.2.3"}}
  :aliases
  {:linux {:extra-deps {org.lwjgl/lwjgl$natives-linux {:mvn/version "3.2.3"}
                        org.lwjgl/lwjgl-glfw$natives-linux {:mvn/version "3.2.3"}
                        org.lwjgl/lwjgl-opengl$natives-linux {:mvn/version "3.2.3"}
+                       org.lwjgl/lwjgl-openal$natives-linux {:mvn/version "3.2.3"}
                        org.lwjgl/lwjgl-stb$natives-linux {:mvn/version "3.2.3"}}}
   :windows {:extra-deps {org.lwjgl/lwjgl$natives-windows {:mvn/version "3.2.3"}
                          org.lwjgl/lwjgl-glfw$natives-windows {:mvn/version "3.2.3"}
                          org.lwjgl/lwjgl-opengl$natives-windows {:mvn/version "3.2.3"}
+                         org.lwjgl/lwjgl-openal$natives-windows {:mvn/version "3.2.3"}
                          org.lwjgl/lwjgl-stb$natives-windows {:mvn/version "3.2.3"}}}
   :dev {:extra-paths ["dev"]}
   :example {:extra-paths ["dev"]
