@@ -238,13 +238,14 @@
        (set-raw-mouse-motion window (and (= :disabled cursor-mode) raw-mouse-motion))
 
        ;; set the callbacks
-       (GLFW/glfwSetKeyCallback
-        id
-        (reify GLFWKeyCallbackI
-          (invoke [this wnd key scancode action mods]
-            (key-callback window (key-int->key key)
-                          scancode (action-int->action action)
-                          (mod-bits-set mods)))))
+       (when key-callback
+         (GLFW/glfwSetKeyCallback
+          id
+          (reify GLFWKeyCallbackI
+            (invoke [this wnd key scancode action mods]
+              (key-callback window (key-int->key key)
+                            scancode (action-int->action action)
+                            (mod-bits-set mods))))))
 
        (when resize-callback
          (GLFW/glfwSetWindowSizeCallback
