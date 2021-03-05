@@ -100,7 +100,7 @@
   :args (s/cat :ops (partial satisfies? RenderOp))
   :ret ::resolvers)
 
-(defn step-renderer
+(defn step-renderer!
   "Renders the current scene and returns an updated render state."
   ([render-state game-state]
    (step-renderer render-state game-state nil nil))
