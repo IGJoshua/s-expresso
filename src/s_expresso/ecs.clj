@@ -32,7 +32,7 @@
                        :opt [::target]))
 (s/def ::events (s/coll-of ::event))
 
-(def ^:dynamic *events-to-send*
+(def ^:private ^:dynamic *events-to-send*
   "Dynvar for the events to be sent at the end of an entity system."
   nil)
 
