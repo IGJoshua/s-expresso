@@ -39,7 +39,8 @@
   (loop [scene init-state
          next-frame (w/time)]
     ;; Spin waiting for the next frametime to start
-    (while (pos? (- next-frame (w/time))))
+    (let [t (- next-frame dt)]
+      (while (pos? (- t (w/time)))))
 
     (let [scene (binding [*render-events-to-send* []]
                   (let [scene (ecs/step-scene scene dt)]
