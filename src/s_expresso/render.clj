@@ -103,7 +103,7 @@
 (defn step-renderer!
   "Renders the current scene and returns an updated render state."
   ([render-state game-state]
-   (step-renderer render-state game-state nil nil))
+   (step-renderer! render-state game-state nil nil))
   ([render-state game-state last-state factor]
    (let [ops (prepare-ops game-state last-state factor)]
      (render-scene! ops render-state)
