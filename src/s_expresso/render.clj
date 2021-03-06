@@ -49,7 +49,8 @@
   ([game-state last-state factor]
    (let [state (cond-> game-state
                  (and last-state
-                      (::interpolator game-state))
+                      (::interpolator game-state)
+                      factor)
                  ((::interpolator game-state) last-state factor))
          systems (::systems state)]
      (apply concat (map #(% state) systems)))))
