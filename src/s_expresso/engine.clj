@@ -65,8 +65,7 @@
   Returns the last game state and render state which were rendered. Assumes
   that [[w/time]] will not be set after this is called.
 
-  Returns when `::should-close?` is set on the game state, or when the
-  render-state is set to nil."
+  Returns when `::should-close?` is set on the game state."
   [window init-state]
   (loop [render-state init-state]
     (w/poll-events)
