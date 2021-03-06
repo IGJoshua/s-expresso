@@ -429,7 +429,7 @@
   "Sets if a window should close.
   Returns the window."
   [window should-close?]
-  (GLFW/glfwSetWindowShouldClose (.-id window) (if should-close? GLFW/GLFW_TRUE GLFW/GLFW_FALSE))
+  (GLFW/glfwSetWindowShouldClose (.-id window) should-close?)
   window)
 
 (defn time
