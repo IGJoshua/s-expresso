@@ -452,6 +452,38 @@
   []
   (GLFW/glfwGetTimerFrequency))
 
+(defn windowed?
+  "Checks if the window is in windowed mode."
+  [window]
+  (zero? (GLFW/glfwGetWindowMonitor (.-id window))))
+
+(defn fullscreen?
+  "Checks if the window is in fullscreen mode."
+  [window]
+  (not (windowed? window)))
+
+(defn fullscreen-monitor
+  "Gets the monitor the fullscreen window is currently on.
+  Returns an opaque handle to the monitor, or nil if the window is not
+  fullscreen."
+  [window]
+  (let [monitor (GLFW/glfwGetWindowMonitor (.-id window))]
+    (when-not (zero? monitor)
+      monitor)))
+
+(defn video-mode
+  "Gets the current video mode for the `monitor`.
+  This is a map with the keys `:width`, `:height`, `:red-bits`, `:green-bits`,
+  `:blue-bits`, and `:refresh-rate`."
+  [monitor]
+  (let [vid-mode (GLFW/glfwGetVideoMode monitor)]
+    {:width (.width vid-mode)
+     :height (.height vid-mode)
+     :red-bits (.redBits vid-mode)
+     :green-bits (.greenBits vid-mode)
+     :blue-bits (.blueBits vid-mode)
+     :refresh-rate (.refreshRate vid-mode)}))
+
 (def ^:private event-id->connection-event
   "Map from GLFW joystick connection event ids to keywords representing them."
   {GLFW/GLFW_CONNECTED :connected
