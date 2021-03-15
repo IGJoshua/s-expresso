@@ -83,7 +83,7 @@ void main()
   (with-free [mesh (with-stack-allocator
                      (m/make-mesh pos-mesh-layout (m/pack-verts pos-mesh-layout quad-mesh-data)))
               shader-program (sh/make-shader-program-from-sources [vert-shader frag-shader])
-              image (tex/load-image "textures/octostone/octostoneAlbedo.png" 3)
+              image (tex/load-image "res/textures/octostone/octostoneAlbedo.png" 3)
               texture (tex/make-texture {:format GL45/GL_RGB8
                                          :dimensions (:dimensions image)}
                                         {:data (:data image)
