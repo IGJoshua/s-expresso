@@ -116,7 +116,7 @@ void main()
   (loop [game-state init-state
          render-state {}]
     (let [game-state (ecs/step-scene game-state 0.016)
-          render-state (r/step-renderer render-state game-state)]
+          render-state (r/step-renderer! render-state game-state)]
       (when (not (w/window-should-close? window))
         (w/swap-buffers window)
         (w/poll-events)
