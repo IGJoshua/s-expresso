@@ -7,6 +7,7 @@
   This namespace should only be loaded during development, and not during
   production."
   (:require
+   [cljsl.compiler :as c]
    [clojure.core.matrix :as mat]
    [clojure.java.javadoc :as jd])
   (:import

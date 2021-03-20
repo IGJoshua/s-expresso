@@ -1,5 +1,6 @@
 (ns examples.gravity
   (:require
+   [cljsl.compiler :as c]
    [examples.window :as e.w]
    [examples.triangle :as e.t]
    [s-expresso.memory :as mem :refer [with-stack-allocator]]
@@ -82,47 +83,42 @@
             position (mem/alloc-bytes (* Float/BYTES 2))]
         (mem/put-seq color (map float (::color entity)))
         (.flip color)
-        (sh/upload-uniform-floats shader-program 3 "objCol" (.asFloatBuffer color))
+        (sh/upload-uniform-floats shader-program 3 (c/sym->ident `obj-col) (.asFloatBuffer color))
         (mem/put-seq position (map float (::d/position entity)))
         (.flip position)
-        (sh/upload-uniform-floats shader-program 2 "objPos" (.asFloatBuffer position))
+        (sh/upload-uniform-floats shader-program 2 (c/sym->ident `obj-pos) (.asFloatBuffer position))
         (m/draw-mesh mesh))))
 
   (w/swap-buffers window)
   (w/poll-events))
 
+(c/defparam v-pos "vec3"
+  :layout {"location" 0})
+(c/defparam color "vec3")
+
+(c/defuniform obj-col "vec3")
+(c/defuniform obj-pos "vec2")
+
+(c/defshader vert-source
+  {v-pos :in
+   color :out}
+  (set! gl_Position (* (vec4 (+ (vec3 obj-pos 0) v-pos) 1)
+                       (vec4 0.3 0.3 0 1)))
+  (set! color obj-col))
+
 (def vert-shader
-  {:source "
-#version 450 core
-
-layout (location=0) in vec3 vPos;
-
-uniform vec3 objCol;
-uniform vec2 objPos;
-
-out vec3 color;
-
-void main()
-{
-    gl_Position = vec4(vec3(objPos, 0) + vPos, 1) * vec4(0.3, 0.3, 0, 1);
-    color = objCol;
-}
-"
+  {:source (::c/source vert-source)
    :stage :vertex})
 
+(c/defparam frag-color "vec4")
+
+(c/defshader frag-source
+  {color :in
+   frag-color :out}
+  (set! frag-color (vec4 color 1)))
+
 (def frag-shader
-  {:source "
-#version 450 core
-
-in vec3 color;
-
-out vec4 fragColor;
-
-void main()
-{
-    fragColor = vec4(color, 1);
-}
-"
+  {:source (::c/source frag-source)
    :stage :fragment})
 
 (def tri-mesh-data {:vertices [{:pos [-0.1 -0.1 0.0]}

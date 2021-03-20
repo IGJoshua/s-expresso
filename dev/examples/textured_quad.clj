@@ -1,5 +1,6 @@
 (ns examples.textured-quad
   (:require
+   [cljsl.compiler :as c]
    [examples.window :as e.w]
    [examples.triangle :as e.t]
    [s-expresso.memory :refer [with-stack-allocator]]
@@ -21,37 +22,34 @@
   (w/swap-buffers window)
   (w/poll-events))
 
+(c/defparam v-pos "vec3"
+  :layout {"location" 0})
+(c/defparam v-uv "vec2"
+  :layout {"location" 1})
+(c/defparam uv "vec2")
+
+(c/defshader vert-source
+  {v-pos :in
+   v-uv :in
+   uv :out}
+  (set! gl_Position (vec4 (:xyz v-pos) 1))
+  (set! uv v-uv))
+
 (def vert-shader
-  {:source "
-#version 450 core
-
-layout (location=0) in vec3 vPos;
-layout (location=1) in vec2 vUV;
-
-out vec2 uv;
-
-void main()
-{
-    gl_Position = vec4(vPos.xyz, 1);
-    uv = vUV;
-}
-"
+  {:source (::c/source vert-source)
    :stage :vertex})
 
+(c/defparam frag-color "vec4")
+
+(c/defuniform sam "sampler2D")
+
+(c/defshader frag-source
+  {uv :in
+   frag-color :out}
+  (set! frag-color (texture sam uv)))
+
 (def frag-shader
-  {:source "
-#version 450 core
-
-uniform sampler2D sam;
-in vec2 uv;
-
-out vec4 fragColor;
-
-void main()
-{
-    fragColor = texture(sam, uv);
-}
-"
+  {:source (::c/source frag-source)
    :stage :fragment})
 
 (def quad-mesh-data {:vertices [{:pos [-0.5 -0.5 0.0]
@@ -91,7 +89,7 @@ void main()
                                          :type GL45/GL_UNSIGNED_BYTE})]
     (sh/with-shader-program shader-program
       (tex/with-texture texture 0
-        (sh/upload-uniform-int shader-program "sam" 0)
+        (sh/upload-uniform-int shader-program (c/sym->ident `sam) 0)
         (while (not (w/window-should-close? window))
           (step window mesh)))))
   window)

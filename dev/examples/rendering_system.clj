@@ -1,5 +1,6 @@
 (ns examples.rendering-system
   (:require
+   [cljsl.compiler :as c]
    [examples.window :as e.w]
    [examples.triangle :as e.t]
    [s-expresso.memory :refer [with-stack-allocator]]
@@ -15,39 +16,27 @@
    (org.lwjgl.opengl
     GL GL45)))
 
-(def vert-shader
-  {:source "
-#version 450 core
+(c/defparam v-pos "vec3"
+  :layout {"location" 0})
 
-layout (location=0) in vec3 vPos;
+(c/defuniform obj-col "vec3")
+(c/defuniform obj-pos "vec2")
 
-uniform vec3 objCol;
-uniform vec2 objPos;
+(c/defparam color "vec3")
 
-out vec3 color;
+(c/defshader vert-shader
+  {v-pos :in
+   color :out}
+  (set! gl_Position (* (vec4 (+ (vec3 obj-pos 0) v-pos) 1)
+                       (vec4 0.1 0.1 0 1)))
+  (set! color obj-col))
 
-void main()
-{
-    gl_Position = vec4(vec3(objPos, 0) + vPos, 1) * vec4(0.1, 0.1, 0, 1);
-    color = objCol;
-}
-"
-   :stage :vertex})
+(c/defparam frag-color "vec4")
 
-(def frag-shader
-  {:source "
-#version 450 core
-
-in vec3 color;
-
-out vec4 fragColor;
-
-void main()
-{
-    fragColor = vec4(color, 1);
-}
-"
-   :stage :fragment})
+(c/defshader frag-shader
+  {color :in
+   frag-color :out}
+  (set! frag-color (vec4 color 1)))
 
 (def tri-mesh-data {:vertices [{:pos [-0.1 -0.1 0.0]}
                                {:pos [0.1 -0.1 0.0]}
@@ -63,7 +52,10 @@ void main()
                         (step-resolver [t]
                           [t true])
                         (resolved-resource [_]
-                          (sh/make-shader-program-from-sources [vert-shader frag-shader])))
+                          (sh/make-shader-program-from-sources [{:source (::c/source vert-shader)
+                                                                 :stage :vertex}
+                                                                {:source (::c/source frag-shader)
+                                                                 :stage :fragment}])))
               :mesh (reify r/Resolver
                       (step-resolver [t]
                         [t true])
@@ -77,8 +69,8 @@ void main()
        (when-let [mesh (:mesh (::r/resources st))]
          (when-let [shader (:shader (::r/resources st))]
            (sh/with-shader-program shader
-             (apply sh/upload-uniform-float shader "objPos" (::d/position entity))
-             (apply sh/upload-uniform-float shader "objCol" (::color entity))
+             (apply sh/upload-uniform-float shader (c/sym->ident `obj-pos) (::d/position entity))
+             (apply sh/upload-uniform-float shader (c/sym->ident `obj-col) (::color entity))
              (m/draw-mesh mesh))))))))
 
 (defn state-to-ops

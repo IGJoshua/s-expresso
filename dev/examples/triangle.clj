@@ -1,5 +1,6 @@
 (ns examples.triangle
   (:require
+   [cljsl.compiler :as c]
    [examples.window :as e.w]
    [s-expresso.memory :refer [with-stack-allocator]]
    [s-expresso.mesh :as m]
@@ -21,34 +22,32 @@
   (w/swap-buffers window)
   (w/poll-events))
 
+(c/defparam a-pos "vec3"
+  :layout {"location" 0})
+(c/defparam a-col "vec3"
+  :layout {"location" 1})
+(c/defparam v-col "vec3")
+
+(c/defshader vert-source
+  {a-pos :in
+   a-col :in
+   v-col :out}
+  (set! v-col a-col)
+  (set! gl_Position (vec4 (:xyz a-pos) 1.0)))
+
 (def vert-shader
-  {:source "
-#version 450 core
-layout (location=0) in vec3 aPos;
-layout (location=1) in vec3 aCol;
-
-out vec3 vCol;
-
-void main()
-{
-    vCol = aCol;
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-}
-"
+  {:source (::c/source vert-source)
    :stage :vertex})
 
+(c/defparam frag-color "vec4")
+
+(c/defshader frag-source
+  {v-col :in
+   frag-color :out}
+  (set! frag-color (vec4 (:xyz v-col) (float 1.0))))
+
 (def frag-shader
-  {:source "
-#version 450 core
-
-in vec3 vCol;
-
-out vec4 fragColor;
-void main()
-{
-    fragColor = vec4(vCol.x, vCol.y, vCol.z, 1.0f);
-}
-"
+  {:source (::c/source frag-source)
    :stage :fragment})
 
 (def quad-mesh-data {:vertices [{:pos [-0.5 -0.5 0.0]
