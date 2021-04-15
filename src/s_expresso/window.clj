@@ -26,8 +26,10 @@
     GLFWCursorPosCallbackI GLFWDropCallback
     GLFWDropCallbackI GLFWErrorCallback
     GLFWErrorCallbackI GLFWFramebufferSizeCallbackI
-    GLFWKeyCallbackI GLFWMouseButtonCallbackI
-    GLFWScrollCallbackI GLFWWindowSizeCallbackI)))
+    GLFWJoystickCallbackI GLFWKeyCallbackI
+    GLFWMouseButtonCallbackI GLFWScrollCallbackI
+    GLFWWindowCloseCallbackI GLFWWindowFocusCallbackI
+    GLFWWindowSizeCallbackI)))
 
 (defn init-glfw
   "Initializes GLFW for use on the system.
@@ -57,7 +59,7 @@
     (.free callback))
   (GLFW/glfwTerminate))
 
-(defrecord Window [id]
+(deftype Window [id]
   Resource
   (free [_]
     (Callbacks/glfwFreeCallbacks id)
@@ -94,7 +96,7 @@
 
 (def ^:private key-int->key
   "Map from the key value in GLFW to a keyword key name."
-  (let [key-member-names (filter #(.startsWith % "GLFW_KEY_")
+  (let [key-member-names (filter #(str/starts-with? % "GLFW_KEY_")
                                  (map (comp name :name)
                                       (:members (refl/type-reflect GLFW))))]
     (into {}
@@ -139,43 +141,47 @@
   "Sets a given cursor mode on the given window.
   Valid values for `cursor-mode` are `:normal`, `:hidden`, and `:disabled`."
   [window cursor-mode]
-  (GLFW/glfwSetInputMode (:id window) GLFW/GLFW_CURSOR (cursor-mode->mode-int cursor-mode)))
+  (GLFW/glfwSetInputMode (.-id window) GLFW/GLFW_CURSOR (cursor-mode->mode-int cursor-mode)))
 
 (defn set-raw-mouse-motion
   "Sets the mouse to use raw input for a given window."
   [window raw-mouse-motion]
   (if raw-mouse-motion
     (when (GLFW/glfwRawMouseMotionSupported)
-      (GLFW/glfwSetInputMode (:id window) GLFW/GLFW_RAW_MOUSE_MOTION GLFW/GLFW_TRUE))
-    (GLFW/glfwSetInputMode (:id window) GLFW/GLFW_RAW_MOUSE_MOTION GLFW/GLFW_FALSE)))
+      (GLFW/glfwSetInputMode (.-id window) GLFW/GLFW_RAW_MOUSE_MOTION GLFW/GLFW_TRUE))
+    (GLFW/glfwSetInputMode (.-id window) GLFW/GLFW_RAW_MOUSE_MOTION GLFW/GLFW_FALSE)))
 
 (defn make-window
   "Creates a window with the given options, returning a `Window` record.
 
   The options map takes the following keys:
-  | key                      | description |
-  |--------------------------|-------------|
-  | `:key-callback`          | Callback function which takes the window, key code, scan code, action, and modifier keys and performs any side effects from the keypress; default: sets window to close on escape being released
-  | `:resize-callback`       | Callback function which takes the window, width, and height, and performs side effects from the resize event; default: nil
-  | `:framebuffer-callback`  | Callback function which takes the window, width, and height, and performs side effects from resizing the framebuffer; default: nil
-  | `:char-callback`         | Callback function which takes the window and a string representing the input text, and performs side effects from the text input; default: nil
-  | `:cursor-pos-callback`   | Callback function which takes the window, x, and y position of the mouse, and performs side effects from the mouse move event; default: nil
-  | `:cursor-enter-callback` | Callback function which takes the window and a boolean of if the mouse is in the window; default: nil
-  | `:mouse-button-callback` | Callback function which takes the window, button code, action, and modifier keys, and performs any side effects from the mouse press; default: nil
-  | `:scroll-callback`       | Callback function which takes the window, an x offset, and a y offset, and performs any side effects from the scroll event; default: nil
-  | `:file-callback`         | Callback function which takes the window and a vector of file paths, and performs any side effects from the user dropping a file into the window; default: nil
-  | `:cursor-mode`           | Cursor mode for the window, can be `:normal`, `:hidden`, or `:disabled`; default: `:normal`
-  | `:raw-mouse-motion`      | If the cursor mode is `:disabled` and this is true, then mouse motion will be given without processing for cursor motion; default: false
-  | `:size`                  | Dimensions of the window; default: [800 600]
-  | `:monitor`               | Monitor id to create a fullscreen window on, 0 or nil when windowed; default: nil
-  | `:title`                 | Title text of the window; default: \"Clojure GLFW Window\"
-  | `:parent-window`         | Window record of the parent window to share OpenGL context and resources with; default: nil
-  | `:gl-major-version`      | The major version of OpenGL to request the context be made with; default: 4
-  | `:gl-minor-version`      | The minor version of OpenGL to request the context be made with; default: 5
-  | `:resizable`             | Whether or not the window is resizable; default: true
-  | `:debug-context`         | If true, a debug context with additional reporting will be created; default: false
-  | `:min-size`              | Minimum dimensions of the window; default: [400 300]
-  | `:max-size`              | Maximum dimensinos of the window; default: [1280 720]"
+  | key                       | description |
+  |---------------------------|-------------|
+  | `:key-callback`           | Callback function which takes the window, key code, scan code, action, and modifier keys and performs any side effects from the keypress; default: sets window to close on escape being released
+  | `:resize-callback`        | Callback function which takes the window, width, and height, and performs side effects from the resize event; default: nil
+  | `:framebuffer-callback`   | Callback function which takes the window, width, and height, and performs side effects from resizing the framebuffer; default: nil
+  | `:char-callback`          | Callback function which takes the window and a string representing the input text, and performs side effects from the text input; default: nil
+  | `:cursor-pos-callback`    | Callback function which takes the window, x, and y position of the mouse, and performs side effects from the mouse move event; default: nil
+  | `:cursor-enter-callback`  | Callback function which takes the window and a boolean of if the mouse is in the window; default: nil
+  | `:mouse-button-callback`  | Callback function which takes the window, button code, action, and modifier keys, and performs any side effects from the mouse press; default: nil
+  | `:scroll-callback`        | Callback function which takes the window, an x offset, and a y offset, and performs any side effects from the scroll event; default: nil
+  | `:file-callback`          | Callback function which takes the window and a vector of file paths, and performs any side effects from the user dropping a file into the window; default: nil
+  | `:request-close-callback` | Callback function which takes the window, and performs any side effects from the user requesting the application close; default: nil
+  | `:focus-callback`         | Callback function which takes the window and a boolean of if the window is now focused, and performs side effects from the focus event; default: nil
+  | `:cursor-mode`            | Cursor mode for the window, can be `:normal`, `:hidden`, or `:disabled`; default: `:normal`
+  | `:raw-mouse-motion`       | If the cursor mode is `:disabled` and this is true, then mouse motion will be given without processing for cursor motion; default: false
+  | `:size`                   | Dimensions of the window; default: [800 600]
+  | `:monitor`                | Monitor id to create a fullscreen window on, 0 or nil when windowed; default: nil
+  | `:title`                  | Title text of the window; default: \"Clojure GLFW Window\"
+  | `:icon`                   |
+  | `:parent-window`          | Window record of the parent window to share OpenGL context and resources with; default: nil
+  | `:gl-major-version`       | The major version of OpenGL to request the context be made with; default: 4
+  | `:gl-minor-version`       | The minor version of OpenGL to request the context be made with; default: 5
+  | `:resizable`              | Whether or not the window is resizable; default: true
+  | `:debug-context`          | If true, a debug context with additional reporting will be created; default: false
+  | `:no-error`               | If true, GL errors will not be generated by the context, instead producing undefined behavior, and potentially improving performance; default: false
+  | `:min-size`               | Minimum dimensions of the window; default: [400 300]
+  | `:max-size`               | Maximum dimensinos of the window; default: [1280 720]"
   ([] (make-window {}))
   ([opts]
    (let [{:keys [key-callback resize-callback
@@ -183,18 +189,19 @@
                  char-callback cursor-pos-callback
                  cursor-enter-callback mouse-button-callback
                  scroll-callback file-callback
+                 request-close-callback focus-callback
                  cursor-mode raw-mouse-motion
                  size monitor
                  title parent-window
                  gl-major-version gl-minor-version
-                 resizable debug-context
+                 resizable debug-context no-error
                  min-size max-size]
           :or {size [800 600]
                title "Clojure GLFW Window"
                key-callback (fn [window key _ action _]
                               (when (and (= key :escape)
                                          (= action :release))
-                                (GLFW/glfwSetWindowShouldClose (:id window) true)))
+                                (GLFW/glfwSetWindowShouldClose (.-id window) true)))
                cursor-mode :normal
                gl-major-version 4
                gl-minor-version 5
@@ -209,6 +216,7 @@
 
      (GLFW/glfwWindowHint GLFW/GLFW_RESIZABLE (if resizable GLFW/GLFW_TRUE GLFW/GLFW_FALSE))
      (GLFW/glfwWindowHint GLFW/GLFW_OPENGL_DEBUG_CONTEXT (if debug-context GLFW/GLFW_TRUE GLFW/GLFW_FALSE))
+     (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_NO_ERROR (if no-error GLFW/GLFW_TRUE GLFW/GLFW_FALSE))
      (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MAJOR gl-major-version)
      (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MINOR gl-minor-version)
 
@@ -222,9 +230,12 @@
                (GLFW/glfwWindowHint GLFW/GLFW_RED_BITS (.redBits vid-mode))
                (GLFW/glfwWindowHint GLFW/GLFW_GREEN_BITS (.greenBits vid-mode))
                (GLFW/glfwWindowHint GLFW/GLFW_BLUE_BITS (.blueBits vid-mode))
-               (GLFW/glfwWindowHint GLFW/GLFW_REFRESH_RATE (.refreshRate vid-mode)))
-           id (GLFW/glfwCreateWindow (first size) (second size)
-                                     title (or monitor 0) (or (:id parent-window) 0))
+               (GLFW/glfwWindowHint GLFW/GLFW_REFRESH_RATE (.refreshRate vid-mode))
+               (GLFW/glfwWindowHint GLFW/GLFW_AUTO_ICONIFY GLFW/GLFW_FALSE))
+           id (GLFW/glfwCreateWindow (int (first size)) (int (second size))
+                                     ^CharSequence title
+                                     (long (or monitor 0))
+                                     (long (or (when parent-window (.-id parent-window)) 0)))
            window (->Window id)]
        (when (or (nil? id)
                  (= id 0))
@@ -235,13 +246,14 @@
        (set-raw-mouse-motion window (and (= :disabled cursor-mode) raw-mouse-motion))
 
        ;; set the callbacks
-       (GLFW/glfwSetKeyCallback
-        id
-        (reify GLFWKeyCallbackI
-          (invoke [this wnd key scancode action mods]
-            (key-callback window (key-int->key key)
-                          scancode (action-int->action action)
-                          (mod-bits-set mods)))))
+       (when key-callback
+         (GLFW/glfwSetKeyCallback
+          id
+          (reify GLFWKeyCallbackI
+            (invoke [this wnd key scancode action mods]
+              (key-callback window (key-int->key key)
+                            scancode (action-int->action action)
+                            (mod-bits-set mods))))))
 
        (when resize-callback
          (GLFW/glfwSetWindowSizeCallback
@@ -304,6 +316,21 @@
               (file-callback window
                              (mapv #(GLFWDropCallback/getName paths %) (range cnt)))))))
 
+       (when request-close-callback
+         (GLFW/glfwSetWindowCloseCallback
+          id
+          (reify GLFWWindowCloseCallbackI
+            (invoke [this wnd]
+              (request-close-callback window)))))
+
+       (when focus-callback
+         (GLFW/glfwSetWindowFocusCallback
+          id
+          (reify GLFWWindowFocusCallbackI
+            (invoke [this wnd focused?]
+              (focus-callback window
+                              focused?)))))
+
        (GLFW/glfwSetWindowSizeLimits id
                                      (first min-size) (second min-size)
                                      (first max-size) (second max-size))
@@ -316,10 +343,10 @@
   ([window monitor]
    (let [width (int-array 1)
          height (int-array 1)
-         _ (GLFW/glfwGetWindowSize (:id window) ^ints width ^ints height)
+         _ (GLFW/glfwGetWindowSize ^long (.-id window) ^ints width ^ints height)
          vid-mode (GLFW/glfwGetVideoMode (or monitor (GLFW/glfwGetPrimaryMonitor)))]
      (GLFW/glfwSetWindowPos
-      (:id window)
+      (.-id window)
       (/ (- (.width vid-mode) (first width)) 2)
       (/ (- (.height vid-mode) (first height)) 2)))
    window))
@@ -328,21 +355,45 @@
   "Takes a window and shows it.
   Returns the window."
   [window]
-  (GLFW/glfwShowWindow (:id window))
+  (GLFW/glfwShowWindow (.-id window))
   window)
 
 (defn hide-window
   "Takes a window and hides it.
   Returns the window."
   [window]
-  (GLFW/glfwHideWindow (:id window))
+  (GLFW/glfwHideWindow (.-id window))
+  window)
+
+(defn visible?
+  "Checks to see if the `window` is visible."
+  [window]
+  (= (GLFW/glfwGetWindowAttrib (.-id window) GLFW/GLFW_VISIBLE) GLFW/GLFW_TRUE))
+
+(defn focus-window
+  "Forces the `window` to take input focus.
+  Returns the window."
+  [window]
+  (GLFW/glfwFocusWindow (.-id window))
+  window)
+
+(defn focused?
+  "Checks to see if the `window` has input focus."
+  [window]
+  (= (GLFW/glfwGetWindowAttrib (.-id window) GLFW/GLFW_FOCUSED) GLFW/GLFW_TRUE))
+
+(defn request-attention
+  "Highlights the `window` or application to bring it to the user's attention.
+  Returns the window."
+  [window]
+  (GLFW/glfwRequestWindowAttention (.-id window))
   window)
 
 (defn make-context-current-to-window
   "Takes a window and makes the OpenGL context current to that window.
   If window is nil, this releases the context which is current on the thread."
   [window]
-  (GLFW/glfwMakeContextCurrent (when window (:id window)))
+  (GLFW/glfwMakeContextCurrent (when window (.-id window)))
   window)
 
 (defn set-vsync
@@ -368,19 +419,19 @@
   This call will block until a future v-blank based on your vsync
   configuration. Returns the window."
   [window]
-  (GLFW/glfwSwapBuffers (:id window))
+  (GLFW/glfwSwapBuffers (.-id window))
   window)
 
 (defn window-should-close?
   "Predicate for if a window should close."
   [window]
-  (GLFW/glfwWindowShouldClose (:id window)))
+  (GLFW/glfwWindowShouldClose (.-id window)))
 
 (defn window-should-close
   "Sets if a window should close.
   Returns the window."
   [window should-close?]
-  (GLFW/glfwSetWindowShouldClose (:id window) (if should-close? GLFW/GLFW_TRUE GLFW/GLFW_FALSE))
+  (GLFW/glfwSetWindowShouldClose (.-id window) should-close?)
   window)
 
 (defn time
@@ -400,3 +451,52 @@
   "Gets the frequency of the raw timer."
   []
   (GLFW/glfwGetTimerFrequency))
+
+(defn windowed?
+  "Checks if the window is in windowed mode."
+  [window]
+  (zero? (GLFW/glfwGetWindowMonitor (.-id window))))
+
+(defn fullscreen?
+  "Checks if the window is in fullscreen mode."
+  [window]
+  (not (windowed? window)))
+
+(defn fullscreen-monitor
+  "Gets the monitor the fullscreen window is currently on.
+  Returns an opaque handle to the monitor, or nil if the window is not
+  fullscreen."
+  [window]
+  (let [monitor (GLFW/glfwGetWindowMonitor (.-id window))]
+    (when-not (zero? monitor)
+      monitor)))
+
+(defn video-mode
+  "Gets the current video mode for the `monitor`.
+  This is a map with the keys `:width`, `:height`, `:red-bits`, `:green-bits`,
+  `:blue-bits`, and `:refresh-rate`."
+  [monitor]
+  (let [vid-mode (GLFW/glfwGetVideoMode monitor)]
+    {:width (.width vid-mode)
+     :height (.height vid-mode)
+     :red-bits (.redBits vid-mode)
+     :green-bits (.greenBits vid-mode)
+     :blue-bits (.blueBits vid-mode)
+     :refresh-rate (.refreshRate vid-mode)}))
+
+(def ^:private event-id->connection-event
+  "Map from GLFW joystick connection event ids to keywords representing them."
+  {GLFW/GLFW_CONNECTED :connected
+   GLFW/GLFW_DISCONNECTED :disconnected})
+
+(defn set-joystick-callback
+  "Sets the global joystick connection event callback.
+  While these events do not require a window, [[poll-events]] must be called for
+  them to be consistently processed. If `callback` is nil, then the callback is
+  unset."
+  [callback]
+  (GLFW/glfwSetJoystickCallback
+   (when callback
+     (reify GLFWJoystickCallbackI
+       (invoke [this joystick-id event]
+         (callback joystick-id (event-id->connection-event event)))))))
