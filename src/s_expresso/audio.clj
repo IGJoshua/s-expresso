@@ -252,3 +252,8 @@
                         (put-seq (map float up))
                         (.flip))]
       (AL11/alListenerfv AL11/AL_ORIENTATION (.asFloatBuffer orientation)))))
+
+(defn listener-gain
+  "Sets the gain for the listener."
+  [gain]
+  (AL11/alListenerf AL11/AL_GAIN (float gain)))
