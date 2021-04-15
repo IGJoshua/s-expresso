@@ -8,16 +8,22 @@
    (org.lwjgl.stb STBVorbis)
    (org.lwjgl.system.libc LibCStdlib)))
 
-(def alc-device
-  "An atom containing device handle for OpenAL."
+(defonce
+  ^{:doc "An atom containing device handle for OpenAL."}
+  alc-device
   (atom nil))
-(def alc-capabilities
-  "An atom containing the [[org.lwjgl.openal.ALCCapabilities]] for opening OpenAL contexts."
+(defonce
+  ^{:doc "An atom containing the [[org.lwjgl.openal.ALCCapabilities]] for opening OpenAL contexts."}
+  alc-capabilities
   (atom nil))
-(def al-capabilities
-  "An atom containing the [[org.lwjgl.openal.ALCapabilities]] for OpenAL."
+(defonce
+  ^{:doc "An atom containing the [[org.lwjgl.openal.ALCapabilities]] for OpenAL."}
+  al-capabilities
   (atom nil))
-(def al-context (atom nil))
+(defonce
+  ^{:doc "An atom containing the context handle for OpenAL."}
+  al-context
+  (atom nil))
 
 (defn init-openal
   "Initializes OpenAL for use on the system."
