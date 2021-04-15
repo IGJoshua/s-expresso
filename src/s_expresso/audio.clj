@@ -128,8 +128,70 @@
   [source]
   (AL11/alSourcePlay (.-id source)))
 
+(defn source-stop
+  "Marks an audio source to stop playing."
+  [source]
+  (AL11/alSourceStop (.-id source)))
+
+(defn source-pause
+  "Marks an audio source to pause playing."
+  [source]
+  (AL11/alSourcePause (.-id source)))
+
+(defn source-rewind
+  "Rewinds an audio source to the beginning of its sound."
+  [source]
+  (AL11/alSourceRewind (.-id source)))
+
 (defn source-assign-sound
   "Updates an audio source to play the passed sound.
   This replaces any previously-played sound on this source."
   [source sound]
   (AL11/alSourcei (.-id source) AL11/AL_BUFFER (.-id sound)))
+
+(defn source-loop
+  "Updates an audio source to loop or not based on `loop?`."
+  ([source] (source-loop source true))
+  ([source loop?]
+   (AL11/alSourcei (.-id source) AL11/AL_LOOPING (if loop? AL11/AL_TRUE AL11/AL_FALSE))))
+
+(defn source-looping?
+  "Checks if the given source loops."
+  [source]
+  (= (AL11/alGetSourcei (.-id source) AL11/AL_LOOPING) AL11/AL_TRUE))
+
+(defn source-position
+  "Moves an audio source to the given location."
+  [source x y z]
+  (AL11/alSource3f (.-id source) AL11/AL_POSITION (float x) (float y) (float z)))
+
+(defn source-velocity
+  "Sets the velocity of an audio source."
+  [source x y z]
+  (AL11/alSource3f (.-id source) AL11/AL_VELOCITY (float x) (float y) (float z)))
+
+(defn source-direction
+  "Sets the direction the sound will play from the source in."
+  [source x y z]
+  (AL11/alSource3f (.-id source) AL11/AL_DIRECTION (float x) (float y) (float z)))
+
+(defn source-cone
+  "Sets the inner and outer cone angles the source will play in.
+  `attenuation` is a float representing the gain past the outer angle."
+  ([source inner outer] (source-cone source inner outer 0))
+  ([source inner outer attenuation]
+   (doto (.-id source)
+     (AL11/alSourcef AL11/AL_CONE_INNER_ANGLE (float inner))
+     (AL11/alSourcef AL11/AL_CONE_OUTER_ANGLE (float outer))
+     (AL11/alSourcef AL11/AL_CONE_OUTER_GAIN (float attenuation)))
+   nil))
+
+(defn source-pitch
+  "Sets the pitch to play sounds at from this source."
+  [source pitch]
+  (AL11/alSourcef (.-id source) AL11/AL_PITCH (float pitch)))
+
+(defn source-playing?
+  "Checks if the source is currently playing."
+  [source]
+  (= (AL11/alGetSourcei (.-id source) AL11/AL_SOURCE_STATE) AL11/AL_PLAYING))
