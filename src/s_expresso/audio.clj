@@ -257,3 +257,21 @@
   "Sets the gain for the listener."
   [gain]
   (AL11/alListenerf AL11/AL_GAIN (float gain)))
+
+(def ^:private distance-model->al-int
+  "Map from distance model keywords to AL enums."
+  {:exponential AL11/AL_EXPONENT_DISTANCE
+   :exponential-clamped AL11/AL_EXPONENT_DISTANCE_CLAMPED
+   :linear AL11/AL_LINEAR_DISTANCE
+   :linear-clamped AL11/AL_LINEAR_DISTANCE_CLAMPED
+   :inverse AL11/AL_INVERSE_DISTANCE
+   :inverse-clamped AL11/AL_INVERSE_DISTANCE_CLAMPED})
+(def distance-models
+  "Possible distance models to use."
+  (set (keys distance-model->al-int)))
+
+(defn distance-model
+  "Sets the distance model used for attenuation.
+  See [[distance-models]] for possible values."
+  [model]
+  (AL11/alDistanceModel (distance-model->al-int model)))
