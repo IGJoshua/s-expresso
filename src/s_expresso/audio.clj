@@ -92,7 +92,7 @@
   (free [_]
     (AL11/alDeleteBuffers id)))
 
-(deftype AudioSource [id]
+(deftype Source [id]
   Resource
   (free [_]
     (AL11/alDeleteSources id)))
@@ -117,11 +117,11 @@
         (finally
           (LibCStdlib/free audio-buffer))))))
 
-(defn make-audio-source
+(defn make-source
   "Creates an audio source for playback."
   []
   (let [source (AL11/alGenSources)]
-    (AudioSource. source)))
+    (Source. source)))
 
 (defn source-play
   "Marks an audio source as playing."
