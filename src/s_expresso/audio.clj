@@ -195,3 +195,25 @@
   "Checks if the source is currently playing."
   [source]
   (= (AL11/alGetSourcei (.-id source) AL11/AL_SOURCE_STATE) AL11/AL_PLAYING))
+
+(defn listener-position
+  "Sets the position of the listener."
+  [x y z]
+  (AL11/alListener3f AL11/AL_POSITION (float x) (float y) (float z)))
+
+(defn listener-velocity
+  "Sets the velocity of the listener."
+  [x y z]
+  (AL11/alListener3f AL11/AL_VELOCITY (float x) (float y) (float z)))
+
+(defn listener-orientation
+  "Sets the orientation of the listener.
+  `at` and `up` are seqable and represent orthogonal normalized vectors pointing
+  in the forward and up directions of the listener."
+  [at up]
+  (with-stack-allocator
+    (let [orientation (doto (alloc-bytes (* Float/SIZE 6))
+                        (put-seq (map float at))
+                        (put-seq (map float up))
+                        (.flip))]
+      (AL11/alListenerfv AL11/AL_ORIENTATION (.asFloatBuffer orientation)))))
