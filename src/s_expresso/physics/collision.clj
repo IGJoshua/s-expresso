@@ -43,7 +43,7 @@
       [(list a) ao])))
 (s/fdef evaluate-line
   :args (s/cat :line (s/and (s/coll-of m/vec?)
-                               #(= 2 (count %)))
+                            #(= 2 (count %)))
                :dir m/vec?)
   :ret (s/cat :simplex (s/coll-of m/vec?)
               :dir m/vec?))
@@ -67,7 +67,7 @@
           [(list a c b) (m/negate abc)])))))
 (s/fdef evaluate-triangle
   :args (s/cat :triangle (s/and (s/coll-of m/vec?)
-                               #(= 3 (count %)))
+                                #(= 3 (count %)))
                :dir m/vec?)
   :ret (s/cat :simplex (s/coll-of m/vec?)
               :dir m/vec?))
@@ -90,7 +90,7 @@
       :otherwise [tetrahedron nil])))
 (s/fdef evaluate-tetrahedron
   :args (s/cat :tetrahedron (s/and (s/coll-of m/vec?)
-                               #(= 4 (count %)))
+                                   #(= 4 (count %)))
                :dir m/vec?)
   :ret (s/cat :simplex (s/coll-of m/vec?)
               :dir (s/nilable m/vec?)))
@@ -142,3 +142,58 @@
   :args (s/cat :a (partial satisfies? Hull)
                :b (partial satisfies? Hull))
   :ret boolean?)
+
+(defn sphere-support
+  "Returns the furthest point in a given `direction` around a sphere.
+  This function is designed to be used in an implementation of [[Hull]] for
+  spheres.
+
+  This constructs the point from the definition of a sphere and will be
+  incredibly fast."
+  [center radius direction]
+  (m/add center
+         (m/mul (m/normalise direction)
+                radius)))
+(s/fdef sphere-support
+  :args (s/cat :center m/vec?
+               :radius pos?
+               :direction m/vec?)
+  :ret m/vec?)
+
+(defn points-support
+  "Returns the furthest point in a given `direction` among a sequence of points.
+  This function is designed to be used in an implementation of [[Hull]] for
+  convex hull meshes and other structures defined with a small set of vertices.
+
+  This uses a search through the points, and as such is linear in complexity."
+  [points direction]
+  (second
+   (let [[point & points] points
+         direction (m/normalise direction)]
+     (reduce (fn [[max-dot max-point :as acc] new-point]
+               (let [new-dot (m/dot new-point direction)]
+                 (if (> new-dot max-dot)
+                   [new-dot new-point]
+                   acc)))
+             [(m/dot point direction) point]
+             points))))
+(s/fdef points-support
+  :args (s/cat :points (s/coll-of m/vec?)
+               :direction m/vec?)
+  :ret m/vec?)
+
+(defn aabb-support
+  "Returns the furthest point in a given `direction` on the surface of an aabb.
+  This function is designed to be used in an implementation of [[Hull]] for axis
+  aligned bounding boxes."
+  [center bounds direction]
+  (m/add center (m/mul bounds (m/emap #(Math/signum %) direction))))
+(s/fdef aabb-support
+  :args (s/cat :center m/vec?
+               :bounds m/vec?
+               :direction m/vec?)
+  :ret m/vec?)
+
+(s/def ::penetration-depth number?)
+(s/def ::normal m/vec?)
+(s/def ::contact (s/keys :req [::normal ::penetration-depth]))
