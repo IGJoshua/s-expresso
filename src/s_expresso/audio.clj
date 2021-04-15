@@ -191,10 +191,45 @@
   [source pitch]
   (AL11/alSourcef (.-id source) AL11/AL_PITCH (float pitch)))
 
+(def ^:private al-int->source-state
+  "Map from AL enum values to source state keywords."
+  {AL11/AL_INITIAL :initial
+   AL11/AL_PLAYING :playing
+   AL11/AL_STOPPED :stopped
+   AL11/AL_PAUSED :paused})
+(def source-states
+  "Possible states for a source to be in."
+  (set (vals al-int->source-state)))
+
+(defn source-state
+  "Checks what state the source is currently in."
+  [source]
+  (al-int->source-state
+   (AL11/alGetSourcei (.-id source) AL11/AL_SOURCE_STATE)))
+
 (defn source-playing?
   "Checks if the source is currently playing."
   [source]
-  (= (AL11/alGetSourcei (.-id source) AL11/AL_SOURCE_STATE) AL11/AL_PLAYING))
+  (= (source-state source) :playing))
+
+(defn source-rolloff
+  "Sets how quickly the sound attenuates."
+  [source factor]
+  (AL11/alSourcef (.-id source) AL11/AL_ROLLOFF_FACTOR (float factor)))
+
+(defn source-distance
+  "Sets the distance to start and end attenuation at."
+  ([source min]
+   (AL11/alSourcef (.-id source) AL11/AL_REFERENCE_DISTANCE (float min)))
+  ([source min max]
+   (doto (.-id source)
+     (AL11/alSourcef AL11/AL_REFERENCE_DISTANCE (float min))
+     (AL11/alSourcef AL11/AL_MAX_DISTANCE (float max)))))
+
+(defn source-gain
+  "Sets the base gain of the source."
+  [source gain]
+  (AL11/alSourcef (.-id source) AL11/AL_GAIN (float gain)))
 
 (defn listener-position
   "Sets the position of the listener."
