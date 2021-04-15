@@ -26,7 +26,8 @@
   (atom nil))
 
 (defn init-openal
-  "Initializes OpenAL for use on the system."
+  "Initializes OpenAL for use on the system.
+  Returns `true` if successful."
   ([] (init-openal {}))
   ([opts]
    (try (ALC/create)
@@ -47,8 +48,8 @@
          (let [al-caps (AL/createCapabilities alc-caps)]
            (reset! al-capabilities al-caps)
            (when al-caps
-             (AL/setCurrentProcess al-caps))))))
-   nil))
+             (AL/setCurrentProcess al-caps)
+             true)))))))
 
 (defn bind-context-to-thread
   "Sets the current thread to be the one for OpenAL's context to use."
