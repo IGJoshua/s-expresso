@@ -1,9 +1,13 @@
 (ns s-expresso.audio
   "Functions for creating an OpenAL context and playing sounds."
   (:require
+   [clojure.java.io :as io]
+   [farolero.core :as far]
    [s-expresso.memory :as mem :refer [with-stack-allocator alloc-bytes put put-seq]]
    [s-expresso.resource :refer [Resource]])
   (:import
+   (java.io File)
+   (java.nio ByteBuffer)
    (org.lwjgl.openal AL AL11 ALC ALC11)
    (org.lwjgl.stb STBVorbis)
    (org.lwjgl.system.libc LibCStdlib)))
@@ -98,13 +102,62 @@
   (free [_]
     (AL11/alDeleteSources id)))
 
+(defn- read-file-to-byte-buffer
+  "Takes a file and puts it into a buffer made with [[alloc-bytes]]."
+  [file]
+  (let [input (io/input-stream file)
+        file-data
+        (loop [byte-groups []]
+          (let [available (.available input)
+                byte-arr (byte-array available)]
+            (if (zero? available)
+              byte-groups
+              (do (.read input byte-arr)
+                  (recur (conj byte-groups byte-arr))))))
+        file-size (transduce
+                   (map count)
+                   + 0
+                   file-data)]
+    (doto (alloc-bytes file-size)
+      (put-seq (mapcat seq file-data))
+      (.flip))))
+
+(defmethod far/report-condition ::invalid-file-type
+  [_ & {:keys [file usage]}]
+  (str "Invalid file object (" (type file) ") for usage: " usage))
+
 (defn make-sound
   "Imports the given sound into a [[Sound]] resource."
   [file-or-buffer]
   (with-stack-allocator
     (let [channels (.asIntBuffer (alloc-bytes Integer/SIZE))
           sample-rate (.asIntBuffer (alloc-bytes Integer/SIZE))
-          audio-buffer (STBVorbis/stb_vorbis_decode_filename file-or-buffer channels sample-rate)]
+          file-or-buffer
+          (cond
+            (string? file-or-buffer)
+            (if-let [res (io/resource file-or-buffer)]
+              (io/file res)
+              (io/file file-or-buffer))
+
+            (instance? File file-or-buffer)
+            file-or-buffer
+
+            (instance? ByteBuffer file-or-buffer)
+            file-or-buffer
+
+            :otherwise
+            (far/restart-case (far/error ::invalid-file-type
+                                         :file file-or-buffer
+                                         :usage "")
+              (::far/use-value [v]
+                :report "Replace the invalid value with a new one"
+                :interactive (comp eval read)
+                v)))
+          buffer (volatile!
+                  (if (instance? File file-or-buffer)
+                    (read-file-to-byte-buffer file-or-buffer)
+                    file-or-buffer))
+          audio-buffer (STBVorbis/stb_vorbis_decode_memory @buffer channels sample-rate)]
       (try
         (let [channels (.get channels)
               sample-rate (.get sample-rate)
