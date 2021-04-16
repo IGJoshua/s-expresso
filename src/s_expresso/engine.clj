@@ -122,13 +122,15 @@
         (when @next-state
           (r/step-renderer! render-state @next-state)))
       (w/swap-buffers window)
-      ;; TODO(Joshua): Make sure this doesn't exit if the first frame hasn't been rendered yet
       (if (and @next-state (not (::should-close? @next-state)))
         (recur render-state
-               ;; TODO(Joshua): Make this account for when rendering a frame makes us miss a vblank
-               (when (::step render-state)
-                 (+ (or next-vblank (- (w/time) (::step render-state)))
-                    (::step render-state))))
+               (when-let [step (::step render-state)]
+                 (let [current-frame (- (w/time) step)
+                       frames-behind (Math/floor (/ (- current-frame next-vblank) step))]
+                   (+ (or next-vblank current-frame)
+                      (if (< frames-behind 2)
+                        step
+                        (* step frames-behind))))))
         [@next-state render-state]))))
 
 (defn start-engine
