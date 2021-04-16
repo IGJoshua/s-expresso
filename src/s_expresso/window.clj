@@ -18,6 +18,7 @@
   (:require
    [clojure.reflect :as refl]
    [clojure.string :as str]
+   [farolero.core :as far]
    [s-expresso.resource :refer [Resource]])
   (:import
    (org.lwjgl.glfw
@@ -33,6 +34,7 @@
 
 (defn init-glfw
   "Initializes GLFW for use on the system.
+  Returns a boolean representing if GLFW was successfully initialized.
 
   The options map takes the following keys:
   | key               | description |
@@ -49,8 +51,7 @@
                (GLFWErrorCallback/create (reify GLFWErrorCallbackI
                                            (invoke [this error description]
                                              (error-callback error description)))))))
-     (when-not (GLFW/glfwInit)
-       (throw (ex-info "Unable to initialize GLFW" {}))))))
+     (GLFW/glfwInit))))
 
 (defn shutdown-glfw
   "Terminates GLFW and frees any resources specific to it."
@@ -153,6 +154,7 @@
 
 (defn make-window
   "Creates a window with the given options, returning a `Window` record.
+  Returns nil if the window could not be created.
 
   The options map takes the following keys:
   | key                       | description |
@@ -221,121 +223,122 @@
      (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MINOR gl-minor-version)
 
      ;; create the window
-     (let [vid-mode (when monitor
-                      (GLFW/glfwGetVideoMode monitor))
-           size (if monitor
-                  [(.width vid-mode) (.height vid-mode)]
-                  size)
-           _ (when monitor
-               (GLFW/glfwWindowHint GLFW/GLFW_RED_BITS (.redBits vid-mode))
-               (GLFW/glfwWindowHint GLFW/GLFW_GREEN_BITS (.greenBits vid-mode))
-               (GLFW/glfwWindowHint GLFW/GLFW_BLUE_BITS (.blueBits vid-mode))
-               (GLFW/glfwWindowHint GLFW/GLFW_REFRESH_RATE (.refreshRate vid-mode))
-               (GLFW/glfwWindowHint GLFW/GLFW_AUTO_ICONIFY GLFW/GLFW_FALSE))
-           id (GLFW/glfwCreateWindow (int (first size)) (int (second size))
-                                     ^CharSequence title
-                                     (long (or monitor 0))
-                                     (long (or (when parent-window (.-id parent-window)) 0)))
-           window (->Window id)]
-       (when (or (nil? id)
-                 (= id 0))
-         (throw (ex-info "Failed to create a window!" {})))
+     (far/block return
+       (let [vid-mode (when monitor
+                        (GLFW/glfwGetVideoMode monitor))
+             size (if monitor
+                    [(.width vid-mode) (.height vid-mode)]
+                    size)
+             _ (when monitor
+                 (GLFW/glfwWindowHint GLFW/GLFW_RED_BITS (.redBits vid-mode))
+                 (GLFW/glfwWindowHint GLFW/GLFW_GREEN_BITS (.greenBits vid-mode))
+                 (GLFW/glfwWindowHint GLFW/GLFW_BLUE_BITS (.blueBits vid-mode))
+                 (GLFW/glfwWindowHint GLFW/GLFW_REFRESH_RATE (.refreshRate vid-mode))
+                 (GLFW/glfwWindowHint GLFW/GLFW_AUTO_ICONIFY GLFW/GLFW_FALSE))
+             id (GLFW/glfwCreateWindow (int (first size)) (int (second size))
+                                       ^CharSequence title
+                                       (long (or monitor 0))
+                                       (long (or (when parent-window (.-id parent-window)) 0)))
+             window (->Window id)]
+         (when (or (nil? id)
+                   (= id 0))
+           (far/return-from return))
 
-       (GLFW/glfwSetInputMode id GLFW/GLFW_LOCK_KEY_MODS GLFW/GLFW_TRUE)
-       (set-window-cursor-mode window cursor-mode)
-       (set-raw-mouse-motion window (and (= :disabled cursor-mode) raw-mouse-motion))
+         (GLFW/glfwSetInputMode id GLFW/GLFW_LOCK_KEY_MODS GLFW/GLFW_TRUE)
+         (set-window-cursor-mode window cursor-mode)
+         (set-raw-mouse-motion window (and (= :disabled cursor-mode) raw-mouse-motion))
 
-       ;; set the callbacks
-       (when key-callback
-         (GLFW/glfwSetKeyCallback
-          id
-          (reify GLFWKeyCallbackI
-            (invoke [this wnd key scancode action mods]
-              (key-callback window (key-int->key key)
-                            scancode (action-int->action action)
-                            (mod-bits-set mods))))))
+         ;; set the callbacks
+         (when key-callback
+           (GLFW/glfwSetKeyCallback
+            id
+            (reify GLFWKeyCallbackI
+              (invoke [this wnd key scancode action mods]
+                (key-callback window (key-int->key key)
+                              scancode (action-int->action action)
+                              (mod-bits-set mods))))))
 
-       (when resize-callback
-         (GLFW/glfwSetWindowSizeCallback
-          id
-          (reify GLFWWindowSizeCallbackI
-            (invoke [this wnd width height]
-              (resize-callback window width height)))))
+         (when resize-callback
+           (GLFW/glfwSetWindowSizeCallback
+            id
+            (reify GLFWWindowSizeCallbackI
+              (invoke [this wnd width height]
+                (resize-callback window width height)))))
 
-       (when framebuffer-callback
-         (GLFW/glfwSetFramebufferSizeCallback
-          id
-          (reify GLFWFramebufferSizeCallbackI
-            (invoke [this wnd width height]
-              (framebuffer-callback window width height)))))
+         (when framebuffer-callback
+           (GLFW/glfwSetFramebufferSizeCallback
+            id
+            (reify GLFWFramebufferSizeCallbackI
+              (invoke [this wnd width height]
+                (framebuffer-callback window width height)))))
 
-       (when char-callback
-         (GLFW/glfwSetCharCallback
-          id
-          (reify GLFWCharCallbackI
-            (invoke [this wnd codepoint]
-              (char-callback window (String. (Character/toChars codepoint)))))))
+         (when char-callback
+           (GLFW/glfwSetCharCallback
+            id
+            (reify GLFWCharCallbackI
+              (invoke [this wnd codepoint]
+                (char-callback window (String. (Character/toChars codepoint)))))))
 
-       (when cursor-pos-callback
-         (GLFW/glfwSetCursorPosCallback
-          id
-          (reify GLFWCursorPosCallbackI
-            (invoke [this wnd xpos ypos]
-              (cursor-pos-callback window xpos ypos)))))
+         (when cursor-pos-callback
+           (GLFW/glfwSetCursorPosCallback
+            id
+            (reify GLFWCursorPosCallbackI
+              (invoke [this wnd xpos ypos]
+                (cursor-pos-callback window xpos ypos)))))
 
-       (when cursor-enter-callback
-         (GLFW/glfwSetCursorEnterCallback
-          id
-          (reify GLFWCursorEnterCallbackI
-            (invoke [this wnd entered]
-              (cursor-enter-callback window entered)))))
+         (when cursor-enter-callback
+           (GLFW/glfwSetCursorEnterCallback
+            id
+            (reify GLFWCursorEnterCallbackI
+              (invoke [this wnd entered]
+                (cursor-enter-callback window entered)))))
 
-       (when mouse-button-callback
-         (GLFW/glfwSetMouseButtonCallback
-          id
-          (reify GLFWMouseButtonCallbackI
-            (invoke [this wnd button action mods]
-              (mouse-button-callback window
-                                     (mouse-button-int->mouse-button button)
-                                     (action-int->action action)
-                                     (mod-bits-set mods))))))
+         (when mouse-button-callback
+           (GLFW/glfwSetMouseButtonCallback
+            id
+            (reify GLFWMouseButtonCallbackI
+              (invoke [this wnd button action mods]
+                (mouse-button-callback window
+                                       (mouse-button-int->mouse-button button)
+                                       (action-int->action action)
+                                       (mod-bits-set mods))))))
 
-       (when scroll-callback
-         (GLFW/glfwSetScrollCallback
-          id
-          (reify GLFWScrollCallbackI
-            (invoke [this wnd xoffset yoffset]
-              (scroll-callback window
-                               xoffset yoffset)))))
+         (when scroll-callback
+           (GLFW/glfwSetScrollCallback
+            id
+            (reify GLFWScrollCallbackI
+              (invoke [this wnd xoffset yoffset]
+                (scroll-callback window
+                                 xoffset yoffset)))))
 
-       (when file-callback
-         (GLFW/glfwSetDropCallback
-          id
-          (reify GLFWDropCallbackI
-            (invoke [this wnd cnt paths]
-              (file-callback window
-                             (mapv #(GLFWDropCallback/getName paths %) (range cnt)))))))
+         (when file-callback
+           (GLFW/glfwSetDropCallback
+            id
+            (reify GLFWDropCallbackI
+              (invoke [this wnd cnt paths]
+                (file-callback window
+                               (mapv #(GLFWDropCallback/getName paths %) (range cnt)))))))
 
-       (when request-close-callback
-         (GLFW/glfwSetWindowCloseCallback
-          id
-          (reify GLFWWindowCloseCallbackI
-            (invoke [this wnd]
-              (request-close-callback window)))))
+         (when request-close-callback
+           (GLFW/glfwSetWindowCloseCallback
+            id
+            (reify GLFWWindowCloseCallbackI
+              (invoke [this wnd]
+                (request-close-callback window)))))
 
-       (when focus-callback
-         (GLFW/glfwSetWindowFocusCallback
-          id
-          (reify GLFWWindowFocusCallbackI
-            (invoke [this wnd focused?]
-              (focus-callback window
-                              focused?)))))
+         (when focus-callback
+           (GLFW/glfwSetWindowFocusCallback
+            id
+            (reify GLFWWindowFocusCallbackI
+              (invoke [this wnd focused?]
+                (focus-callback window
+                                focused?)))))
 
-       (GLFW/glfwSetWindowSizeLimits id
-                                     (first min-size) (second min-size)
-                                     (first max-size) (second max-size))
+         (GLFW/glfwSetWindowSizeLimits id
+                                       (first min-size) (second min-size)
+                                       (first max-size) (second max-size))
 
-       window))))
+         window)))))
 
 (defn center-window
   "Centers a window on the given monitor (default primary)."
