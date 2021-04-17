@@ -122,7 +122,8 @@
         (when @next-state
           (r/step-renderer! render-state @next-state)))
       (w/swap-buffers window)
-      (if (and @next-state (not (::should-close? @next-state)))
+      (if (and (not (::should-close? @next-state)) ; don't want to close
+               (or @next-state (not @last-state))) ; and this isn't a nil state after the first
         (recur render-state
                (when-let [step (::step render-state)]
                  (let [current-frame (- (w/time) step)
