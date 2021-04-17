@@ -2,9 +2,9 @@
   "Functions to compile and link GLSL shader programs."
   (:require
    [clojure.spec.alpha :as s]
+   [clojure.tools.logging :as log]
    [s-expresso.memory :as m :refer [with-stack-allocator]]
-   [s-expresso.resource :refer [Resource free]]
-   [taoensso.timbre :as log])
+   [s-expresso.resource :refer [Resource free]])
   (:import
    (java.nio
     DoubleBuffer FloatBuffer IntBuffer)
@@ -58,7 +58,7 @@
     (GL45/glGetShaderiv id GL45/GL_COMPILE_STATUS status)
     (if (zero? (first status))
       (let [info-log (GL45/glGetShaderInfoLog id)]
-        (log/errorf "Shader stage %s failed to compile with message: %s\n%s" (str stage) info-log source)
+        (log/error (format "Shader stage %s failed to compile with message: %s\n%s" (str stage) info-log source))
         (GL45/glDeleteShader id)
         nil)
       (->Shader id source stage))))
@@ -226,9 +226,9 @@
       (GL45/glGetProgramiv program GL45/GL_LINK_STATUS status)
       (when (zero? (first status))
         (let [info-log (GL45/glGetProgramInfoLog program)]
-          (log/errorf "Shader program failed to link with message: %s\n%s"
-                      info-log
-                      (apply str (interpose "\n\n\n" (map :source shaders))))
+          (log/error (format "Shader program failed to link with message: %s\n%s"
+                             info-log
+                             (apply str (interpose "\n\n\n" (map :source shaders)))))
           (GL45/glDeleteProgram program)
           nil)))
     (->ShaderProgram program shaders (uniform-map program))))
