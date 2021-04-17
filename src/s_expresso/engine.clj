@@ -55,30 +55,32 @@
   Assumes that [[w/time]] will not be set after this is called.
 
   As each state is simulated, it will be accumulated in [[simulated-states]]."
-  [init-state dt]
+  [init-state dt close-ch]
   (loop [scene init-state
          next-frame (w/time)]
+    ;; Allow the engine to kill this process early
+    (when-not (a/poll! close-ch)
 
-    ;; Spin waiting for the next frametime to start
-    (let [t (- next-frame dt)]       ; Set t to one dt before the frametime
-      (while (pos? (- t (w/time))))) ; Wait until t
+      ;; Spin waiting for the next frametime to start
+      (let [t (- next-frame dt)]       ; Set t to one dt before the frametime
+        (while (pos? (- t (w/time))))) ; Wait until t
 
-    (let [scene (binding [*render-events-to-send* []]
-                  (let [scene (ecs/step-scene scene dt)]
-                    (swap! simulated-states
-                           conj (assoc scene ::time next-frame
-                                       ::events *render-events-to-send*))
-                    scene))]
-      (when (and scene (not (::should-close? scene)))
-        (recur scene
-               (let [next-frame (+ next-frame dt)
-                     current-time (w/time)
-                     amount-behind (- current-time next-frame)]
-                 (if (>= amount-behind 0.1)
-                   (do
-                     (println "SIMULATION BEHIND! Dropping" amount-behind "seconds of real time.")
-                     (+ current-time dt))
-                   next-frame)))))))
+      (let [scene (binding [*render-events-to-send* []]
+                    (let [scene (ecs/step-scene scene dt)]
+                      (swap! simulated-states
+                             conj (assoc scene ::time next-frame
+                                         ::events *render-events-to-send*))
+                      scene))]
+        (when (and scene (not (::should-close? scene)))
+          (recur scene
+                 (let [next-frame (+ next-frame dt)
+                       current-time (w/time)
+                       amount-behind (- current-time next-frame)]
+                   (if (>= amount-behind 0.1)
+                     (do
+                       (println "SIMULATION BEHIND! Dropping" amount-behind "seconds of real time.")
+                       (+ current-time dt))
+                     next-frame))))))))
 
 (defn- render
   "Starts a render loop to render states from [[simulated-states]].
@@ -153,16 +155,21 @@
   ;; Reset state from previous runs
   (reset! simulated-states [])
 
-  ;; Set the primary simulation thread to max priority and kick it off
-  (.start
-   (Thread.
-    #(do (.setPriority (Thread/currentThread) Thread/MAX_PRIORITY)
-         (simulate init-game-state simulation-step))))
-
-  ;; Set the render thread to max priority
-  (let [old-priority (.getPriority (Thread/currentThread))
+  (let [close-simulation (a/chan 1)
+        simulation-thread
+        ;; Set the primary simulation thread to max priority and kick it off
+        (doto (Thread.
+               #(do (.setPriority (Thread/currentThread) Thread/MAX_PRIORITY)
+                    (simulate init-game-state simulation-step close-simulation)))
+          (.start))
+        ;; Set the render thread to max priority
+        old-priority (.getPriority (Thread/currentThread))
         _ (.setPriority (Thread/currentThread) Thread/MAX_PRIORITY)
         ret (render window init-render-state)]
+    ;; Send a kill signal to the simulation and wait for it
+    (a/put! close-simulation true)
+    (.join simulation-thread)
+    ;; Return this thread to the old priority and return
     (.setPriority (Thread/currentThread) old-priority)
     ret))
 (s/fdef start-engine
