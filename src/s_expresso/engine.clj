@@ -15,12 +15,12 @@
 (s/def ::time float?)
 (s/def ::game-state (s/merge ::ecs/scene
                              ::r/game-state
-                             (s/keys :opt [::events ::should-close? ::time])))
+                             (s/keys :req [::event-handler]
+                                     :opt [::events ::should-close? ::time])))
 
 (s/def ::step number?)
 (s/def ::render-state (s/merge ::r/render-state
-                               (s/keys :req [::event-handler]
-                                       :opt [::step])))
+                               (s/keys :opt [::step])))
 
 (s/def ::event any?)
 (s/def ::events (s/coll-of ::event))
