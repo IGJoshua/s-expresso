@@ -167,7 +167,7 @@
 (s/def ::buffer-layout (s/and (s/keys :req-un [::attrib-layouts]
                                       :opt-un [::interleaved ::usage-flags])
                               (fn [layout]
-                                (if (:interleaved layout)
+                                (if-not (:interleaved layout)
                                   (apply = (map #(or (:stride %)
                                                      (* (attrib-type->size-in-bytes (:type %))
                                                         (:count %)))
@@ -238,18 +238,16 @@
                                         0 (:attrib-layouts buffer))
                          mem-buf (alloc-bytes (* stride vert-count))]
                      (if (:interleaved buffer)
-                       (loop [verts (:vertices mesh)]
-                         (let [vert (first verts)]
-                           (doseq [{:keys [name type count convert-fn]} (:attrib-layouts buffer)]
-                             (let [v (map (attrib-type->coersion-fn type)
-                                          (take count (if convert-fn
-                                                        (convert-fn vert)
-                                                        (name vert))))]
-                               (put-seq mem-buf v))))
-                         (when (seq (rest verts))
-                           (recur (rest verts))))
+                       (doseq [vert (:vertices mesh)]
+                         (doseq [{:keys [name type count convert-fn]} (:attrib-layouts buffer)]
+                           (let [v (map (attrib-type->coersion-fn type)
+                                        (take count (if convert-fn
+                                                      (convert-fn vert)
+                                                      (get vert name))))]
+                             (put-seq mem-buf v))))
+                       ;; TODO(Joshua): Include support for stride
                        (doseq [{:keys [name type count convert-fn]} (:attrib-layouts buffer)]
-                         (transduce (comp (map (if convert-fn convert-fn name))
+                         (transduce (comp (map (if convert-fn convert-fn #(get % name)))
                                           (map #(take count %))
                                           cat
                                           (map (attrib-type->coersion-fn type)))
@@ -303,11 +301,13 @@
                                             (:buffer-layouts layout)
                                             (:buffers packed-mesh))]
       (let [buffer-array (GL45/glCreateBuffers)
+            ;; TODO(Joshua): Audit this code for non-interleaved support
             stride (if (:interleaved buffer-layout)
-                     (reduce (fn [acc v]
-                               (+ acc (* (attrib-type->size-in-bytes (:type v))
-                                         (:count v))))
-                             0 (:attrib-layouts buffer-layout))
+                     (transduce
+                      (map #(* (attrib-type->size-in-bytes (:type %))
+                               (:count %)))
+                      + 0 (:attrib-layouts buffer-layout))
+                     ;; TODO(Joshua): Add support for stride
                      (let [v (first (:attrib-layouts buffer-layout))]
                        (* (attrib-type->size-in-bytes (:type v))
                           (:count v))))]
