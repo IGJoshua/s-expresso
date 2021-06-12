@@ -256,8 +256,108 @@
                               (wrap-mode->glenum wrap-r)))
   nil)
 
-(s/def ::texture-definition any?)
-(s/def ::texture-data any?)
+(def ^:private image-internal-format->glenum
+  {:r8 GL45/GL_R8
+   :r8-snorm GL45/GL_R8_SNORM
+   :r16 GL45/GL_R16
+   :r16-snorm GL45/GL_R16_SNORM
+   :rg8 GL45/GL_RG8
+   :rg8-snorm GL45/GL_RG8_SNORM
+   :rg16 GL45/GL_RG16
+   :rg16-snorm GL45/GL_RG16_SNORM
+   :r3-g3-b2 GL45/GL_R3_G3_B2
+   :rgb4 GL45/GL_RGB4
+   :rgb5 GL45/GL_RGB5
+   :rgb8 GL45/GL_RGB8
+   :rgb8-snorm GL45/GL_RGB8_SNORM
+   :rgb10 GL45/GL_RGB10
+   :rgb12 GL45/GL_RGB12
+   :rgb16-snorm GL45/GL_RGB16_SNORM
+   :rgba2 GL45/GL_RGBA2
+   :rgba4 GL45/GL_RGBA4
+   :rgb5-a1 GL45/GL_RGB5_A1
+   :rgba8 GL45/GL_RGBA8
+   :rgba8-snorm GL45/GL_RGBA8_SNORM
+   :rgb10-a2 GL45/GL_RGB10_A2
+   :rgb10-a2ui GL45/GL_RGB10_A2UI
+   :rgba12 GL45/GL_RGBA12
+   :rgba16 GL45/GL_RGBA16
+   :srgb8 GL45/GL_SRGB8
+   :srgb8-alpha8 GL45/GL_SRGB8_ALPHA8
+   :r16f GL45/GL_R16F
+   :rg16f GL45/GL_RG16F
+   :rgb16f GL45/GL_RGB16F
+   :rgba16f GL45/GL_RGBA16F
+   :r32f GL45/GL_R32F
+   :rg32f GL45/GL_RG32F
+   :rgb32f GL45/GL_RGB32F
+   :rgba32f GL45/GL_RGBA32F
+   :r11f-g11f-b10f GL45/GL_R11F_G11F_B10F
+   :rgb9-e5 GL45/GL_RGB9_E5
+   :r8i GL45/GL_R8I
+   :r8ui GL45/GL_R8UI
+   :r16i GL45/GL_R16I
+   :r16ui GL45/GL_R16UI
+   :r32i GL45/GL_R32I
+   :r32ui GL45/GL_R32UI
+   :rg8i GL45/GL_RG8I
+   :rg8ui GL45/GL_RG8UI
+   :rg16i GL45/GL_RG16I
+   :rg16ui GL45/GL_RG16UI
+   :rg32i GL45/GL_RG32I
+   :rg32ui GL45/GL_RG32UI
+   :rgb8i GL45/GL_RGB8I
+   :rgb8ui GL45/GL_RGB8UI
+   :rgb16i GL45/GL_RGB16I
+   :rgb16ui GL45/GL_RGB16UI
+   :rgb32i GL45/GL_RGB32I
+   :rgb32ui GL45/GL_RGB32UI
+   :rgba8i GL45/GL_RGBA8I
+   :rgba8ui GL45/GL_RGBA8UI
+   :rgba16i GL45/GL_RGBA16I
+   :rgba16ui GL45/GL_RGBA16UI
+   :rgba32i GL45/GL_RGBA32I
+   :rgba32ui GL45/GL_RGBA32UI})
+(def image-internal-formats (set (keys image-internal-format->glenum)))
+(s/def ::internal-format image-internal-format->glenum)
+(s/def ::levels integer?)
+(s/def ::texture-definition (s/keys :req-un [::dimensions ::internal-format]
+                                    :opt-un [::levels]))
+
+(def ^:private image-format->glenum
+  {:red GL45/GL_RED
+   :rg GL45/GL_RG
+   :rgb GL45/GL_RGB
+   :bgr GL45/GL_BGR
+   :rgba GL45/GL_RGBA
+   :bgra GL45/GL_BGRA
+   :depth-component GL45/GL_DEPTH_COMPONENT
+   :stencil-index GL45/GL_STENCIL_INDEX})
+(def image-formats (set (keys image-format->glenum)))
+(s/def ::format image-formats)
+(def ^:private data-types->glenum
+  {:unsigned-byte GL45/GL_UNSIGNED_BYTE
+   :byte GL45/GL_BYTE
+   :unsigned-short GL45/GL_UNSIGNED_SHORT
+   :short GL45/GL_SHORT
+   :unsigned-int GL45/GL_UNSIGNED_INT
+   :int GL45/GL_INT
+   :float GL45/GL_FLOAT
+   :unsigned-byte-3-3-2 GL45/GL_UNSIGNED_BYTE_3_3_2
+   :unsigned-byte-2-3-3-rev GL45/GL_UNSIGNED_BYTE_2_3_3_REV
+   :unsigned-short-5-6-5 GL45/GL_UNSIGNED_SHORT_5_6_5
+   :unsigned-short-5-6-5-rev GL45/GL_UNSIGNED_SHORT_5_6_5_REV
+   :unsigned-short-4-4-4-4 GL45/GL_UNSIGNED_SHORT_4_4_4_4
+   :unsigned-short-4-4-4-4-rev GL45/GL_UNSIGNED_SHORT_4_4_4_4_REV
+   :unsigned-short-5-5-5-1 GL45/GL_UNSIGNED_SHORT_5_5_5_1
+   :unsigned-short-1-5-5-5-rev GL45/GL_UNSIGNED_SHORT_1_5_5_5_REV
+   :unsigned-int-8-8-8-8 GL45/GL_UNSIGNED_INT_8_8_8_8
+   :unsigned-int-8-8-8-8-rev GL45/GL_UNSIGNED_INT_8_8_8_8_REV
+   :unsigned-int-10-10-10-2 GL45/GL_UNSIGNED_INT_10_10_10_2
+   :unsigned-int-2-10-10-10-rev GL45/GL_UNSIGNED_INT_2_10_10_10_REV})
+(def data-types (set (keys data-types->glenum)))
+(s/def ::data-type data-types)
+(s/def ::texture-data (s/keys :req-un [::format ::data-type ::data]))
 
 (defn make-texture
   "Creates a new texture from the given `tex-def`.
@@ -274,12 +374,12 @@
                                     (int
                                      (min (math/log width 2)
                                           (math/log height 2))))
-                                (:format tex-def)
+                                (image-internal-format->glenum (:internal-format tex-def))
                                 width height)
        (GL45/glTextureSubImage2D tex-id 0 0 0
                                  width height
-                                 ^int (:format tex-data)
-                                 ^int (:type tex-data)
+                                 ^int (image-format->glenum (:format tex-data))
+                                 ^int (image-type->glenum (:type tex-data))
                                  ^ByteBuffer (:data tex-data)))
      (GL45/glGenerateTextureMipmap tex-id)
      (->Texture tex-id tex-def opts))))
