@@ -109,7 +109,12 @@
    (let [ops (prepare-ops game-state last-state factor)]
      (render-scene! ops render-state)
      (let [new-deps (apply dissoc (collect-deps ops) (keys (::resources render-state)))
-           render-state (update render-state ::resolvers #(merge new-deps %))]
+           render-state
+           (update render-state
+                   ::resolvers #(merge new-deps
+                                       (into {} (map (fn [[k v]]
+                                                       [k (deref v)]))
+                                             %)))]
        (step-resolvers render-state)))))
 (s/fdef step-renderer
   :args (s/cat :render-state ::render-state

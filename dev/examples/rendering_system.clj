@@ -48,30 +48,32 @@
 
 (defn render-entity
   [entity]
-  (let [deps {:shader (reify r/Resolver
-                        (step-resolver [t]
-                          [t true])
-                        (resolved-resource [_]
-                          (sh/make-shader-program-from-sources [{:source (::c/source vert-shader)
-                                                                 :stage :vertex}
-                                                                {:source (::c/source frag-shader)
-                                                                 :stage :fragment}])))
-              :mesh (reify r/Resolver
-                      (step-resolver [t]
-                        [t true])
-                      (resolved-resource [_]
-                        (with-stack-allocator
-                          (m/make-mesh tri-mesh-layout (m/pack-verts tri-mesh-layout tri-mesh-data)))))}]
-    (reify r/RenderOp
-     (op-deps [_]
-       deps)
-     (apply-op! [_ st]
-       (when-let [mesh (:mesh (::r/resources st))]
-         (when-let [shader (:shader (::r/resources st))]
-           (sh/with-shader-program shader
-             (apply sh/upload-uniform-float shader (c/sym->ident `obj-pos) (::d/position entity))
-             (apply sh/upload-uniform-float shader (c/sym->ident `obj-col) (::color entity))
-             (m/draw-mesh mesh))))))))
+  (reify r/RenderOp
+    (op-deps [_]
+      {:shader (delay
+                 (reify r/Resolver
+                   (step-resolver [t]
+                     [t true])
+                   (resolved-resource [_]
+                     (sh/make-shader-program-from-sources
+                      [{:source (::c/source vert-shader)
+                        :stage :vertex}
+                       {:source (::c/source frag-shader)
+                        :stage :fragment}]))))
+       :mesh (delay
+               (reify r/Resolver
+                 (step-resolver [t]
+                   [t true])
+                 (resolved-resource [_]
+                   (with-stack-allocator
+                     (m/make-mesh tri-mesh-layout (m/pack-verts tri-mesh-layout tri-mesh-data))))))})
+    (apply-op! [_ st]
+      (when-let [mesh (:mesh (::r/resources st))]
+        (when-let [shader (:shader (::r/resources st))]
+          (sh/with-shader-program shader
+            (apply sh/upload-uniform-float shader (c/sym->ident `obj-pos) (::d/position entity))
+            (apply sh/upload-uniform-float shader (c/sym->ident `obj-col) (::color entity))
+            (m/draw-mesh mesh)))))))
 
 (defn state-to-ops
   [state]
