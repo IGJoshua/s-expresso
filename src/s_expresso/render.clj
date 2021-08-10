@@ -97,7 +97,7 @@
   This assumes that each resource will have a unique key, or that if both keys
   are the same, the resolvers will load the same resource."
   [ops]
-  (apply merge (map op-deps ops)))
+  (reduce merge (map op-deps ops)))
 (s/fdef collect-deps
   :args (s/cat :ops (partial satisfies? RenderOp))
   :ret ::resolvers)
