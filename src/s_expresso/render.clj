@@ -1,6 +1,7 @@
 (ns s-expresso.render
   "Utilities for rendering scenes."
   (:require
+   [clojure.set :as set]
    [clojure.spec.alpha :as s]))
 
 (defprotocol RenderOp
@@ -11,18 +12,16 @@
   :extend-via-metadata true
   (op-deps [op]
     "Returns the resources which are used by this operation.
-    This should not do any heavy computation.")
+    This should not do any heavy computation.
+
+    The returned value must be a map from resource ids to resolvers.
+
+    A resolver must be a delay which derefs either to the final resource, or a
+    future. If it derefs to a future, then the future will return either the
+    final resource, or another delay which will be run on the render thread, and
+    its derefed value used as the final resource.")
   (apply-op! [op render-state]
     "Renders as much as possible with currently-initialized resources."))
-
-(defprotocol Resolver
-  "Manages the resolution of a resource for rendering."
-  :extend-via-metadata true
-  (step-resolver [resolver]
-    "Steps the resolution of the resource.
-    Returns a vector of the next resolver, and if it's completed.")
-  (resolved-resource [resolver]
-    "Returns the resource after complete resolution."))
 
 (s/def ::game-state (s/keys :req [::systems]
                             :opt [::interpolator]))
@@ -37,8 +36,9 @@
                                :ret ::game-state))
 
 (s/def ::resource-id any?)
-(s/def ::resolvers (s/map-of ::resource-id (partial satisfies? Resolver)))
+(s/def ::resolvers (s/map-of ::resource-id future?))
 (s/def ::resources (s/map-of ::resource-id any?))
+(s/def ::active-resources (s/coll-of ::resource-id :kind set?))
 
 (defn prepare-ops
   "Collects all the [[RenderOps]] from the `game-state`.
@@ -62,22 +62,23 @@
   :ret (s/coll-of (partial satisfies? RenderOp)))
 
 (defn step-resolvers
-  "Steps each [[Resolver]] in `render-state`.
-  If a resolver is complete, it will be added to the resolved resources in the
-  state."
+  "Updates the `render-state` by putting any resolved resources into the correct place."
   [render-state]
   (let [resolvers (::resolvers render-state)
-        [resources resolvers]
-        (reduce (fn [[resources resolvers] [key resolver]]
-                  (let [[new-resolver done?] (step-resolver resolver)]
-                    (if done?
-                      [(assoc resources key (resolved-resource new-resolver)) resolvers]
-                      [resources (assoc resolvers key new-resolver)])))
-                [(::resources render-state) {}]
-                resolvers)]
+        realized-keys (into #{}
+                            (comp (filter (comp realized? val))
+                                  (map key))
+                            resolvers)
+        new-resolvers (into {}
+                            (filter (comp (complement realized-keys) key))
+                            resolvers)
+        resources (into (::resources render-state)
+                        (comp (filter (comp realized-keys key))
+                              (map (juxt key (comp deref deref val))))
+                        resolvers)]
     (assoc render-state
-           ::resources resources
-           ::resolvers resolvers)))
+           ::resolvers new-resolvers
+           ::resources resources)))
 (s/fdef step-resolvers
   :args (s/cat :render-state ::render-state)
   :ret ::render-state)
@@ -92,7 +93,7 @@
   :ret nil?)
 
 (defn collect-deps
-  "Collects a map of [[Resolver]]s for a sequence of `ops`.
+  "Collects a map of resolvers for a sequence of `ops`.
   This assumes that each resource will have a unique key, or that if both keys
   are the same, the resolvers will load the same resource."
   [ops]
@@ -102,20 +103,28 @@
   :ret ::resolvers)
 
 (defn step-renderer!
-  "Renders the current scene and returns an updated render state."
+  "Renders the current scene and returns an updated render state.
+
+  This will render the scene immediately, but afterwards will take some time to
+  ensure that renderer dependencies are loaded."
   ([render-state game-state]
    (step-renderer! render-state game-state nil nil))
   ([render-state game-state last-state factor]
    (let [ops (prepare-ops game-state last-state factor)]
      (render-scene! ops render-state)
-     (let [new-deps (apply dissoc (collect-deps ops) (keys (::resources render-state)))
-           render-state
-           (update render-state
-                   ::resolvers #(merge new-deps
-                                       (into {} (map (fn [[k v]]
-                                                       [k (deref v)]))
-                                             %)))]
-       (step-resolvers render-state)))))
+     (let [active-resources (::active-resources render-state)
+           new-deps (sequence
+                     (comp (filter (comp active-resources key))
+                           (map (juxt key (comp deref val))))
+                     (collect-deps ops))
+           new-resources (filter (comp (complement future?) second) new-deps)
+           new-resolvers (into {}
+                               (filter (comp future? second))
+                               new-deps)]
+       (update (update (update (step-resolvers render-state)
+                               ::resolvers merge new-resolvers)
+                       ::resources merge new-resources)
+               ::active-resources set/union (into #{} (map first) new-deps))))))
 (s/fdef step-renderer
   :args (s/cat :render-state ::render-state
                :game-state ::game-state

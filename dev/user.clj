@@ -9,10 +9,7 @@
   (:require
    [cljsl.compiler :as c]
    [clojure.core.matrix :as mat]
-   [clojure.java.javadoc :as jd])
-  (:import
-   (org.lwjgl.openal AL AL11 ALC ALC11)
-   (org.lwjgl.stb STBVorbis)))
+   [clojure.java.javadoc :as jd]))
 
 (defn add-javadocs
   "Adds the relevant javadoc sites for libraries which I will be using."
