@@ -10,23 +10,23 @@
    [examples.rendering-system :as rs]))
 
 (defn window
-  [args]
+  [_]
   (window/start))
 (defn triangle
-  [args]
+  [_]
   (tri/start))
 (defn textured-quad
-  [args]
+  [_]
   (tex-quad/start))
 (defn gravity
-  [args]
+  [_]
   (grav/start))
 (defn spring
-  [args]
+  [_]
   (spring/start))
 (defn events
-  [args]
+  [_]
   (ev/start))
 (defn rendering-system
-  [args]
+  [_]
   (rs/start))
