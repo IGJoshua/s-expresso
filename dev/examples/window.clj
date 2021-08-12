@@ -1,10 +1,12 @@
 (ns examples.window
   (:require
    [s-expresso.resource :as res]
-   [s-expresso.window :as wnd])
+   [s-expresso.window :as wnd]
+   [taoensso.timbre :as log])
   (:import
    (org.lwjgl.opengl
-    GL GL11)))
+    GL GL45
+    GLDebugMessageCallback GLDebugMessageCallbackI)))
 
 (defn init
   []
@@ -16,19 +18,38 @@
 
 (def window (atom nil))
 (def window-opts
-  {:key-callback (fn [window key scancode action mods]
+  {:key-callback (fn [_window key _scancode action mods]
                    (prn key)
                    (prn action)
                    (prn mods))
-   :cursor-pos-callback (fn [window xpos ypos]
+   :cursor-pos-callback (fn [_window xpos ypos]
                           (prn xpos ypos))
-   :mouse-button-callback (fn [window button action mods]
+   :mouse-button-callback (fn [_window button action mods]
                             (prn button)
                             (prn action)
                             (prn mods))
    :cursor-mode :hidden
    :debug-context true
    :title "Window Test"})
+
+(defn- enable-debug-logging!
+  []
+  (let [flags (int-array 1)]
+    (GL45/glGetIntegerv GL45/GL_CONTEXT_FLAGS flags)
+    (when-not (zero? (bit-and GL45/GL_CONTEXT_FLAG_DEBUG_BIT
+                              (first flags)))
+      (GL45/glEnable GL45/GL_DEBUG_OUTPUT)
+      (GL45/glEnable GL45/GL_DEBUG_OUTPUT_SYNCHRONOUS)
+      (GL45/glDebugMessageControl GL45/GL_DONT_CARE
+                                  GL45/GL_DONT_CARE
+                                  GL45/GL_DONT_CARE
+                                  (int-array 0)
+                                  true)
+      (GL45/glDebugMessageCallback
+       (reify GLDebugMessageCallbackI
+         (invoke [this source type id severity length message user-param]
+           (log/debug (GLDebugMessageCallback/getMessage length message))))
+       0))))
 
 (defn start-window
   [opts]
@@ -39,13 +60,14 @@
     (reset! window wnd)
     (wnd/set-vsync true)
     (GL/createCapabilities)
+    (enable-debug-logging!)
     wnd))
 
 (defn step-window
   [window]
-  (GL11/glClearColor 0 0 0 1)
-  (GL11/glClearDepth 1)
-  (GL11/glClear (bit-or GL11/GL_COLOR_BUFFER_BIT GL11/GL_DEPTH_BUFFER_BIT))
+  (GL45/glClearColor 0 0 0 1)
+  (GL45/glClearDepth 1)
+  (GL45/glClear (bit-or GL45/GL_COLOR_BUFFER_BIT GL45/GL_DEPTH_BUFFER_BIT))
   (wnd/swap-buffers window)
   (wnd/poll-events))
 
@@ -54,7 +76,7 @@
   (res/free wnd)
   (reset! window nil))
 
-(defn window-loop
+(defn- window-loop
   [window]
   (while (not (wnd/window-should-close? window))
     (step-window window))
