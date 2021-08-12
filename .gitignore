@@ -12,3 +12,4 @@
 **/.dir-locals.el
 
 /dev/res/textures/*
+/.clj-kondo/.cache/

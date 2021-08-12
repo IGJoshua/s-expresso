@@ -1,0 +1,1 @@
+{:lint-as {s-expresso.resource/with-free clojure.core/with-open}}
