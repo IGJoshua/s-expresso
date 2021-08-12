@@ -3,6 +3,7 @@
   (:require
    [clojure.set :as set]
    [clojure.spec.alpha :as s]
+   [s-expresso.resource :as res]
    [s-expresso.util :as util]))
 
 (defprotocol RenderOp
@@ -133,3 +134,16 @@
                (s/? (s/cat :last-state ::game-state
                            :factor float?)))
   :ret ::render-state)
+
+(defn shutdown-state
+  "Closes all the open resources in the `render-state`.
+
+  If there are any resources currently being loaded, this will block until they
+  are complete, before unloading them."
+  [render-state]
+  (run! (comp res/free val) (::resources render-state))
+  (run! (comp res/free #(util/when-pred @% delay? deref) val) (::resolvers render-state))
+  nil)
+(s/fdef shutdown-state
+  :args (s/cat :render-state ::render-state)
+  :ret nil?)
