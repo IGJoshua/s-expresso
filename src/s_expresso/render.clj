@@ -2,7 +2,8 @@
   "Utilities for rendering scenes."
   (:require
    [clojure.set :as set]
-   [clojure.spec.alpha :as s]))
+   [clojure.spec.alpha :as s]
+   [s-expresso.util :as util]))
 
 (defprotocol RenderOp
   "An operation with dependencies.
@@ -16,10 +17,10 @@
 
     The returned value must be a map from resource ids to resolvers.
 
-    A resolver must be a delay which derefs either to the final resource, or a
-    future. If it derefs to a future, then the future will return either the
-    final resource, or another delay which will be run on the render thread, and
-    its derefed value used as the final resource.")
+    A resolver must be a function of no arguments returning either to the final
+    resource, or a future. If it derefs to a future, then the future will return
+    either the final resource, or another delay which will be run on the render
+    thread, and its derefed value used as the final resource.")
   (apply-op! [op render-state]
     "Renders as much as possible with currently-initialized resources."))
 
@@ -74,7 +75,7 @@
                             resolvers)
         resources (into (::resources render-state)
                         (comp (filter (comp realized-keys key))
-                              (map (juxt key (comp deref deref val))))
+                              (map (juxt key (comp #(util/when-pred @% delay? deref) val))))
                         resolvers)]
     (assoc render-state
            ::resolvers new-resolvers
@@ -115,7 +116,7 @@
      (let [active-resources (::active-resources render-state)
            new-deps (sequence
                      (comp (filter (comp active-resources key))
-                           (map (juxt key (comp deref val))))
+                           (map (juxt key (comp #(%) val))))
                      (collect-deps ops))
            new-resources (filter (comp (complement future?) second) new-deps)
            new-resolvers (into {}
