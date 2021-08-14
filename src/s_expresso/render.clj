@@ -114,7 +114,7 @@
   ([render-state game-state last-state factor]
    (let [ops (prepare-ops game-state last-state factor)]
      (render-scene! ops render-state)
-     (let [active-resources (::active-resources render-state)
+     (let [active-resources (::active-resources render-state #{})
            new-deps (sequence
                      (comp (filter (comp active-resources key))
                            (map (juxt key (comp #(%) val))))
