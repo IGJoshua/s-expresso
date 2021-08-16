@@ -16,18 +16,32 @@
   []
   (wnd/shutdown-glfw))
 
+(def input-events (atom []))
+
 (def window (atom nil))
 (def window-opts
   {:key-callback (fn [_window key _scancode action mods]
-                   (prn key)
-                   (prn action)
-                   (prn mods))
+                   (swap! input-events conj
+                          {:device :keyboard
+                           :key key
+                           :action action
+                           :mods mods}))
    :cursor-pos-callback (fn [_window xpos ypos]
-                          (prn xpos ypos))
+                          (swap! input-events conj
+                                 {:device :mouse
+                                  :action :move
+                                  :pos [xpos ypos]}))
    :mouse-button-callback (fn [_window button action mods]
-                            (prn button)
-                            (prn action)
-                            (prn mods))
+                            (swap! input-events conj
+                                   {:device :mouse
+                                    :button button
+                                    :action action
+                                    :mods mods}))
+   :request-close-callback (fn [window]
+                             (wnd/window-should-close window false)
+                             (swap! input-events conj
+                                    {:device :window
+                                     :action :close}))
    :cursor-mode :hidden
    :debug-context true
    :title "Window Test"})
