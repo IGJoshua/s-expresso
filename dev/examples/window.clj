@@ -92,8 +92,17 @@
 
 (defn- window-loop
   [window]
-  (while (not (wnd/window-should-close? window))
-    (step-window window))
+  (loop []
+    (step-window window)
+    (let [[events] (reset-vals! input-events [])
+          close? (seq (for [event events
+                           :when (and (#{:window} (:device event))
+                                      (#{:close} (:action event)))]
+                       true))]
+      (doseq [event events]
+        (prn event))
+      (when-not close?
+        (recur))))
   window)
 
 (defn start
