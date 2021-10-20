@@ -116,7 +116,7 @@
      (render-scene! ops render-state)
      (let [active-resources (::active-resources render-state #{})
            new-deps (sequence
-                     (comp (filter (comp active-resources key))
+                     (comp (filter (comp (complement active-resources) key))
                            (map (juxt key (comp #(%) val))))
                      (collect-deps ops))
            new-resources (into {}
