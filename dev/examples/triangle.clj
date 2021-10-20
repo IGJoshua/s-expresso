@@ -76,10 +76,25 @@
                      (sh/upload-uniform-floats shader-program 3 (c/sym->ident `a-col) (::color %))
                      (m/draw-mesh triangle))))))))
 
+(defn- ingest-input
+  [game-state _dt]
+  (let [[input-events] (reset-vals! e.w/input-events [])
+        input-events (group-by :device input-events)
+        mouse-pos (:pos
+                   (last
+                    (filter (comp #{:move} :action)
+                            (:mouse input-events))))
+        close? (seq
+                (filter (comp #{:close} :action)
+                        (:window input-events)))]
+    (cond-> game-state
+      mouse-pos (assoc :mouse-pos mouse-pos)
+      close? (assoc ::e/should-close? close?))))
+
 (def ^:private init-game-state
   {::ecs/entities {(ecs/next-entity-id) {::position [0 0]
                                          ::color [1 0 0]}}
-   ::ecs/systems []
+   ::ecs/systems [#'ingest-input]
    ::ecs/events []
    ::r/systems [draw-mesh]})
 
