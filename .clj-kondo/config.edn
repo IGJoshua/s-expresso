@@ -1,1 +1,10 @@
-{:lint-as {s-expresso.resource/with-free clojure.core/with-open}}
+{:config-paths ["org.suskalo/farolero"]
+ :lint-as {s-expresso.resource/with-free clojure.core/with-open
+           cljsl.compiler/defparam clj-kondo.lint-as/def-catch-all
+           cljsl.compiler/defconst clj-kondo.lint-as/def-catch-all
+           cljsl.compiler/defuniform clj-kondo.lint-as/def-catch-all
+           cljsl.compiler/defuniformbuffer clj-kondo.lint-as/def-catch-all
+           cljsl.compiler/definterface clj-kondo.lint-as/def-catch-all
+           cljsl.compiler/defstruct clj-kondo.lint-as/def-catch-all
+           cljsl.compiler/defshader clj-kondo.lint-as/def-catch-all
+           cljsl.compiler/defshaderfn clj-kondo.lint-as/def-catch-all}}
