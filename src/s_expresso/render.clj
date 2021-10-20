@@ -119,7 +119,9 @@
                      (comp (filter (comp active-resources key))
                            (map (juxt key (comp #(%) val))))
                      (collect-deps ops))
-           new-resources (filter (comp (complement future?) second) new-deps)
+           new-resources (into {}
+                               (filter (comp (complement future?) second))
+                               new-deps)
            new-resolvers (into {}
                                (filter (comp future? second))
                                new-deps)]
