@@ -111,8 +111,7 @@
 (defn start
   []
   (e.w/init)
-  (-> e.w/window-opts
-      e.w/start-window
+  (-> (e.w/start-window e.w/window-opts)
       (run-sim init-game-state init-render-state)
       e.w/shutdown-window)
   (e.w/shutdown))
