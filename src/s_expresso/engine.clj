@@ -8,8 +8,7 @@
    [s-expresso.render :as r]
    [s-expresso.window :as w])
   (:import
-   (s_expresso.window Window)
-   (org.lwjgl.glfw GLFW)))
+   (s_expresso.window Window)))
 
 (s/def ::should-close? boolean?)
 (s/def ::time float?)
