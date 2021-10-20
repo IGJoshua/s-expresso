@@ -8,4 +8,5 @@
            cljsl.compiler/definterface clj-kondo.lint-as/def-catch-all
            cljsl.compiler/defstruct clj-kondo.lint-as/def-catch-all
            cljsl.compiler/defshader clj-kondo.lint-as/def-catch-all
-           cljsl.compiler/defshaderfn clj-kondo.lint-as/def-catch-all}}
+           cljsl.compiler/defshaderfn clj-kondo.lint-as/def-catch-all}
+ :linters {:clojure-lsp/unused-public-var {:level :off}}}
