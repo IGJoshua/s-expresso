@@ -76,7 +76,7 @@
                             resolvers)
         resources (into (::resources render-state)
                         (comp (filter (comp realized-keys key))
-                              (map (juxt key (comp #(util/when-pred @% delay? deref) val))))
+                              (map (juxt key (comp (util/when-pred delay? deref) val))))
                         resolvers)]
     (assoc render-state
            ::resolvers new-resolvers
@@ -142,7 +142,7 @@
   are complete, before unloading them."
   [render-state]
   (run! (comp res/free val) (::resources render-state))
-  (run! (comp res/free #(util/when-pred @% delay? deref) val) (::resolvers render-state))
+  (run! (comp res/free (util/when-pred delay? deref) val) (::resolvers render-state))
   nil)
 (s/fdef shutdown-state
   :args (s/cat :render-state ::render-state)
