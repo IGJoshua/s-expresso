@@ -99,7 +99,7 @@
                                          ::color [1 0 0]}}
    ::ecs/systems [#'ingest-input]
    ::ecs/events []
-   ::r/systems [draw-mesh]})
+   ::r/systems [#'draw-mesh]})
 
 (def ^:private init-render-state
   {::r/resolvers {}
