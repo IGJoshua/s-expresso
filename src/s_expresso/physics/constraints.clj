@@ -144,7 +144,7 @@
   "Resolves a contact between two bodies.
   Returns the modified bodies in the order they were passed."
   [body1 body2 contact restitution dt]
-  (let [[body1 body2] (resolve-contact-impulse body1 body2 contact restitution)]
+  (let [[body1 body2] (resolve-contact-impulse body1 body2 contact restitution dt)]
     (resolve-contact-interpenetration body1 body2 contact)))
 (s/fdef resolve-contact
   :args (s/cat :body1 ::d/body
@@ -242,7 +242,7 @@
   ([bodies contacts body-pair->restitution dt]
    (resolve-contacts bodies contacts body-pair->restitution dt (* 2 (count contacts))))
   ([bodies contacts body-pair->restitution dt iterations]
-   (let [bodies (resolve-contacts-for-velocity bodies contacts iterations dt)]
+   (let [bodies (resolve-contacts-for-velocity bodies contacts body-pair->restitution iterations dt)]
      (resolve-contacts-for-interpenetration bodies contacts body-pair->restitution dt iterations))))
 (s/fdef resolve-contacts
   :args (s/cat :bodies (s/map-of any? ::d/body)
