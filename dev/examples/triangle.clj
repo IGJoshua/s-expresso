@@ -60,20 +60,24 @@
 (def ^:private shader-program (shader-program-resolver [vert-shader frag-shader]))
 (def ^:private triangle-mesh (mesh-resolver tri-mesh-data pos-mesh-layout))
 
+(defn render-entity
+  [entity]
+  (reify r/RenderOp
+    (op-deps [_]
+      {::triangle triangle-mesh
+       ::shader-program shader-program})
+    (apply-op! [_ {{::keys [triangle shader-program]} ::r/resources}]
+      (when (and triangle shader-program)
+        (sh/with-shader-program shader-program
+          (sh/upload-uniform-floats shader-program 3 (c/sym->ident `a-col) (::color entity))
+          (m/draw-mesh triangle))))))
+
 (defn- draw-mesh
   [game-state]
   (->> (::ecs/entities game-state)
        vals
        (filter ::position)
-       (map #(reify r/RenderOp
-               (op-deps [_]
-                 {::triangle triangle-mesh
-                  ::shader-program shader-program})
-               (apply-op! [_ {{::keys [triangle shader-program]} ::r/resources}]
-                 (when (and triangle shader-program)
-                   (sh/with-shader-program shader-program
-                     (sh/upload-uniform-floats shader-program 3 (c/sym->ident `a-col) (::color %))
-                     (m/draw-mesh triangle))))))))
+       (map render-entity)))
 
 (defn- ingest-input
   [game-state _dt]
