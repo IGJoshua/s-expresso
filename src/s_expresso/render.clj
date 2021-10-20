@@ -55,7 +55,7 @@
                       factor)
                  ((::interpolator game-state) last-state factor))
          systems (::systems state)]
-     (apply concat (map #(% state) systems)))))
+     (mapcat #(% state) systems))))
 (s/fdef prepare-ops
   :args (s/cat :game-state ::game-state
                :optional-args
