@@ -8,8 +8,7 @@
    [s-expresso.mesh :as m]
    [s-expresso.render :as r]
    [s-expresso.resource :refer [with-free]]
-   [s-expresso.shader :as sh]
-   [s-expresso.window :as w]))
+   [s-expresso.shader :as sh]))
 
 (c/defparam a-pos "vec3"
   :layout {"location" 0})
