@@ -24,8 +24,7 @@
                          org.lwjgl/lwjgl-stb$natives-windows {:mvn/version "3.2.3"}}}
   :dev {:extra-paths ["dev"]
         :extra-deps {com.taoensso/timbre {:mvn/version "4.10.0"}
-                     IGJoshua/cljsl {:git/url "https://github.com/IGJoshua/cljsl"
-                                     :sha "f8a1bbc7a5bd1bbff5822478ed83c9cf79e76b44"}}}
+                     io.github.IGJoshua/cljsl {:git/sha "f8a1bbc7a5bd1bbff5822478ed83c9cf79e76b44"}}}
   :example {:extra-paths ["dev"]
             :extra-deps {com.taoensso/timbre {:mvn/version "4.10.0"}
                          IGJoshua/cljsl {:git/url "https://github.com/IGJoshua/cljsl"
