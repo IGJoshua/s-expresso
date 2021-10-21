@@ -115,13 +115,13 @@
                             (vec (cond->> (cons (dissoc (first future-states) ::events)
                                                 (rest future-states))
                                    prev-state (cons (dissoc prev-state ::events)))))))
-          render-state (reduce (::event-handler @next-state) render-state @events)]
-      (if (and @next-state @last-state)
-        (r/step-renderer! render-state @next-state @last-state
-                          (/ (- next-vblank (::time @last-state))
-                             (- (::time @next-state) (::time @last-state))))
-        (when @next-state
-          (r/step-renderer! render-state @next-state)))
+          render-state (reduce (::event-handler @next-state) render-state @events)
+          render-state (if (and @next-state @last-state)
+                         (r/step-renderer! render-state @next-state @last-state
+                                           (/ (- next-vblank (::time @last-state))
+                                              (- (::time @next-state) (::time @last-state))))
+                         (when @next-state
+                           (r/step-renderer! render-state @next-state)))]
       (w/swap-buffers window)
       (if (and (not (::should-close? @next-state)) ; don't want to close
                (or @next-state (not @last-state))) ; and this isn't a nil state after the first
