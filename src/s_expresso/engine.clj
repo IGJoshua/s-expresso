@@ -66,6 +66,8 @@
 
       (let [scene (binding [*render-events-to-send* []]
                     (let [scene (ecs/step-scene scene dt)]
+                      ;; TODO(Joshua): Make this wait for the renderer to catch
+                      ;; up if there's too many
                       (swap! simulated-states
                              conj (assoc scene ::time next-frame
                                          ::events *render-events-to-send*))
