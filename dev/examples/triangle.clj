@@ -69,7 +69,7 @@
     (apply-op! [_ {{::keys [triangle shader-program]} ::r/resources}]
       (when (and triangle shader-program)
         (sh/with-shader-program shader-program
-          (sh/upload-uniform-floats shader-program 3 (c/sym->ident `a-col) (::color entity))
+          (apply sh/upload-uniform-float shader-program (c/sym->ident `a-col) (::color entity))
           (m/draw-mesh triangle))))))
 
 (defn- draw-mesh
