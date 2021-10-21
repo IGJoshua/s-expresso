@@ -76,7 +76,7 @@
                             resolvers)
         resources (into (::resources render-state)
                         (comp (filter (comp realized-keys key))
-                              (map (juxt key (comp (util/when-pred delay? deref) val))))
+                              (map (juxt key (comp (util/when-pred delay? deref) deref val))))
                         resolvers)]
     (assoc render-state
            ::resolvers new-resolvers
