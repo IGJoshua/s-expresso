@@ -3,7 +3,7 @@
   (:require
    [examples.window :as window]
    [examples.triangle :as tri]
-   ;[examples.textured-quad :as tex-quad]
+   [examples.textured-quad :as tex-quad]
    ;[examples.gravity :as grav]
    ;[examples.spring :as spring]
    ;[examples.events :as ev]
@@ -16,9 +16,9 @@
 (defn triangle
   [_]
   (tri/start))
-;;(defn textured-quad
-;;  [_]
-;;  (tex-quad/start))
+(defn textured-quad
+  [_]
+  (tex-quad/start))
 ;;(defn gravity
 ;;  [_]
 ;;  (grav/start))
