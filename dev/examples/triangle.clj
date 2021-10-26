@@ -94,14 +94,14 @@
       mouse-pos (assoc :mouse-pos mouse-pos)
       close? (assoc ::e/should-close? close?))))
 
-(def ^:private init-game-state
+(def init-game-state
   {::ecs/entities {(ecs/next-entity-id) {::position [0 0]
                                          ::color [1 0 0]}}
    ::ecs/systems [#'ingest-input]
    ::ecs/events []
    ::r/systems [#'draw-mesh]})
 
-(def ^:private init-render-state
+(def init-render-state
   {::r/resolvers {}
    ::r/resources {}})
 
