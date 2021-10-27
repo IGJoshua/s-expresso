@@ -99,7 +99,7 @@
        (map render-entity)))
 
 (def init-game-state (assoc e.t/init-game-state
-                            ::r/systems [#'draw-mesh]))
+                            ::r/systems [#'e.t/clear-screen #'draw-mesh]))
 
 (defn start
   []

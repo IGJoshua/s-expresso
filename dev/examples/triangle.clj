@@ -4,11 +4,13 @@
    [examples.window :as e.w]
    [s-expresso.engine :as e]
    [s-expresso.ecs :as ecs]
-   [s-expresso.memory :refer [with-stack-allocator with-heap-allocator]]
+   [s-expresso.memory :refer [with-heap-allocator]]
    [s-expresso.mesh :as m]
    [s-expresso.render :as r]
-   [s-expresso.resource :refer [with-free]]
-   [s-expresso.shader :as sh]))
+   [s-expresso.shader :as sh]
+   [s-expresso.window :as w])
+  (:import
+   (org.lwjgl.opengl GL45)))
 
 (c/defparam a-pos "vec3"
   :layout {"location" 0})
@@ -79,7 +81,7 @@
        (filter ::position)
        (map render-entity)))
 
-(defn- ingest-input
+(defn ingest-input
   [game-state _dt]
   (let [[input-events] (reset-vals! e.w/input-events [])
         input-events (group-by :device input-events)
@@ -94,12 +96,17 @@
       mouse-pos (assoc :mouse-pos mouse-pos)
       close? (assoc ::e/should-close? close?))))
 
+(defn clear-screen
+  [_game-state]
+  (GL45/glClearColor 0.1 0.15 0.2 1.0)
+  (GL45/glClear (bit-or GL45/GL_COLOR_BUFFER_BIT GL45/GL_DEPTH_BUFFER_BIT)))
+
 (def init-game-state
   {::ecs/entities {(ecs/next-entity-id) {::position [0 0]
                                          ::color [1 0 0]}}
    ::ecs/systems [#'ingest-input]
    ::ecs/events []
-   ::r/systems [#'draw-mesh]})
+   ::r/systems [#'clear-screen #'draw-mesh]})
 
 (def init-render-state
   {::r/resolvers {}
