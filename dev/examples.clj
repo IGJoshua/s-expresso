@@ -5,7 +5,7 @@
    [examples.triangle :as tri]
    [examples.textured-quad :as tex-quad]
    [examples.gravity :as grav]
-   ;[examples.spring :as spring]
+   [examples.spring :as spring]
    ;[examples.events :as ev]
    ;[examples.rendering-system :as rs]
    ))
@@ -22,9 +22,9 @@
 (defn gravity
   [_]
   (grav/start))
-;;(defn spring
-;;  [_]
-;;  (spring/start))
+(defn spring
+  [_]
+  (spring/start))
 ;;(defn events
 ;;  [_]
 ;;  (ev/start))
