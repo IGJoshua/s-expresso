@@ -2,20 +2,19 @@
   (:require
    [cljsl.compiler :as c]
    [clojure.core.matrix :as mat]
-   [examples.window :as e.w]
+   [examples.gravity :as e.g]
    [examples.triangle :as e.t]
+   [examples.window :as e.w]
    [s-expresso.memory :as mem :refer [with-stack-allocator]]
    [s-expresso.mesh :as m]
+   [s-expresso.render :as r]
    [s-expresso.resource :refer [with-free]]
    [s-expresso.shader :as sh :refer [with-shader-program]]
    [s-expresso.window :as w]
    [s-expresso.ecs :as ecs :refer [defsystem]]
    [s-expresso.physics.dynamics :as d]
    [s-expresso.physics.constraints :as constraint]
-   [taoensso.timbre :as log])
-  (:import
-   (org.lwjgl.opengl
-    GL GL45)))
+   [taoensso.timbre :as log]))
 
 (def gravity-vector (mat/array [0 -9.81]))
 
@@ -49,123 +48,39 @@
   [_ _ entity dt]
   (d/step-body entity dt))
 
-(def init-state {::ecs/entities {#uuid "a6239964-38d6-4f35-ac96-0cf831f49426"
-                                 {::d/dimensions 2
-                                  ::d/position [0 7]
-                                  ::color [1 0 0]}
-                                 #uuid "cb77ab65-5e4f-47c7-a08e-fa5bf39949a4"
-                                 {::d/dimensions 2
-                                  ::d/position [3 0]
-                                  ::d/mass 5.0
-                                  ::d/velocity [0 0]
-                                  ::color [0 1 0]
-                                  ::constraints [{:constant 30
-                                                  :distance 3
-                                                  :target #uuid "a6239964-38d6-4f35-ac96-0cf831f49426"}
-                                                 {:constant 5
-                                                  :distance 2
-                                                  :target #uuid "7917af55-5469-40e3-98f8-c6b494b3f6f2"}]}
-                                 #uuid "7917af55-5469-40e3-98f8-c6b494b3f6f2"
-                                 {::d/dimensions 2
-                                  ::d/position [0 -3]
-                                  ::d/mass 3.0
-                                  ::d/velocity [0 0]
-                                  ::color [0 0 1]
-                                  ::constraints [{:constant 15
-                                                  :distance 2
-                                                  :target #uuid "cb77ab65-5e4f-47c7-a08e-fa5bf39949a4"}]}}
-                 ::ecs/systems [[#'gravity #'spring-constraint #'step-body #'damping]]})
-(defonce state (atom init-state))
-
-(comment
-
-  ;; Set the state back to the init
-  (do (reset! state init-state)
-      nil)
-
-  )
-
-(defn step
-  [window mesh shader-program]
-  (GL45/glClear (bit-or GL45/GL_COLOR_BUFFER_BIT GL45/GL_DEPTH_BUFFER_BIT))
-
-  (try
-    ;; Step the ecs and draw
-    (swap! state ecs/step-scene 0.016)
-    (catch Exception e
-      (log/error "Something went wrong in the step" e)))
-
-  (doseq [[_ entity] (::ecs/entities @state)]
-    (with-stack-allocator
-      (let [color (mem/alloc-bytes (* Float/BYTES 3))
-            position (mem/alloc-bytes (* Float/BYTES 2))]
-        (mem/put-seq color (map float (::color entity)))
-        (.flip color)
-        (sh/upload-uniform-floats shader-program 3 (c/sym->ident `obj-col) (.asFloatBuffer color))
-        (mem/put-seq position (map float (::d/position entity)))
-        (.flip position)
-        (sh/upload-uniform-floats shader-program 2 (c/sym->ident `obj-pos) (.asFloatBuffer position))
-        (m/draw-mesh mesh))))
-
-  (w/swap-buffers window)
-  (w/poll-events))
-
-(c/defparam v-pos "vec3"
-  :layout {"location" 0})
-(c/defparam color "vec3")
-
-(c/defuniform obj-col "vec3")
-(c/defuniform obj-pos "vec2")
-
-(c/defshader vert-source
-  {v-pos :in
-   color :out}
-  (set! gl_Position (* (vec4 (+ (vec3 obj-pos 0) v-pos) 1)
-                       (vec4 0.1 0.1 0 1)))
-  (set! color obj-col))
-
-(def vert-shader
-  {:source (::c/source vert-source)
-   :stage :vertex})
-
-(c/defparam frag-color "vec4")
-
-(c/defshader frag-source
-  {color :in
-   frag-color :out}
-  (set! frag-color (vec4 color 1)))
-
-(def frag-shader
-  {:source (::c/source frag-source)
-   :stage :fragment})
-
-(def tri-mesh-data {:vertices [{:pos [-0.1 -0.1 0.0]}
-                               {:pos [0.1 -0.1 0.0]}
-                               {:pos [0.0 0.1 0.0]}]})
-(def tri-mesh-layout {:buffer-layouts [{:attrib-layouts [{:name :pos
-                                                          :type :float
-                                                          :count 3}]}]
-                      :element-type :triangles})
-
-(defn window-loop
-  [window]
-  ;; init anything on the opengl side
-  (e.t/enable-debug-logging window)
-
-  (GL45/glClearColor 0 0 0 1)
-  (GL45/glClearDepth 1)
-  (with-free [mesh (with-stack-allocator
-                     (m/make-mesh tri-mesh-layout (m/pack-verts tri-mesh-layout tri-mesh-data)))
-              shader-program (sh/make-shader-program-from-sources [vert-shader frag-shader])]
-    (with-shader-program shader-program
-      (while (not (w/window-should-close? window))
-        (step window mesh shader-program))))
-  window)
+(def init-game-state
+  {::ecs/entities
+   (let [[a b c] (repeatedly 3 ecs/next-entity-id)]
+     {a {::d/dimensions 2
+         ::d/position [0 0.7]
+         ::e.g/color [1 0 0]}
+      b {::d/dimensions 2
+         ::d/position [0.3 0.5]
+         ::d/mass 2.0
+         ::d/velocity [0 0]
+         ::e.g/color [0 1 0]
+         ::constraints [{:constant 100
+                         :distance 0.2
+                         :target a}
+                        {:constant 30
+                         :distance 0.3
+                         :target c}]}
+      c {::d/dimensions 2
+         ::d/position [0 0.2]
+         ::d/mass 1.0
+         ::d/velocity [0 0]
+         ::e.g/color [0 0 1]
+         ::constraints [{:constant 30
+                         :distance 0.3
+                         :target b}]}})
+   ::ecs/events []
+   ::ecs/systems [#'e.t/ingest-input [#'gravity #'spring-constraint #'step-body #'damping]]
+   ::r/systems [#'e.t/clear-screen #'e.g/draw-mesh]})
 
 (defn start
   []
   (e.w/init)
   (-> (e.w/start-window e.w/window-opts)
-      (window-loop)
+      (e.t/run-sim init-game-state e.t/init-render-state)
       (e.w/shutdown-window))
   (e.w/shutdown))

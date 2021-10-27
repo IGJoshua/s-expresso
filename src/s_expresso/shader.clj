@@ -290,60 +290,60 @@
   The floating-point values are assumed to be vectors when 2-4 values are
   passed."
   ([program uniform-name x]
-   (GL45/glProgramUniform1f (:id program) (:location (get (:uniforms program) uniform-name)) x))
+   (GL45/glProgramUniform1f (int (:id program)) (int (:location (get (:uniforms program) uniform-name))) (float x)))
   ([program uniform-name x y]
-   (GL45/glProgramUniform2f (:id program) (:location (get (:uniforms program) uniform-name)) x y))
+   (GL45/glProgramUniform2f (int (:id program)) (int (:location (get (:uniforms program) uniform-name))) (float x) (float y)))
   ([program uniform-name x y z]
-   (GL45/glProgramUniform3f (:id program) (:location (get (:uniforms program) uniform-name)) x y z))
+   (GL45/glProgramUniform3f (int (:id program)) (int (:location (get (:uniforms program) uniform-name))) (float x) (float y) (float z)))
   ([program uniform-name x y z w]
-   (GL45/glProgramUniform4f (:id program) (:location (get (:uniforms program) uniform-name)) x y z w)))
+   (GL45/glProgramUniform4f (int (:id program)) (int (:location (get (:uniforms program) uniform-name))) (float x) (float y) (float z) (float w))))
 
 (defn upload-uniform-floats
   "Uploads floating-point values to a uniform array.
   `floats` must be a [[java.nio.FloatBuffer]]."
   [program num-components uniform-name ^FloatBuffer floats]
   (case (int num-components)
-    1 (GL45/glProgramUniform1fv ^int (:id program)
-                                ^int (:location (get (:uniforms program) uniform-name))
+    1 (GL45/glProgramUniform1fv (int (:id program))
+                                (int (:location (get (:uniforms program) uniform-name)))
                                 floats)
-    2 (GL45/glProgramUniform2fv ^int (:id program)
-                                ^int (:location (get (:uniforms program) uniform-name))
+    2 (GL45/glProgramUniform2fv (int (:id program))
+                                (int (:location (get (:uniforms program) uniform-name)))
                                 floats)
-    3 (GL45/glProgramUniform3fv ^int (:id program)
-                                ^int (:location (get (:uniforms program) uniform-name))
+    3 (GL45/glProgramUniform3fv (int (:id program))
+                                (int (:location (get (:uniforms program) uniform-name)))
                                 floats)
-    4 (GL45/glProgramUniform4fv ^int (:id program)
-                                ^int (:location (get (:uniforms program) uniform-name))
+    4 (GL45/glProgramUniform4fv (int (:id program))
+                                (int (:location (get (:uniforms program) uniform-name)))
                                 floats)))
 
 (defn upload-uniform-int
   "Uploads integral values to a uniform.
   The integral values are assumed to be vectors when 2-4 values are passed."
   ([program uniform-name x]
-   (GL45/glProgramUniform1i (:id program) (:location (get (:uniforms program) uniform-name)) x))
+   (GL45/glProgramUniform1i (int (:id program)) (int (:location (get (:uniforms program) uniform-name))) (int x)))
   ([program uniform-name x y]
-   (GL45/glProgramUniform2i (:id program) (:location (get (:uniforms program) uniform-name)) x y))
+   (GL45/glProgramUniform2i (int (:id program)) (int (:location (get (:uniforms program) uniform-name))) (int x) (int y)))
   ([program uniform-name x y z]
-   (GL45/glProgramUniform3i (:id program) (:location (get (:uniforms program) uniform-name)) x y z))
+   (GL45/glProgramUniform3i (int (:id program)) (int (:location (get (:uniforms program) uniform-name))) (int x) (int y) (int z)))
   ([program uniform-name x y z w]
-   (GL45/glProgramUniform4i (:id program) (:location (get (:uniforms program) uniform-name)) x y z w)))
+   (GL45/glProgramUniform4i (int (:id program)) (int (:location (get (:uniforms program) uniform-name))) (int x) (int y) (int z) (int w))))
 
 (defn upload-uniform-ints
   "Uploads integral values to a uniform array.
   `ints` must be a [[java.nio.IntBuffer]]."
   [program num-components uniform-name ^IntBuffer ints]
   (case (int num-components)
-    1 (GL45/glProgramUniform1iv ^int (:id program)
-                                ^int (:location (get (:uniforms program) uniform-name))
+    1 (GL45/glProgramUniform1iv (int (:id program))
+                                (int (:location (get (:uniforms program) uniform-name)))
                                 ints)
-    2 (GL45/glProgramUniform2iv ^int (:id program)
-                                ^int (:location (get (:uniforms program) uniform-name))
+    2 (GL45/glProgramUniform2iv (int (:id program))
+                                (int (:location (get (:uniforms program) uniform-name)))
                                 ints)
-    3 (GL45/glProgramUniform3iv ^int (:id program)
-                                ^int (:location (get (:uniforms program) uniform-name))
+    3 (GL45/glProgramUniform3iv (int (:id program))
+                                (int (:location (get (:uniforms program) uniform-name)))
                                 ints)
-    4 (GL45/glProgramUniform4iv ^int (:id program)
-                                ^int (:location (get (:uniforms program) uniform-name))
+    4 (GL45/glProgramUniform4iv (int (:id program))
+                                (int (:location (get (:uniforms program) uniform-name)))
                                 ints)))
 
 (defn upload-uniform-unsigned-int
@@ -351,30 +351,30 @@
   The unsigned integral values are assumed to be vectors when 2-4 values are
   passed."
   ([program uniform-name x]
-   (GL45/glProgramUniform1ui (:id program) (:location (get (:uniforms program) uniform-name)) x))
+   (GL45/glProgramUniform1ui (int (:id program)) (int (:location (get (:uniforms program) uniform-name))) (unchecked-int x)))
   ([program uniform-name x y]
-   (GL45/glProgramUniform2ui (:id program) (:location (get (:uniforms program) uniform-name)) x y))
+   (GL45/glProgramUniform2ui (int (:id program)) (int (:location (get (:uniforms program) uniform-name))) (unchecked-int x) (unchecked-int y)))
   ([program uniform-name x y z]
-   (GL45/glProgramUniform3ui (:id program) (:location (get (:uniforms program) uniform-name)) x y z))
+   (GL45/glProgramUniform3ui (int (:id program)) (int (:location (get (:uniforms program) uniform-name))) (unchecked-int x) (unchecked-int y) (unchecked-int z)))
   ([program uniform-name x y z w]
-   (GL45/glProgramUniform4ui (:id program) (:location (get (:uniforms program) uniform-name)) x y z w)))
+   (GL45/glProgramUniform4ui (int (:id program)) (int (:location (get (:uniforms program) uniform-name))) (unchecked-int x) (unchecked-int y) (unchecked-int z) (unchecked-int w))))
 
-(defn upload-uniform-ints
+(defn upload-uniform-unsigned-ints
   "Uploads unsigned integral values to a uniform array.
   `ints` must be a [[java.nio.IntBuffer]]."
   [program num-components uniform-name ^IntBuffer ints]
   (case (int num-components)
-    1 (GL45/glProgramUniform1uiv ^int (:id program)
-                                 ^int (:location (get (:uniforms program) uniform-name))
+    1 (GL45/glProgramUniform1uiv (int (:id program))
+                                 (int (:location (get (:uniforms program) uniform-name)))
                                  ints)
-    2 (GL45/glProgramUniform2uiv ^int (:id program)
-                                 ^int (:location (get (:uniforms program) uniform-name))
+    2 (GL45/glProgramUniform2uiv (int (:id program))
+                                 (int (:location (get (:uniforms program) uniform-name)))
                                  ints)
-    3 (GL45/glProgramUniform3uiv ^int (:id program)
-                                 ^int (:location (get (:uniforms program) uniform-name))
+    3 (GL45/glProgramUniform3uiv (int (:id program))
+                                 (int (:location (get (:uniforms program) uniform-name)))
                                  ints)
-    4 (GL45/glProgramUniform4uiv ^int (:id program)
-                                 ^int (:location (get (:uniforms program) uniform-name))
+    4 (GL45/glProgramUniform4uiv (int (:id program))
+                                 (int (:location (get (:uniforms program) uniform-name)))
                                  ints)))
 
 (defn upload-uniform-matrix2
@@ -383,9 +383,9 @@
   ([program uniform-name matrix]
    (upload-uniform-matrix2 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix2fv ^int (:id program)
-                                   ^int (:location (get (:uniforms program) uniform-name))
-                                   ^boolean transpose?
+   (GL45/glProgramUniformMatrix2fv (int (:id program))
+                                   (int (:location (get (:uniforms program) uniform-name)))
+                                   (boolean transpose?)
                                    ^FloatBuffer matrix)))
 
 (defn upload-uniform-matrix2x3
@@ -394,9 +394,9 @@
   ([program uniform-name matrix]
    (upload-uniform-matrix2x3 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix2x3fv ^int (:id program)
-                                     ^int (:location (get (:uniforms program) uniform-name))
-                                     ^boolean transpose?
+   (GL45/glProgramUniformMatrix2x3fv (int (:id program))
+                                     (int (:location (get (:uniforms program) uniform-name)))
+                                     (boolean transpose?)
                                      ^FloatBuffer matrix)))
 
 (defn upload-uniform-matrix2x4
@@ -405,9 +405,9 @@
   ([program uniform-name matrix]
    (upload-uniform-matrix2x4 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix2x4fv ^int (:id program)
-                                     ^int (:location (get (:uniforms program) uniform-name))
-                                     ^boolean transpose?
+   (GL45/glProgramUniformMatrix2x4fv (int (:id program))
+                                     (int (:location (get (:uniforms program) uniform-name)))
+                                     (boolean transpose?)
                                      ^FloatBuffer matrix)))
 
 (defn upload-uniform-matrix3
@@ -416,9 +416,9 @@
   ([program uniform-name matrix]
    (upload-uniform-matrix3 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix3fv ^int (:id program)
-                                   ^int (:location (get (:uniforms program) uniform-name))
-                                   ^boolean transpose?
+   (GL45/glProgramUniformMatrix3fv (int (:id program))
+                                   (int (:location (get (:uniforms program) uniform-name)))
+                                   (boolean transpose?)
                                    ^FloatBuffer matrix)))
 
 (defn upload-uniform-matrix3x2
@@ -427,9 +427,9 @@
   ([program uniform-name matrix]
    (upload-uniform-matrix3x2 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix3x2fv ^int (:id program)
-                                     ^int (:location (get (:uniforms program) uniform-name))
-                                     ^boolean transpose?
+   (GL45/glProgramUniformMatrix3x2fv (int (:id program))
+                                     (int (:location (get (:uniforms program) uniform-name)))
+                                     (boolean transpose?)
                                      ^FloatBuffer matrix)))
 
 (defn upload-uniform-matrix3x4
@@ -438,9 +438,9 @@
   ([program uniform-name matrix]
    (upload-uniform-matrix3x4 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix3x4fv ^int (:id program)
-                                     ^int (:location (get (:uniforms program) uniform-name))
-                                     ^boolean transpose?
+   (GL45/glProgramUniformMatrix3x4fv (int (:id program))
+                                     (int (:location (get (:uniforms program) uniform-name)))
+                                     (boolean transpose?)
                                      ^FloatBuffer matrix)))
 
 (defn upload-uniform-matrix4
@@ -449,9 +449,9 @@
   ([program uniform-name matrix]
    (upload-uniform-matrix4 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix4fv ^int (:id program)
-                                   ^int (:location (get (:uniforms program) uniform-name))
-                                   ^boolean transpose?
+   (GL45/glProgramUniformMatrix4fv (int (:id program))
+                                   (int (:location (get (:uniforms program) uniform-name)))
+                                   (boolean transpose?)
                                    ^FloatBuffer matrix)))
 
 (defn upload-uniform-matrix4x2
@@ -460,9 +460,9 @@
   ([program uniform-name matrix]
    (upload-uniform-matrix4x2 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix4x2fv ^int (:id program)
-                                     ^int (:location (get (:uniforms program) uniform-name))
-                                     ^boolean transpose?
+   (GL45/glProgramUniformMatrix4x2fv (int (:id program))
+                                     (int (:location (get (:uniforms program) uniform-name)))
+                                     (boolean transpose?)
                                      ^FloatBuffer matrix)))
 (defn upload-uniform-matrix4x3
   "Uploads a floating-point matrix into a uniform array.
@@ -470,9 +470,9 @@
   ([program uniform-name matrix]
    (upload-uniform-matrix4x3 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix4x3fv ^int (:id program)
-                                     ^int (:location (get (:uniforms program) uniform-name))
-                                     ^boolean transpose?
+   (GL45/glProgramUniformMatrix4x3fv (int (:id program))
+                                     (int (:location (get (:uniforms program) uniform-name)))
+                                     (boolean transpose?)
                                      ^FloatBuffer matrix)))
 
 (defn upload-uniform-dmatrix2
@@ -481,9 +481,9 @@
   ([program uniform-name matrix]
    (upload-uniform-dmatrix2 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix2dv ^int (:id program)
-                                   ^int (:location (get (:uniforms program) uniform-name))
-                                   ^boolean transpose?
+   (GL45/glProgramUniformMatrix2dv (int (:id program))
+                                   (int (:location (get (:uniforms program) uniform-name)))
+                                   (boolean transpose?)
                                    ^DoubleBuffer matrix)))
 
 (defn upload-uniform-dmatrix2x3
@@ -492,9 +492,9 @@
   ([program uniform-name matrix]
    (upload-uniform-dmatrix2x3 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix2x3dv ^int (:id program)
-                                     ^int (:location (get (:uniforms program) uniform-name))
-                                     ^boolean transpose?
+   (GL45/glProgramUniformMatrix2x3dv (int (:id program))
+                                     (int (:location (get (:uniforms program) uniform-name)))
+                                     (boolean transpose?)
                                      ^DoubleBuffer matrix)))
 
 (defn upload-uniform-dmatrix2x4
@@ -503,9 +503,9 @@
   ([program uniform-name matrix]
    (upload-uniform-dmatrix2x4 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix2x4dv ^int (:id program)
-                                     ^int (:location (get (:uniforms program) uniform-name))
-                                     ^boolean transpose?
+   (GL45/glProgramUniformMatrix2x4dv (int (:id program))
+                                     (int (:location (get (:uniforms program) uniform-name)))
+                                     (boolean transpose?)
                                      ^DoubleBuffer matrix)))
 
 (defn upload-uniform-dmatrix3
@@ -514,9 +514,9 @@
   ([program uniform-name matrix]
    (upload-uniform-dmatrix3 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix3dv ^int (:id program)
-                                   ^int (:location (get (:uniforms program) uniform-name))
-                                   ^boolean transpose?
+   (GL45/glProgramUniformMatrix3dv (int (:id program))
+                                   (int (:location (get (:uniforms program) uniform-name)))
+                                   (boolean transpose?)
                                    ^DoubleBuffer matrix)))
 
 (defn upload-uniform-dmatrix3x2
@@ -525,9 +525,9 @@
   ([program uniform-name matrix]
    (upload-uniform-dmatrix3x2 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix3x2dv ^int (:id program)
-                                     ^int (:location (get (:uniforms program) uniform-name))
-                                     ^boolean transpose?
+   (GL45/glProgramUniformMatrix3x2dv (int (:id program))
+                                     (int (:location (get (:uniforms program) uniform-name)))
+                                     (boolean transpose?)
                                      ^DoubleBuffer matrix)))
 
 (defn upload-uniform-dmatrix3x4
@@ -536,9 +536,9 @@
   ([program uniform-name matrix]
    (upload-uniform-dmatrix3x4 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix3x4dv ^int (:id program)
-                                     ^int (:location (get (:uniforms program) uniform-name))
-                                     ^boolean transpose?
+   (GL45/glProgramUniformMatrix3x4dv (int (:id program))
+                                     (int (:location (get (:uniforms program) uniform-name)))
+                                     (boolean transpose?)
                                      ^DoubleBuffer matrix)))
 
 (defn upload-uniform-dmatrix4
@@ -547,9 +547,9 @@
   ([program uniform-name matrix]
    (upload-uniform-dmatrix4 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix4dv ^int (:id program)
-                                   ^int (:location (get (:uniforms program) uniform-name))
-                                   ^boolean transpose?
+   (GL45/glProgramUniformMatrix4dv (int (:id program))
+                                   (int (:location (get (:uniforms program) uniform-name)))
+                                   (boolean transpose?)
                                    ^DoubleBuffer matrix)))
 
 (defn upload-uniform-dmatrix4x2
@@ -558,9 +558,9 @@
   ([program uniform-name matrix]
    (upload-uniform-dmatrix4x2 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix4x2dv ^int (:id program)
-                                     ^int (:location (get (:uniforms program) uniform-name))
-                                     ^boolean transpose?
+   (GL45/glProgramUniformMatrix4x2dv (int (:id program))
+                                     (int (:location (get (:uniforms program) uniform-name)))
+                                     (boolean transpose?)
                                      ^DoubleBuffer matrix)))
 (defn upload-uniform-dmatrix4x3
   "Uploads a floating-point matrix into a uniform array.
@@ -568,7 +568,7 @@
   ([program uniform-name matrix]
    (upload-uniform-dmatrix4x3 program uniform-name matrix false))
   ([program uniform-name matrix transpose?]
-   (GL45/glProgramUniformMatrix4x3dv ^int (:id program)
-                                     ^int (:location (get (:uniforms program) uniform-name))
-                                     ^boolean transpose?
+   (GL45/glProgramUniformMatrix4x3dv (int (:id program))
+                                     (int (:location (get (:uniforms program) uniform-name)))
+                                     (boolean transpose?)
                                      ^DoubleBuffer matrix)))

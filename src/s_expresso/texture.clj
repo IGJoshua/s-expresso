@@ -335,7 +335,7 @@
    :stencil-index GL45/GL_STENCIL_INDEX})
 (def image-formats (set (keys image-format->glenum)))
 (s/def ::format image-formats)
-(def ^:private data-types->glenum
+(def ^:private data-type->glenum
   {:unsigned-byte GL45/GL_UNSIGNED_BYTE
    :byte GL45/GL_BYTE
    :unsigned-short GL45/GL_UNSIGNED_SHORT
@@ -355,7 +355,7 @@
    :unsigned-int-8-8-8-8-rev GL45/GL_UNSIGNED_INT_8_8_8_8_REV
    :unsigned-int-10-10-10-2 GL45/GL_UNSIGNED_INT_10_10_10_2
    :unsigned-int-2-10-10-10-rev GL45/GL_UNSIGNED_INT_2_10_10_10_REV})
-(def data-types (set (keys data-types->glenum)))
+(def data-types (set (keys data-type->glenum)))
 (s/def ::data-type data-types)
 (s/def ::texture-data (s/keys :req-un [::format ::data-type ::data]))
 
@@ -364,6 +364,7 @@
   The texture parameters from `opts` are applied before the image is uploaded."
   ([tex-def tex-data] (make-texture tex-def tex-data nil))
   ([tex-def tex-data opts]
+   ;; TODO(Joshua): Support non-2d images
    (let [tex-id (GL45/glCreateTextures GL45/GL_TEXTURE_2D)]
      (when opts
        (apply-parameters tex-id opts))
@@ -379,7 +380,7 @@
        (GL45/glTextureSubImage2D tex-id 0 0 0
                                  width height
                                  ^int (image-format->glenum (:format tex-data))
-                                 ^int (image-type->glenum (:type tex-data))
+                                 ^int (data-type->glenum (:data-type tex-data))
                                  ^ByteBuffer (:data tex-data)))
      (GL45/glGenerateTextureMipmap tex-id)
      (->Texture tex-id tex-def opts))))

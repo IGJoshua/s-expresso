@@ -3,24 +3,11 @@
    [cljsl.compiler :as c]
    [examples.window :as e.w]
    [examples.triangle :as e.t]
-   [s-expresso.memory :refer [with-stack-allocator]]
+   [s-expresso.ecs :as ecs]
    [s-expresso.mesh :as m]
-   [s-expresso.resource :refer [with-free]]
+   [s-expresso.render :as r]
    [s-expresso.shader :as sh]
-   [s-expresso.texture :as tex]
-   [s-expresso.window :as w])
-  (:import
-   (org.lwjgl.opengl
-    GL GL45)))
-
-(defn step
-  [window mesh]
-  (GL45/glClear (bit-or GL45/GL_COLOR_BUFFER_BIT GL45/GL_DEPTH_BUFFER_BIT))
-
-  (m/draw-mesh mesh)
-
-  (w/swap-buffers window)
-  (w/poll-events))
+   [s-expresso.texture :as tex]))
 
 (c/defparam v-pos "vec3"
   :layout {"location" 0})
@@ -72,32 +59,52 @@
                       :indices {}
                       :element-type :triangles})
 
-(defn window-loop
-  [window]
-  (e.t/enable-debug-logging window)
+(defn texture-resolver
+  [path components image-format texture-format]
+  #(future
+     (let [image (tex/load-image path components)]
+       (delay
+         (tex/make-texture {:internal-format image-format
+                            :dimensions (:dimensions image)}
+                           (assoc texture-format
+                                  :data (:data image)))))))
 
-  (GL45/glClearColor 0 0 0 1)
-  (GL45/glClearDepth 1)
-  (with-free [mesh (with-stack-allocator
-                     (m/make-mesh pos-mesh-layout (m/pack-verts pos-mesh-layout quad-mesh-data)))
-              shader-program (sh/make-shader-program-from-sources [vert-shader frag-shader])
-              image (tex/load-image "res/textures/octostone/octostoneAlbedo.png" 3)
-              texture (tex/make-texture {:format GL45/GL_RGB8
-                                         :dimensions (:dimensions image)}
-                                        {:data (:data image)
-                                         :format GL45/GL_RGB
-                                         :type GL45/GL_UNSIGNED_BYTE})]
-    (sh/with-shader-program shader-program
-      (tex/with-texture texture 0
-        (sh/upload-uniform-int shader-program (c/sym->ident `sam) 0)
-        (while (not (w/window-should-close? window))
-          (step window mesh)))))
-  window)
+(def ^:private shader-program (e.t/shader-program-resolver [vert-shader frag-shader]))
+(def ^:private quad-mesh (e.t/mesh-resolver quad-mesh-data pos-mesh-layout))
+(def ^:private tex (texture-resolver "res/textures/octostone/octostoneAlbedo.png"
+                                     3
+                                     :rgb8
+                                     {:format :rgb
+                                      :data-type :unsigned-byte}))
+
+(defn render-entity
+  [_entity]
+  (reify r/RenderOp
+    (op-deps [_]
+      {::quad quad-mesh
+       ::shader-program shader-program
+       ::texture tex})
+    (apply-op! [_ {{::keys [quad shader-program texture]} ::r/resources}]
+      (when (and quad shader-program texture)
+        (sh/with-shader-program shader-program
+          (tex/with-texture texture 0
+            (sh/upload-uniform-int shader-program (c/sym->ident `sam) 0)
+            (m/draw-mesh quad)))))))
+
+(defn- draw-mesh
+  [game-state]
+  (->> (::ecs/entities game-state)
+       vals
+       (filter ::e.t/position)
+       (map render-entity)))
+
+(def init-game-state (assoc e.t/init-game-state
+                            ::r/systems [#'e.t/clear-screen #'draw-mesh]))
 
 (defn start
   []
   (e.w/init)
   (-> (e.w/start-window e.w/window-opts)
-      (window-loop)
+      (e.t/run-sim init-game-state e.t/init-render-state)
       (e.w/shutdown-window))
   (e.w/shutdown))
