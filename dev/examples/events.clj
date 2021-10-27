@@ -11,7 +11,7 @@
   entity)
 
 (defn print-events
-  [{::ecs/keys [events entities] :as scene} dt]
+  [{::ecs/keys [events entities] :as scene} _dt]
   (doseq [event events]
     (if-let [entity (entities (::ecs/target event))]
       (log/debug "Message sent from:" (::ecs/source event)
