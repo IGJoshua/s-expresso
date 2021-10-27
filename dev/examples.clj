@@ -6,9 +6,7 @@
    [examples.textured-quad :as tex-quad]
    [examples.gravity :as grav]
    [examples.spring :as spring]
-   [examples.events :as ev]
-   ;[examples.rendering-system :as rs]
-   ))
+   [examples.events :as ev]))
 
 (defn window
   [_]
@@ -28,6 +26,3 @@
 (defn events
   [_]
   (ev/start))
-;;(defn rendering-system
-;;  [_]
-;;  (rs/start))
