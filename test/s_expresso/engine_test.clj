@@ -1,4 +1,3 @@
 (ns s-expresso.engine-test
-  (:require [clojure.test :refer :all]
-            [suskalo.engine :refer :all]))
-
+  (:require [clojure.test :as t]
+            [s-expresso.engine :as sut]))
