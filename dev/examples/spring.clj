@@ -1,20 +1,13 @@
 (ns examples.spring
   (:require
-   [cljsl.compiler :as c]
    [clojure.core.matrix :as mat]
    [examples.gravity :as e.g]
    [examples.triangle :as e.t]
    [examples.window :as e.w]
-   [s-expresso.memory :as mem :refer [with-stack-allocator]]
-   [s-expresso.mesh :as m]
    [s-expresso.render :as r]
-   [s-expresso.resource :refer [with-free]]
-   [s-expresso.shader :as sh :refer [with-shader-program]]
-   [s-expresso.window :as w]
    [s-expresso.ecs :as ecs :refer [defsystem]]
    [s-expresso.physics.dynamics :as d]
-   [s-expresso.physics.constraints :as constraint]
-   [taoensso.timbre :as log]))
+   [s-expresso.physics.constraints :as constraint]))
 
 (def gravity-vector (mat/array [0 -9.81]))
 
