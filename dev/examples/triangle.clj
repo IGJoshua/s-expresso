@@ -3,7 +3,7 @@
    [cljsl.compiler :as c]
    [examples.window :as e.w]
    [s-expresso.engine :as e]
-   [s-expresso.ecs :as ecs]
+   [s-expresso.ecs :as ecs :refer [defsystem]]
    [s-expresso.memory :refer [with-heap-allocator]]
    [s-expresso.mesh :as m]
    [s-expresso.render :as r]
@@ -15,6 +15,7 @@
 (c/defparam a-pos "vec3"
   :layout {"location" 0})
 (c/defuniform a-col "vec3")
+(c/defuniform m-pos "vec2")
 (c/defparam col "vec3")
 
 (c/defshader vert-source
@@ -22,7 +23,7 @@
    a-col :in
    col :out}
   (set! col a-col)
-  (set! gl_Position (vec4 (:xyz a-pos) 1.0)))
+  (set! gl_Position (vec4 (+ (vec3 m-pos 0) (:xyz a-pos)) 1.0)))
 
 (def vert-shader
   {:source (::c/source vert-source)
@@ -72,6 +73,7 @@
       (when (and triangle shader-program)
         (sh/with-shader-program shader-program
           (apply sh/upload-uniform-float shader-program (c/sym->ident `a-col) (::color entity))
+          (apply sh/upload-uniform-float shader-program (c/sym->ident `m-pos) (::position entity))
           (m/draw-mesh triangle))))))
 
 (defn- draw-mesh
@@ -80,6 +82,17 @@
        vals
        (filter ::position)
        (map render-entity)))
+
+(defn clear-screen
+  [_game-state]
+  (GL45/glClearColor 0.1 0.15 0.2 1.0)
+  (GL45/glClear (bit-or GL45/GL_COLOR_BUFFER_BIT GL45/GL_DEPTH_BUFFER_BIT)))
+
+(defsystem wiggle [::position]
+  [_game-state _id entity _dt]
+  (assoc entity ::position
+         [(/ (Math/sin (w/time)) 3)
+          (/ (Math/cos (w/time)) 3)]))
 
 (defn ingest-input
   [game-state _dt]
@@ -96,15 +109,10 @@
       mouse-pos (assoc :mouse-pos mouse-pos)
       close? (assoc ::e/should-close? close?))))
 
-(defn clear-screen
-  [_game-state]
-  (GL45/glClearColor 0.1 0.15 0.2 1.0)
-  (GL45/glClear (bit-or GL45/GL_COLOR_BUFFER_BIT GL45/GL_DEPTH_BUFFER_BIT)))
-
 (def init-game-state
   {::ecs/entities {(ecs/next-entity-id) {::position [0 0]
                                          ::color [1 0 0]}}
-   ::ecs/systems [#'ingest-input]
+   ::ecs/systems [#'ingest-input [#'wiggle]]
    ::ecs/events []
    ::r/systems [#'clear-screen #'draw-mesh]})
 
