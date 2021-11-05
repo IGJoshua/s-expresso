@@ -11,5 +11,5 @@
 .hg/
 **/.dir-locals.el
 
-/dev/res/textures/*
+/dev/res/*
 /.clj-kondo/.cache/
