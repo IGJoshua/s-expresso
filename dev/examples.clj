@@ -6,7 +6,8 @@
    [examples.textured-quad :as tex-quad]
    [examples.gravity :as grav]
    [examples.spring :as spring]
-   [examples.events :as ev]))
+   [examples.events :as ev]
+   [examples.audio :as audio]))
 
 (defn window
   [_]
@@ -26,3 +27,6 @@
 (defn events
   [_]
   (ev/start))
+(defn audio
+  [_]
+  (audio/start))
