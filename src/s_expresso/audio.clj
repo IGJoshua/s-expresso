@@ -161,18 +161,19 @@
                     (read-file-to-byte-buffer file-or-buffer)
                     file-or-buffer))
           audio-buffer (STBVorbis/stb_vorbis_decode_memory @buffer channels sample-rate)]
-      (try
-        (let [channels (.get channels)
-              sample-rate (.get sample-rate)
-              format (cond
-                       (= channels 1) AL11/AL_FORMAT_MONO16
-                       (= channels 2) AL11/AL_FORMAT_STEREO16
-                       :else -1)
-              sound (AL11/alGenBuffers)]
-          (AL11/alBufferData sound format audio-buffer sample-rate)
-          (Sound. sound))
-        (finally
-          (LibCStdlib/free audio-buffer))))))
+      (when audio-buffer
+        (try
+          (let [channels (.get channels)
+                sample-rate (.get sample-rate)
+                format (cond
+                         (= channels 1) AL11/AL_FORMAT_MONO16
+                         (= channels 2) AL11/AL_FORMAT_STEREO16
+                         :else -1)
+                sound (AL11/alGenBuffers)]
+            (AL11/alBufferData sound format audio-buffer sample-rate)
+            (Sound. sound))
+          (finally
+            (LibCStdlib/free audio-buffer)))))))
 
 (defn make-source
   "Creates an audio source for playback."
