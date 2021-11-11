@@ -3,7 +3,7 @@
   (:require
    [clojure.java.io :as io]
    [farolero.core :as far]
-   [s-expresso.memory :as mem :refer [with-stack-allocator alloc-bytes put put-seq]]
+   [s-expresso.memory :as mem :refer [with-stack-allocator alloc-bytes put-seq]]
    [s-expresso.resource :refer [Resource]])
   (:import
    (java.io File)
@@ -35,7 +35,7 @@
   ([] (init-openal {}))
   ([opts]
    (try (ALC/create)
-        (catch IllegalStateException e))
+        (catch IllegalStateException _e))
    (let [{:keys []
           :or {}} opts
          device-specifier (ALC11/alcGetString 0 ALC11/ALC_DEFAULT_DEVICE_SPECIFIER)
@@ -145,7 +145,7 @@
             (instance? ByteBuffer file-or-buffer)
             file-or-buffer
 
-            :otherwise
+            :else
             (far/restart-case (far/error ::invalid-file-type
                                          :file file-or-buffer
                                          :usage "")
@@ -164,7 +164,7 @@
               format (cond
                        (= channels 1) AL11/AL_FORMAT_MONO16
                        (= channels 2) AL11/AL_FORMAT_STEREO16
-                       :otherwise -1)
+                       :else -1)
               sound (AL11/alGenBuffers)]
           (AL11/alBufferData sound format audio-buffer sample-rate)
           (Sound. sound))

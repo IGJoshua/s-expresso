@@ -12,7 +12,7 @@
    (java.nio
     ByteBuffer)
    (java.nio.channels
-    FileChannel FileChannel$MapMode)
+    FileChannel$MapMode)
    (org.lwjgl.opengl
     GL45)
    (org.lwjgl.stb
@@ -25,7 +25,7 @@
 
 (defrecord Image [data dimensions channels]
   Resource
-  (free [img]
+  (free [_img]
     (STBImage/stbi_image_free ^ByteBuffer data)))
 
 (defn load-image
@@ -172,7 +172,7 @@
 
 (defrecord Texture [id tex-def opts]
   Resource
-  (free [tex]
+  (free [_tex]
     (GL45/glDeleteTextures ^int id)))
 
 (defn- apply-parameters

@@ -212,7 +212,7 @@
   attempts will be made to resolve complex interpenetrations, if they are not
   fully resolved after that many attempts, they will be left partially
   penetrating. This may cause collisions in some cases to feel 'soft'."
-  [bodies contacts body-pair->restitution dt iterations]
+  [bodies contacts _body-pair->restitution _dt iterations]
   (loop [bodies bodies
          contacts contacts
          iterations iterations]
@@ -222,7 +222,7 @@
             (if (seq contacts)
               (recur bodies (rest contacts))
               [bodies contacts]))]
-      (if (and (pos? iterations))
+      (if (pos? iterations)
         (recur bodies contacts (dec iterations))
         bodies))))
 (s/fdef resolve-contacts-for-interpenetration

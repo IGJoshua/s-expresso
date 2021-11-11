@@ -13,13 +13,13 @@
 
 (defrecord ShaderProgram [id shaders uniforms]
   Resource
-  (free [prog]
+  (free [_prog]
     (when id
       (GL45/glDeleteProgram id))))
 
 (defrecord Shader [id source stage]
   Resource
-  (free [shader]
+  (free [_shader]
     (when id
       (GL45/glDeleteShader id))))
 

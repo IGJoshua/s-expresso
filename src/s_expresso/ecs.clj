@@ -68,7 +68,7 @@
                    (update (system scene dt)
                            ::events-to-send concat *events-to-send*)))
           (letfn [(apply-systems [entity-id entity]
-                    (reduce (fn [{entity entity-id :as entities} system]
+                    (reduce (fn [{entity entity-id} system]
                               (let [new-entities (system scene entity-id entity dt)]
                                 (if (new-entities entity-id)
                                   new-entities

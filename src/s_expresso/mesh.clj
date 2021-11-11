@@ -46,6 +46,7 @@
                          (- value 102)))
                      (- 126 value)))))))))
 
+#_{:clj-kondo/ignore [:unused-private-var]}
 (defn- half-float->float
   "Takes a half-precision float and coerces it into a floating point value."
   [hbits]
@@ -198,7 +199,7 @@
 
 (defrecord Mesh [^int vao-id ^IntBuffer buffers index-type element-count element-type start-offset]
   Resource
-  (free [mesh]
+  (free [_mesh]
     (GL45/glDeleteBuffers buffers)
     (MemoryUtil/memFree buffers)
     (GL45/glDeleteVertexArrays vao-id)))

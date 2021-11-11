@@ -1,17 +1,11 @@
 (ns s-expresso.memory
   "Namespace with helper functions for allocating memory and stack allocation."
   (:import
-   (java.nio
-    ByteBuffer)
-   (mikera arrayz.INDArray
-           vectorz.AVector)
-   (org.lwjgl
-    BufferUtils)
-   (org.lwjgl.opengl
-    GL45)
-   (org.lwjgl.system
-    MemoryStack
-    MemoryUtil)))
+   (mikera.arrayz INDArray)
+   (mikera.vectorz AVector)
+   (java.nio ByteBuffer)
+   (org.lwjgl BufferUtils)
+   (org.lwjgl.system MemoryStack)))
 
 (def ^{:private true
        :dynamic true}

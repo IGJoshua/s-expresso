@@ -34,7 +34,7 @@
 
 (defn- evaluate-line
   "Reduces a line to the next simplex and direction."
-  [line dir]
+  [line _dir]
   (let [[a b] line
         ab (m/sub b a)
         ao (m/negate a)]
@@ -87,7 +87,7 @@
       (same-dir? abc ao) (evaluate-triangle (list a b c) dir)
       (same-dir? acd ao) (evaluate-triangle (list a c d) dir)
       (same-dir? adb ao) (evaluate-triangle (list a d b) dir)
-      :otherwise [tetrahedron nil])))
+      :else [tetrahedron nil])))
 (s/fdef evaluate-tetrahedron
   :args (s/cat :tetrahedron (s/and (s/coll-of m/vec?)
                                    #(= 4 (count %)))
@@ -170,7 +170,7 @@
   (second
    (let [[point & points] points
          direction (m/normalise direction)]
-     (reduce (fn [[max-dot max-point :as acc] new-point]
+     (reduce (fn [[max-dot _max-point :as acc] new-point]
                (let [new-dot (m/dot new-point direction)]
                  (if (> new-dot max-dot)
                    [new-dot new-point]
