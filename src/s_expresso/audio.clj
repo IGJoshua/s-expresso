@@ -3,7 +3,7 @@
   (:require
    [clojure.java.io :as io]
    [farolero.core :as far]
-   [s-expresso.memory :as mem :refer [with-stack-allocator alloc-bytes put-seq]]
+   [s-expresso.memory :as mem :refer [with-stack-allocator with-heap-allocator alloc-bytes put-seq]]
    [s-expresso.resource :refer [Resource]])
   (:import
    (java.io File)
@@ -132,7 +132,7 @@
 (defn make-sound
   "Imports the given sound into a [[Sound]] resource."
   [file-or-buffer]
-  (with-stack-allocator
+  (with-heap-allocator
     (let [channels (.asIntBuffer (alloc-bytes Integer/SIZE))
           sample-rate (.asIntBuffer (alloc-bytes Integer/SIZE))
           file-or-buffer
