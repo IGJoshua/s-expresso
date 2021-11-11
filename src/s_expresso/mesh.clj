@@ -154,6 +154,7 @@
 
 (defn- usage-flags->flags-int
   "Takes a set of usage `flags` and converts it to a bitset represented as an int.
+
   Integer values of individual `flags` are fetched from [[usage-flag->glenum]]
   and [[bit-or]]ed together to create a bitset."
   ^long [flags]
@@ -215,6 +216,7 @@
 
 (defn pack-verts
   "Takes in a buffer `layout` definition and a `mesh`, and returns packed buffers.
+
   Return value is a map with the keys `:indices` (if an index buffer is defined)
   and `:buffers`. `:indices` will have a value of an int array, and `:buffers`
   will be a vector of arrays based on the type specified in the `layout`.
@@ -275,6 +277,7 @@
 
 (defn make-mesh
   "Takes a `layout` and a `packed-mesh`, and returns a [[Mesh]] [[Resource]].
+
   The `layout` must match the `packed-mesh`. This function asserts that the
   number of buffers the `layout` expects matches the number of buffers in the
   `packed-mesh`, and that if one has indices, both do."

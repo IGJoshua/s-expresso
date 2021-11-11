@@ -12,6 +12,7 @@
 
 (defn- minkowski-hull-point
   "Finds the closest point on the hull of the minkowski sum given a direction.
+
   Requires that [[Hull]] be implemented for `a` and `b`."
   [a b dir]
   (m/sub (point-in-direction a dir)
@@ -24,6 +25,7 @@
 
 (defn- same-dir?
   "Returns true when a and b point in the same direction.
+
   Both `a` and `b` must be vectors."
   [a b]
   (> (m/dot a b) 0))
@@ -97,6 +99,7 @@
 
 (defn- evaluate-simplex
   "Reduce the simplex to points near the origin and return a new direction to search.
+
   If the input is a tetrahedron and the origin is contained by the simplex, the
   direction will be nil."
   [simplex dir]
@@ -113,6 +116,7 @@
 
 (defn collision-simplex
   "Returns a simplex in the Minkowski sum of two objects containing the origin.
+
   If the origin is not contained within the sum, nil is returned.
 
   Each of the two objects must be implementations of the [[Hull]] protocol, and
@@ -135,6 +139,7 @@
 
 (defn overlapping?
   "Returns true if the two objects are overlapping, false otherwise.
+
   Both `a` and `b` must implement [[Hull]]."
   [a b]
   (some? (collision-simplex a b)))
@@ -145,6 +150,7 @@
 
 (defn sphere-support
   "Returns the furthest point in a given `direction` around a sphere.
+
   This function is designed to be used in an implementation of [[Hull]] for
   spheres.
 
@@ -162,6 +168,7 @@
 
 (defn points-support
   "Returns the furthest point in a given `direction` among a sequence of points.
+
   This function is designed to be used in an implementation of [[Hull]] for
   convex hull meshes and other structures defined with a small set of vertices.
 
@@ -184,6 +191,7 @@
 
 (defn aabb-support
   "Returns the furthest point in a given `direction` on the surface of an aabb.
+
   This function is designed to be used in an implementation of [[Hull]] for axis
   aligned bounding boxes."
   [center bounds direction]

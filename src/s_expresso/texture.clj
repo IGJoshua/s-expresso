@@ -30,6 +30,7 @@
 
 (defn load-image
   "Loads an image into a ByteBuffer, returning an [[Image]] [[Resource]].
+
   The image is attempted to be loaded from the resource bundle, then the path,
   then as a [[java.io.File]].
 
@@ -361,6 +362,7 @@
 
 (defn make-texture
   "Creates a new texture from the given `tex-def`.
+
   The texture parameters from `opts` are applied before the image is uploaded."
   ([tex-def tex-data] (make-texture tex-def tex-data nil))
   ([tex-def tex-data opts]
@@ -392,6 +394,7 @@
 
 (defn bind-texture
   "Binds a `texture` to the given `tex-unit`.
+
   Unbinds the texture unit if given nil."
   [texture tex-unit]
   (GL45/glBindTextureUnit tex-unit (or (:id texture) 0)))
@@ -401,6 +404,7 @@
 
 (defmacro with-texture
   "Binds the `texture` to `tex-unit` for the duration of the `body`.
+
   Whatever texture was bound before this call will be re-bound after it exits,
   even in the case an exception is thrown."
   [texture tex-unit & body]

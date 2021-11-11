@@ -11,12 +11,14 @@
        :dynamic true}
   *memory-stack*
   "Holds a memory stack that buffers can be allocated from.
+
   Any stack-allocated memory which escapes from the scope of the allocator is
   freed, and any usage of it becomes a use-after-free bug."
   nil)
 
 (defmacro with-stack-allocator
   "Creates a stack allocator within the dynamic scope of this macro body.
+
   This should be used carefully. Places which directly interact with lwjgl's
   memory utils are unaffected. Any memory allocated on the stack which escapes
   the scope and is used is a use-after-free bug."
@@ -27,6 +29,7 @@
 
 (defmacro with-heap-allocator
   "Ensures allocations within the dynamic scope of this macro body are on the heap.
+
   The primary usage of this is for functions which wish to provide an interface
   compatible with usage of [[s-expresso.memory/with-stack-allocator]] but which
   needs to create a long-lived allocation. Places which directly interact with
@@ -43,6 +46,7 @@
 
 (defn put-seq
   "Puts each item from a sequence onto a memory buffer.
+
   This will put each element onto the buffer in sequence, using the appropriate
   put operation based on the item's type, meaning the sequence can be
   heterogeneous.
@@ -108,6 +112,7 @@
 
 (defn alloc-bytes
   "Allocates a number of bytes as a [[java.nio.ByteBuffer]].
+
   This allocation is done using [[org.lwjgl.system.MemoryUtil]] by default, but
   if this is called within the dynamic extent of a [[with-stack-allocator]] use,
   it will allocate the buffer on the stack, and it will be invalid outside of

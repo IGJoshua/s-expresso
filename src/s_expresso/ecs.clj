@@ -38,6 +38,7 @@
 
 (defn send-event!
   "Queues the event for inclusion in the next frame of the scene.
+
   This may be called only from within a system."
   [event]
   (when-not *events-to-send*
@@ -50,6 +51,7 @@
 
 (defn step-scene
   "Runs all the systems over the `scene`, returning the new one.
+
   Any systems which are applied to the whole scene will be run on the thread
   this function is called from, but entity-specific systems may be run in
   parallel.
@@ -97,6 +99,7 @@
 
 (defn spawn-entity!
   "Queues the entity for inclusion in the next frame of the scene.
+
   This may be called only from within a usage of [[defsystem]]."
   [entity]
   (when-not *entities-to-spawn*
@@ -110,6 +113,7 @@
 
 (defmacro defsystem
   "Constructs a function to be used as a per-entity system.
+
   The body of the function will be run only if the entity has all of the
   required keys on its map, and the value returned from the function is the new
   entity.

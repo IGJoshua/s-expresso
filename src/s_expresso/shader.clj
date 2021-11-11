@@ -47,6 +47,7 @@
 
 (defn compile-shader
   "Compiles a shader, returning a shader object.
+
   Takes a `source` and a `stage` and returns a [[Shader]] record which has been
   compiled. If the shader is invalid, the compilation error is logged nil is
   returned."
@@ -179,6 +180,7 @@
 
 (defn- uniform-map
   "Fetches all active uniforms from a shader program with the given `id`.
+
   Returns a map from the string name of the uniform to its uniform location in
   the shader program."
   [id]
@@ -205,6 +207,7 @@
 
 (defn link-shader-program
   "Links shaders into a shader program.
+
   Takes a seq of [[Shader]]s which must contain either a vertex shader (and
   optionally other shaders, but not compute), or exactly one compute shader. If
   a linker error occurs it will be displayed, along with the whole program text
@@ -242,6 +245,7 @@
 
 (defn make-shader-program-from-sources
   "Compiles the given sources as shaders and links them, returning the program.
+
   All of the shaders are released to the driver after linking, meaning when the
   program is freed, the shaders will be as well.
 
@@ -264,6 +268,7 @@
 
 (defn bind-shader-program
   "Takes a shader `program` and binds it for drawing.
+
   Unbinds the program if given nil."
   [program]
   (GL45/glUseProgram (if (:id program) (:id program) 0)))
@@ -273,6 +278,7 @@
 
 (defmacro with-shader-program
   "Binds the `program` for the duration of the `body`.
+
   Whatever program was bound before this call will be re-bound after it exits,
   even in the case an exception is thrown."
   [program & body]
@@ -287,6 +293,7 @@
 
 (defn upload-uniform-float
   "Uploads floating-point values to a uniform.
+
   The floating-point values are assumed to be vectors when 2-4 values are
   passed."
   ([program uniform-name x]
@@ -300,6 +307,7 @@
 
 (defn upload-uniform-floats
   "Uploads floating-point values to a uniform array.
+
   `floats` must be a [[java.nio.FloatBuffer]]."
   [program num-components uniform-name ^FloatBuffer floats]
   (case (int num-components)
@@ -318,6 +326,7 @@
 
 (defn upload-uniform-int
   "Uploads integral values to a uniform.
+
   The integral values are assumed to be vectors when 2-4 values are passed."
   ([program uniform-name x]
    (GL45/glProgramUniform1i (int (:id program)) (int (:location (get (:uniforms program) uniform-name))) (int x)))
@@ -330,6 +339,7 @@
 
 (defn upload-uniform-ints
   "Uploads integral values to a uniform array.
+
   `ints` must be a [[java.nio.IntBuffer]]."
   [program num-components uniform-name ^IntBuffer ints]
   (case (int num-components)
@@ -348,6 +358,7 @@
 
 (defn upload-uniform-unsigned-int
   "Uploads unsigned integral values to a uniform.
+
   The unsigned integral values are assumed to be vectors when 2-4 values are
   passed."
   ([program uniform-name x]
@@ -361,6 +372,7 @@
 
 (defn upload-uniform-unsigned-ints
   "Uploads unsigned integral values to a uniform array.
+
   `ints` must be a [[java.nio.IntBuffer]]."
   [program num-components uniform-name ^IntBuffer ints]
   (case (int num-components)
@@ -379,6 +391,7 @@
 
 (defn upload-uniform-matrix2
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.FloatBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-matrix2 program uniform-name matrix false))
@@ -390,6 +403,7 @@
 
 (defn upload-uniform-matrix2x3
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.FloatBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-matrix2x3 program uniform-name matrix false))
@@ -401,6 +415,7 @@
 
 (defn upload-uniform-matrix2x4
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.FloatBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-matrix2x4 program uniform-name matrix false))
@@ -412,6 +427,7 @@
 
 (defn upload-uniform-matrix3
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.FloatBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-matrix3 program uniform-name matrix false))
@@ -423,6 +439,7 @@
 
 (defn upload-uniform-matrix3x2
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.FloatBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-matrix3x2 program uniform-name matrix false))
@@ -434,6 +451,7 @@
 
 (defn upload-uniform-matrix3x4
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.FloatBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-matrix3x4 program uniform-name matrix false))
@@ -445,6 +463,7 @@
 
 (defn upload-uniform-matrix4
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.FloatBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-matrix4 program uniform-name matrix false))
@@ -456,6 +475,7 @@
 
 (defn upload-uniform-matrix4x2
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.FloatBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-matrix4x2 program uniform-name matrix false))
@@ -466,6 +486,7 @@
                                      ^FloatBuffer matrix)))
 (defn upload-uniform-matrix4x3
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.FloatBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-matrix4x3 program uniform-name matrix false))
@@ -477,6 +498,7 @@
 
 (defn upload-uniform-dmatrix2
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.DoubleBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-dmatrix2 program uniform-name matrix false))
@@ -488,6 +510,7 @@
 
 (defn upload-uniform-dmatrix2x3
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.DoubleBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-dmatrix2x3 program uniform-name matrix false))
@@ -499,6 +522,7 @@
 
 (defn upload-uniform-dmatrix2x4
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.DoubleBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-dmatrix2x4 program uniform-name matrix false))
@@ -510,6 +534,7 @@
 
 (defn upload-uniform-dmatrix3
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.DoubleBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-dmatrix3 program uniform-name matrix false))
@@ -521,6 +546,7 @@
 
 (defn upload-uniform-dmatrix3x2
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.DoubleBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-dmatrix3x2 program uniform-name matrix false))
@@ -532,6 +558,7 @@
 
 (defn upload-uniform-dmatrix3x4
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.DoubleBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-dmatrix3x4 program uniform-name matrix false))
@@ -543,6 +570,7 @@
 
 (defn upload-uniform-dmatrix4
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.DoubleBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-dmatrix4 program uniform-name matrix false))
@@ -554,6 +582,7 @@
 
 (defn upload-uniform-dmatrix4x2
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.DoubleBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-dmatrix4x2 program uniform-name matrix false))
@@ -564,6 +593,7 @@
                                      ^DoubleBuffer matrix)))
 (defn upload-uniform-dmatrix4x3
   "Uploads a floating-point matrix into a uniform array.
+
   `matrix` must be a [[java.nio.DoubleBuffer]]."
   ([program uniform-name matrix]
    (upload-uniform-dmatrix4x3 program uniform-name matrix false))

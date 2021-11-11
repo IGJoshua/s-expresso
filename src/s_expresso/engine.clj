@@ -33,6 +33,7 @@
 
 (defn send-render-event!
   "Queues the event to run on the next render frame.
+
   This may only be called inside a system."
   [event]
   (when-not *render-events-to-send*
@@ -51,6 +52,7 @@
 
 (defn- simulate
   "Simulates one tick of the ECS state per `dt` seconds.
+
   Assumes that [[w/time]] will not be set after this is called.
 
   As each state is simulated, it will be accumulated in [[simulated-states]]."
@@ -85,6 +87,7 @@
 
 (defn- render
   "Starts a render loop to render states from [[simulated-states]].
+
   Returns the last game state and render state which were rendered. Assumes
   that [[w/time]] will not be set after this is called.
 
@@ -139,6 +142,7 @@
 
 (defn start-engine
   "Starts a game loop.
+
   This is based on the [[w/time]] value increasing with time. When
   `::should-close?` is set on the game state, the simulation will complete that
   step, render it, and then close. The passed `window` will have its framebuffer

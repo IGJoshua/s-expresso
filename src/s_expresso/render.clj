@@ -8,12 +8,14 @@
 
 (defprotocol RenderOp
   "An operation with dependencies.
+
   Implementors must ensure that `apply-op!` may be run regardless of whether or
   not it has been initialized, and it should render as much as is possible with
   current resources."
   :extend-via-metadata true
   (op-deps [op]
     "Returns the resources which are used by this operation.
+
     This should not do any heavy computation.
 
     The returned value must be a map from resource ids to resolvers.
@@ -44,6 +46,7 @@
 
 (defn prepare-ops
   "Collects all the [[RenderOps]] from the `game-state`.
+
   When `last-state` is passed, the state used is interpolated between it and the
   current state, based on `factor`. Returns a seq of [[RenderOps]]."
   ([game-state]
@@ -96,6 +99,7 @@
 
 (defn collect-deps
   "Collects a map of resolvers for a sequence of `ops`.
+
   This assumes that each resource will have a unique key, or that if both keys
   are the same, the resolvers will load the same resource."
   [ops]

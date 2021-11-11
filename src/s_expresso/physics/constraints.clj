@@ -41,6 +41,7 @@
 
 (defn- closing-velocity
   "Calculates the closing velocity between two bodies.
+
   Returns a signed scalar value of the velocity along the normal. Positive means
   the objects are closing, negative they are separating.
 
@@ -93,6 +94,7 @@
 
 (defn- resolve-contact-impulse
   "Resolves velocity between two bodies for a given contact.
+
   Returns the modified bodies in the order they were passed."
   [body1 body2 contact restitution dt]
   (let [impulse (contact-impulse body1 body2 contact restitution dt)]
@@ -108,6 +110,7 @@
 
 (defn- contact-interpenetration
   "Returns the vectors to move the bodies by to resolve interpenetration.
+
   Each vector is scaled by the mass of each body in proportion to the total."
   [body1 body2 contact]
   (if (or (every? #(= ##Inf (::d/mass % ##Inf)) [body1 body2])
@@ -129,6 +132,7 @@
 
 (defn- resolve-contact-interpenetration
   "Moves the two bodies to no longer be penetrating.
+
   Each body is moved an amount relative to its proportion of the total mass."
   [body1 body2 contact]
   (map #(update %1 ::d/position m/add %2)
@@ -142,6 +146,7 @@
 
 (defn resolve-contact
   "Resolves a contact between two bodies.
+
   Returns the modified bodies in the order they were passed."
   [body1 body2 contact restitution dt]
   (let [[body1 body2] (resolve-contact-impulse body1 body2 contact restitution dt)]
@@ -207,6 +212,7 @@
 
 (defn- resolve-contacts-for-interpenetration
   "Moves `bodies` to no longer be interpenetrating.
+
   In complex situations, moving bodies to resolve interpenetration between one
   contact may cause a previous resolution to fail. No more than `iterations`
   attempts will be made to resolve complex interpenetrations, if they are not
@@ -236,6 +242,7 @@
 
 (defn resolve-contacts
   "Resolves a set of `contacts` for a map of `bodies`.
+
   Interpenetrations will attempt to be resolved for several `iterations` (default
   of twice the number of contacts). If interpenetrations cannot be fully
   resolved in this number of iterations, "

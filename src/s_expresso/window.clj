@@ -1,5 +1,6 @@
 (ns s-expresso.window
   "Functions for creating and managing a window with an OpenGL context.
+
   The system needs to be initialized before any of the functions are called,
   with [[init-glfw]], and once everything is shut down [[shutdown-glfw]] should
   be called to ensure all resources are returned to the windowing system.
@@ -34,6 +35,7 @@
 
 (defn init-glfw
   "Initializes GLFW for use on the system.
+
   Returns a boolean representing if GLFW was successfully initialized.
 
   The options map takes the following keys:
@@ -140,6 +142,7 @@
 
 (defn set-window-cursor-mode
   "Sets a given cursor mode on the given window.
+
   Valid values for `cursor-mode` are `:normal`, `:hidden`, and `:disabled`."
   [window cursor-mode]
   (GLFW/glfwSetInputMode (.-id window) GLFW/GLFW_CURSOR (cursor-mode->mode-int cursor-mode)))
@@ -154,6 +157,7 @@
 
 (defn make-window
   "Creates a window with the given options, returning a `Window` record.
+
   Returns nil if the window could not be created.
 
   The options map takes the following keys:
@@ -356,6 +360,7 @@
 
 (defn show-window
   "Takes a window and shows it.
+
   Returns the window."
   [window]
   (GLFW/glfwShowWindow (.-id window))
@@ -363,6 +368,7 @@
 
 (defn hide-window
   "Takes a window and hides it.
+
   Returns the window."
   [window]
   (GLFW/glfwHideWindow (.-id window))
@@ -375,6 +381,7 @@
 
 (defn focus-window
   "Forces the `window` to take input focus.
+
   Returns the window."
   [window]
   (GLFW/glfwFocusWindow (.-id window))
@@ -387,6 +394,7 @@
 
 (defn request-attention
   "Highlights the `window` or application to bring it to the user's attention.
+
   Returns the window."
   [window]
   (GLFW/glfwRequestWindowAttention (.-id window))
@@ -394,6 +402,7 @@
 
 (defn make-context-current-to-window
   "Takes a window and makes the OpenGL context current to that window.
+
   If window is nil, this releases the context which is current on the thread."
   [window]
   (GLFW/glfwMakeContextCurrent (when window (.-id window)))
@@ -401,6 +410,7 @@
 
 (defn set-vsync
   "Sets vsync to swap at every `interval` vblanks.
+
   If `interval` is a non-numeric truthy value, defaults to 1, and 0 if falsey."
   [interval]
   (GLFW/glfwSwapInterval (or (if-not (number? interval)
@@ -410,6 +420,7 @@
 
 (defn poll-events
   "Polls for GLFW events.
+
   This should be called periodically to ensure that input callbacks on windows
   are called, and to ensure the desktop environment knows the program is
   responsive. Should never block, but all callbacks are called on this thread
@@ -419,6 +430,7 @@
 
 (defn swap-buffers
   "Swaps the framebuffer on the given window.
+
   This call will block until a future v-blank based on your vsync
   configuration. Returns the window."
   [window]
@@ -432,6 +444,7 @@
 
 (defn window-should-close
   "Sets if a window should close.
+
   Returns the window."
   [window should-close?]
   (GLFW/glfwSetWindowShouldClose (.-id window) should-close?)
@@ -439,12 +452,14 @@
 
 (defn time
   "Gets the time in seconds.
+
   Counts from the passed value, or starts with 0 at when glfw-init was called."
   ([start] (GLFW/glfwSetTime (double start)))
   ([] (GLFW/glfwGetTime)))
 
 (defn raw-time
   "Gets the time in raw temporal units.
+
   The current time in seconds will be this value divided by the value
   of [[raw-time-frequency]]"
   []
@@ -467,6 +482,7 @@
 
 (defn fullscreen-monitor
   "Gets the monitor the fullscreen window is currently on.
+
   Returns an opaque handle to the monitor, or nil if the window is not
   fullscreen."
   [window]
@@ -476,6 +492,7 @@
 
 (defn video-mode
   "Gets the current video mode for the `monitor`.
+
   This is a map with the keys `:width`, `:height`, `:red-bits`, `:green-bits`,
   `:blue-bits`, and `:refresh-rate`."
   [monitor]
@@ -494,6 +511,7 @@
 
 (defn set-joystick-callback
   "Sets the global joystick connection event callback.
+
   While these events do not require a window, [[poll-events]] must be called for
   them to be consistently processed. If `callback` is nil, then the callback is
   unset."

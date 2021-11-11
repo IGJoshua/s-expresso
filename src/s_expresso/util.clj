@@ -2,10 +2,9 @@
   "Basic and general utilities.")
 
 (defn if-pred
-  "If calling `pred` on `v` returns truthy, call `then` on `v`, otherwise call
-  `else` on it.
+  "If calling `pred` on `v` returns truthy, call `then` on `v`, otherwise call `else` on it.
 
-  See also [[when-pred]]."
+  See [[when-pred]]."
   ([pred then else]
    (fn [v]
      (if-pred v pred then else)))
@@ -13,8 +12,9 @@
    (if (pred v) (then v) (else v))))
 
 (defn when-pred
-  "If calling `pred` on `v` returns truthy, call `then` on `v`, otherwise return
-  it unmodified."
+  "If calling `pred` on `v` returns truthy, call `then` on `v`, otherwise return it unmodified.
+
+  See [[if-pred]]."
   ([pred then]
    (fn [v]
      (when-pred v pred then)))

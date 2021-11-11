@@ -31,6 +31,7 @@
 
 (defn init-openal
   "Initializes OpenAL for use on the system.
+
   Returns `true` if successful."
   ([] (init-openal {}))
   ([opts]
@@ -77,6 +78,7 @@
 
 (defn suspend-context
   "Pauses updates to the state of all objects until the context is resumed.
+
   May be used to suspend updates to sources during the execution of audio update
   code."
   []
@@ -86,6 +88,7 @@
 
 (defn resume-context
   "Resumes updates to the state of objects.
+
   Called after [[suspend-context]] to apply any state changes."
   []
   (when-let [ctx @al-context]
@@ -231,6 +234,7 @@
 
 (defn source-cone
   "Sets the inner and outer cone angles the source will play in.
+
   `attenuation` is a float representing the gain past the outer angle."
   ([source inner outer] (source-cone source inner outer 0))
   ([source inner outer attenuation]
@@ -297,6 +301,7 @@
 
 (defn listener-orientation
   "Sets the orientation of the listener.
+
   `at` and `up` are seqable and represent orthogonal normalized vectors pointing
   in the forward and up directions of the listener."
   [at up]
@@ -326,6 +331,7 @@
 
 (defn distance-model
   "Sets the distance model used for attenuation.
+
   See [[distance-models]] for possible values."
   [model]
   (AL11/alDistanceModel (distance-model->al-int model)))
