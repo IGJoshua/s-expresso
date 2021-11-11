@@ -132,7 +132,7 @@
 (defn make-sound
   "Imports the given sound into a [[Sound]] resource."
   [file-or-buffer]
-  (with-heap-allocator
+  (with-stack-allocator
     (let [channels (.asIntBuffer (alloc-bytes Integer/SIZE))
           sample-rate (.asIntBuffer (alloc-bytes Integer/SIZE))
           file-or-buffer
@@ -158,7 +158,8 @@
                 v)))
           buffer (volatile!
                   (if (instance? File file-or-buffer)
-                    (read-file-to-byte-buffer file-or-buffer)
+                    (with-heap-allocator
+                      (read-file-to-byte-buffer file-or-buffer))
                     file-or-buffer))
           audio-buffer (STBVorbis/stb_vorbis_decode_memory @buffer channels sample-rate)]
       (when audio-buffer
