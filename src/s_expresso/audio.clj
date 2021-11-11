@@ -6,7 +6,7 @@
    [s-expresso.memory :as mem :refer [with-stack-allocator with-heap-allocator alloc-bytes put-seq]]
    [s-expresso.resource :refer [Resource]])
   (:import
-   (java.io File)
+   (java.io File FileNotFoundException)
    (java.nio ByteBuffer)
    (org.lwjgl.openal AL AL11 ALC ALC11)
    (org.lwjgl.stb STBVorbis)
@@ -125,9 +125,9 @@
       (put-seq (mapcat seq file-data))
       (.flip))))
 
-(defmethod far/report-condition ::invalid-file-type
+(defmethod far/report-condition :s-expresso/invalid-file-type
   [_ & {:keys [file usage]}]
-  (str "Invalid file object (" (type file) ") for usage: " usage))
+  (str "Invalid file object (" (if (string? file) file (type file)) ") for usage: " usage))
 
 (defn make-sound
   "Imports the given sound into a [[Sound]] resource."
@@ -149,9 +149,9 @@
             file-or-buffer
 
             :else
-            (far/restart-case (far/error ::invalid-file-type
+            (far/restart-case (far/error :s-expresso/invalid-file-type
                                          :file file-or-buffer
-                                         :usage "")
+                                         :usage "Vorbis audio stream")
               (::far/use-value [v]
                 :report "Replace the invalid value with a new one"
                 :interactive (comp eval read)
@@ -159,7 +159,12 @@
           buffer (volatile!
                   (if (instance? File file-or-buffer)
                     (with-heap-allocator
-                      (read-file-to-byte-buffer file-or-buffer))
+                      (try (far/wrap-exceptions
+                             (read-file-to-byte-buffer file-or-buffer))
+                           (catch FileNotFoundException e
+                             (far/error :s-expresso/file-not-found
+                                        :file file-or-buffer
+                                        :cause e))))
                     file-or-buffer))
           audio-buffer (STBVorbis/stb_vorbis_decode_memory @buffer channels sample-rate)]
       (when audio-buffer
