@@ -1,2 +1,6 @@
 /resources/assets/**
 !/resources/assets/.keep
+
+/.cpcache
+/.nrepl-port
+/.nrepl-history
