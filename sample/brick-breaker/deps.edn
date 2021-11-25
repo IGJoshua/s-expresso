@@ -5,7 +5,6 @@
 
         org.lwjgl/lwjgl {:mvn/version "3.2.3"}
         org.lwjgl/lwjgl-opengl {:mvn/version "3.2.3"}
-        org.lwjgl/lwjgl-openal {:mvn/version "3.2.3"}
 
         io.github.IGJoshua/cljsl {:git/sha "5d8bc2bfccb2bc05a5075564d3802919ba9052d8"}
         io.github.IGJoshua/s-expresso {:local/root "../../"}
