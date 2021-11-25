@@ -1,0 +1,6 @@
+{:images {:paddle "img/paddleBlu.png"
+          :ball "img/ballBlue.png"
+          :bricks ["img/element_red_rectangle.png" "img/element_yellow_rectangle.png"
+                   "img/element_green_rectangle.png" "img/element_blue_rectangle.png"
+                   "img/element_purple_rectangle.png"]
+          :unbreakable-brick "img/element_grey_rectangle.png"}}
