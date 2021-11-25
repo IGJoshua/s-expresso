@@ -338,9 +338,20 @@
                 (focus-callback window
                                 focused?)))))
 
-         (GLFW/glfwSetWindowSizeLimits id
-                                       (first min-size) (second min-size)
-                                       (first max-size) (second max-size))
+         (GLFW/glfwSetWindowSizeLimits
+          id
+          (if (#{:dont-care} (first min-size))
+            GLFW/GLFW_DONT_CARE
+            (first min-size))
+          (if (#{:dont-care} (second min-size))
+            GLFW/GLFW_DONT_CARE
+            (second min-size))
+          (if (#{:dont-care} (first max-size))
+            GLFW/GLFW_DONT_CARE
+            (first max-size))
+          (if (#{:dont-care} (second max-size))
+            GLFW/GLFW_DONT_CARE
+            (second max-size)))
 
          window)))))
 
