@@ -1,0 +1,929 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="276mm"
+   viewBox="0 0 210 276"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
+   sodipodi:docname="frame timings.svg"
+   inkscape:export-filename="/home/srasu/Programming/Projects/Clojure/games/s-expresso/frame timings.png"
+   inkscape:export-xdpi="120"
+   inkscape:export-ydpi="120"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#888888"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="1"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.4066518"
+     inkscape:cx="330.57221"
+     inkscape:cy="428.32206"
+     inkscape:window-width="1920"
+     inkscape:window-height="1056"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     height="296mm" />
+  <defs
+     id="defs2">
+    <rect
+       x="377.18005"
+       y="612.5401"
+       width="143.6208"
+       height="35.285769"
+       id="rect463939" />
+    <rect
+       x="150.29771"
+       y="63.579937"
+       width="226.67909"
+       height="52.083229"
+       id="rect5841" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 13.920973,30.322499 V 254.74287"
+       id="path42"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 114.71535,19.045118 V 266.37079"
+       id="path44" />
+    <text
+       xml:space="preserve"
+       transform="scale(0.26458333)"
+       id="text5839"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect5841);fill:#000000;fill-opacity:1;stroke:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.29167px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="7.4471812"
+       y="27.077326"
+       id="text12083"><tspan
+         sodipodi:role="line"
+         id="tspan12081"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.29167px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+         x="7.4471812"
+         y="27.077326">Simulation Thread (Fixed timestep)</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.29167px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+         x="7.4471812"
+         y="33.691914"
+         id="tspan12085" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.29167px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="109.27631"
+       y="13.800952"
+       id="text31383"><tspan
+         sodipodi:role="line"
+         id="tspan31381"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.29167px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+         x="109.27631"
+         y="13.800952">Render Thread (V-synched)</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 7.3386149,30.123937 H 21.356341"
+       id="path50018" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 7.0039719,254.61817 H 21.021698"
+       id="path50018-1" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 107.91772,255.51529 h 14.01773"
+       id="path50018-1-6" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 107.71709,266.55002 h 14.01773"
+       id="path50018-7" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 107.80437,19.174628 H 121.8221"
+       id="path50018-5" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 107.91772,29.403542 h 14.01773"
+       id="path50018-5-9" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="109.45528"
+       y="7.7337985"
+       id="text51786"><tspan
+         sodipodi:role="line"
+         id="tspan51784"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+         x="109.45528"
+         y="7.7337985">Main Thread</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="115.52459"
+       y="28.670877"
+       id="text60408"><tspan
+         sodipodi:role="line"
+         id="tspan60406"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.52778px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+         x="115.52459"
+         y="28.670877">Start simulation</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="14.984381"
+       y="253.26091"
+       id="text81675"><tspan
+         sodipodi:role="line"
+         id="tspan81673"
+         style="stroke-width:0.264583"
+         x="14.984381"
+         y="253.26091">Close is signaled by application</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.12489"
+       y="254.01128"
+       id="text97057"><tspan
+         sodipodi:role="line"
+         id="tspan97055"
+         style="stroke-width:0.264583"
+         x="115.12489"
+         y="254.01128">Immediately exit on close notification</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.08321"
+       y="265.22516"
+       id="text101945"><tspan
+         sodipodi:role="line"
+         id="tspan101943"
+         style="stroke-width:0.264583"
+         x="115.08321"
+         y="265.22516">Reset thread priority</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.4477"
+       y="258.90302"
+       id="text106121"><tspan
+         sodipodi:role="line"
+         id="tspan106119"
+         style="stroke-width:0.264583"
+         x="115.4477"
+         y="258.90302">Terminate simulation thread if still active</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="115.4477"
+         y="263.31271"
+         id="tspan106123" /></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.27489"
+       y="23.366301"
+       id="text121439"><tspan
+         sodipodi:role="line"
+         id="tspan121437"
+         style="stroke-width:0.264583"
+         x="115.27489"
+         y="23.366301">Empty simulated states</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.29167px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+       x="26.119635"
+       y="7.6825962"
+       id="text135003"><tspan
+         sodipodi:role="line"
+         id="tspan135001"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.29167px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+         x="26.119635"
+         y="7.6825962">Simulated States Queue</tspan></text>
+    <rect
+       id="rect140990"
+       width="64.630005"
+       height="7.7448378"
+       x="26.073729"
+       y="10.627072"
+       style="fill:none;stroke:#000000;stroke-width:0.765;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 37.28921,11.042526 c 0,7.696589 0,7.83609 0,7.83609"
+       id="path141168" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 47.306237,11.122906 V 18.31984"
+       id="path141170" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 57.910946,10.722599 V 18.50994"
+       id="path141172" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 70.089087,11.021327 v 7.437549"
+       id="path141174" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 80.199277,11.139424 v 7.071357"
+       id="path141176" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 10.043859,53.876873 7.358507,-4.5069"
+       id="path141291" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 10.378731,58.132732 7.358507,-4.5069"
+       id="path141291-8" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.91065,63.653065 7.35851,-4.5069"
+       id="path141291-6" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 111.24552,67.908924 7.35851,-4.5069"
+       id="path141291-8-0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.67669,241.0705 7.35851,-4.5069"
+       id="path141291-4" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 111.01156,245.32636 7.35851,-4.5069"
+       id="path141291-8-88" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 10.141979,102.56068 7.358507,-4.506905"
+       id="path141291-1" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 10.476851,106.81654 7.358507,-4.5069"
+       id="path141291-8-8" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 10.34261,180.20508 7.358507,-4.5069"
+       id="path141291-59" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 10.677482,184.46094 7.358507,-4.5069"
+       id="path141291-8-75" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 9.7924159,237.80296 7.3585071,-4.5069"
+       id="path141291-5" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 10.127288,242.05882 7.358507,-4.5069"
+       id="path141291-8-7" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="15.739008"
+       y="47.024952"
+       id="text146066"><tspan
+         sodipodi:role="line"
+         id="tspan146064"
+         style="stroke-width:0.264583"
+         x="15.739008"
+         y="47.024952">Frame Start</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="15.738604"
+       y="231.28499"
+       id="text153384"><tspan
+         sodipodi:role="line"
+         id="tspan153382"
+         style="stroke-width:0.264583"
+         x="15.738604"
+         y="231.28499">Frame End</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 9.9880749,70.047616 H 18.063629"
+       id="path154423" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 9.6821379,40.666056 H 17.757692"
+       id="path154423-8" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.88881,39.435119 h 8.07555"
+       id="path154423-8-3" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.93209,73.686684 h 8.07555"
+       id="path154423-8-3-6" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.74856,49.596361 h 8.07555"
+       id="path154423-8-3-6-0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.93209,80.609314 h 8.07555"
+       id="path154423-8-3-6-4" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 111.14867,90.014032 h 8.07555"
+       id="path154423-8-3-6-4-3" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.62886,105.88012 h 8.07555"
+       id="path154423-8-3-6-4-3-0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.74856,134.27836 h 8.07555"
+       id="path154423-8-3-6-4-3-0-5" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.74856,163.94004 h 8.07555"
+       id="path154423-8-3-6-4-3-0-5-0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.74413,178.51112 h 8.07555"
+       id="path154423-8-3-6-4-3-0-5-0-5" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.61459,189.66364 h 8.07555"
+       id="path154423-8-3-6-4-3-0-5-0-5-9" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.59021,209.82938 h 8.07555"
+       id="path154423-8-3-6-4-3-0-5-0-5-9-4" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.70204,146.84961 h 8.07555"
+       id="path154423-8-3-6-4-3-0-5-4" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.63007,122.17953 h 8.07555"
+       id="path154423-8-3-6-4-3-0-3" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.55977,230.26998 h 8.07555"
+       id="path154423-8-3-6-4-3-0-3-9" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 110.74856,219.76868 h 8.07555"
+       id="path154423-8-3-6-4-3-0-3-9-2" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 9.8110839,202.57154 H 17.886638"
+       id="path154423-3" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 10.151523,224.61976 h 8.075554"
+       id="path154423-3-8" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 9.9508909,82.973895 H 18.026445"
+       id="path154423-4" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 9.9161867,90.685456 H 17.991741"
+       id="path154423-4-8" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 9.916279,212.44479 h 8.075555"
+       id="path154423-4-9" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 10.006431,116.16566 h 8.075554"
+       id="path154423-4-1" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 9.7722218,123.65401 H 17.847776"
+       id="path154423-4-1-3" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 10.006431,161.90965 h 8.075554"
+       id="path154423-4-1-4" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 9.8220768,145.51467 H 17.897631"
+       id="path154423-4-1-6" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 9.8812087,133.54702 H 17.956763"
+       id="path154423-4-1-6-38" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 9.9314357,153.6612 H 18.00699"
+       id="path154423-4-1-6-3" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="14.834154"
+       y="64.060898"
+       id="text159281"><tspan
+         sodipodi:role="line"
+         id="tspan159279"
+         style="stroke-width:0.264583"
+         x="14.834154"
+         y="64.060898">Quit if the renderer killed</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="14.834154"
+         y="68.470612"
+         id="tspan159283">the simulation (e.g. on error)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="14.723475"
+       y="77.399025"
+       id="text168057"><tspan
+         sodipodi:role="line"
+         id="tspan168055"
+         style="stroke-width:0.264583"
+         x="14.723475"
+         y="77.399025">Spin until the current time</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="14.723475"
+         y="81.808739"
+         id="tspan168059">matches the start of frame</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="15.203764"
+       y="95.497467"
+       id="text173015"><tspan
+         sodipodi:role="line"
+         id="tspan173013"
+         style="stroke-width:0.264583"
+         x="15.203764"
+         y="95.497467">For each system</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="15.258583"
+       y="173.21547"
+       id="text181335"><tspan
+         sodipodi:role="line"
+         id="tspan181333"
+         style="stroke-width:0.264583"
+         x="15.258583"
+         y="173.21547">Loop with next system</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="14.854872"
+       y="192.3755"
+       id="text188633"><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="14.854872"
+         y="192.3755"
+         id="tspan204665">Measure frame time. If we're behind,  &quot;skip&quot;</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="14.854872"
+         y="196.78522"
+         id="tspan192151">some real time and keep simulating (will</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="14.854872"
+         y="201.19493"
+         id="tspan223761">make the game feel &quot;slow&quot;)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="28.269442"
+       y="195.53143"
+       id="text199967"><tspan
+         sodipodi:role="line"
+         id="tspan199965"
+         style="stroke-width:0.264583"
+         x="28.269442"
+         y="195.53143"> </tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+       x="64.173752"
+       y="200.57558"
+       id="text231247"><tspan
+         sodipodi:role="line"
+         id="tspan231245"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+         x="64.173752"
+         y="200.57558">At a later date, I may update</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+         x="64.173752"
+         y="204.10335"
+         id="tspan231249">this so that if a system con-</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+         x="64.173752"
+         y="207.63113"
+         id="tspan232097">sistently is slow, it will adjust</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+         x="64.173752"
+         y="211.15891"
+         id="tspan232099">the simulation rate (to a min-</tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+         x="64.173752"
+         y="214.68668"
+         id="tspan232101">imum frame time)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="14.594633"
+       y="218.886"
+       id="text238466"><tspan
+         sodipodi:role="line"
+         id="tspan238464"
+         style="stroke-width:0.264583"
+         x="14.594633"
+         y="218.886">Send the game state</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="14.594633"
+         y="223.29572"
+         id="tspan238972">to the queue</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="14.681784"
+       y="35.485367"
+       id="text243774"><tspan
+         sodipodi:role="line"
+         id="tspan243772"
+         style="stroke-width:0.264583"
+         x="14.681784"
+         y="35.485367">Set thread to</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="14.681784"
+         y="39.895081"
+         id="tspan243776">max priority</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.39"
+       y="33.507809"
+       id="text255198"><tspan
+         sodipodi:role="line"
+         id="tspan255196"
+         style="stroke-width:0.264583"
+         x="115.39"
+         y="33.507809">Set thread to</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="115.39"
+         y="37.917522"
+         id="tspan255200">max priority</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="14.370149"
+       y="114.31145"
+       id="text277099"><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="14.370149"
+         y="114.31145"
+         id="tspan277101">Bind empty list of simulation events</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="14.512192"
+       y="88.920029"
+       id="text294003"><tspan
+         sodipodi:role="line"
+         id="tspan294001"
+         style="stroke-width:0.264583"
+         x="14.512192"
+         y="88.920029">Bind empty list of render events</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="14.583712"
+       y="207.35878"
+       id="text297756"><tspan
+         sodipodi:role="line"
+         id="tspan297754"
+         style="stroke-width:0.264583"
+         x="14.583712"
+         y="207.35878">Attach render events</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="14.583712"
+         y="211.76849"
+         id="tspan297758">to the game state</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="14.493653"
+       y="139.27954"
+       id="text328444"><tspan
+         sodipodi:role="line"
+         id="tspan328442"
+         style="stroke-width:0.264583"
+         x="14.493653"
+         y="139.27954">Dispatch threads to batch entity updates.</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="14.493653"
+         y="143.68925"
+         id="tspan330536">Sequential entity-systems are applied together.</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="14.774576"
+       y="161.05258"
+       id="text340068"><tspan
+         sodipodi:role="line"
+         id="tspan340066"
+         style="stroke-width:0.264583"
+         x="14.774576"
+         y="161.05258">Attach simulation events to the state</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="15.143746"
+       y="152.27618"
+       id="text342998"><tspan
+         sodipodi:role="line"
+         id="tspan342996"
+         style="stroke-width:0.264583"
+         x="15.143746"
+         y="152.27618">Attach spawned entities to state</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="14.790453"
+       y="122.04979"
+       id="text348550"><tspan
+         sodipodi:role="line"
+         id="tspan348548"
+         style="stroke-width:0.264583"
+         x="14.790453"
+         y="122.04979">Run the system like a function if it's not per-entity</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 9.7722218,123.65401 c 0,0 -8.2259115,1.57629 -7.2771395,12.50562 0.9487719,10.92932 0.9394109,10.9483 4.8043995,22.16194"
+       id="path351986"
+       sodipodi:nodetypes="csc" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 8.8008983,161.01088 c 0.2741906,-3.31129 0.2741906,-3.31129 0.2741906,-3.31129 l -3.1372405,1.34435 z"
+       id="path352279" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="14.686122"
+       y="131.95204"
+       id="text354408"><tspan
+         sodipodi:role="line"
+         id="tspan354406"
+         style="stroke-width:0.264583"
+         x="14.686122"
+         y="131.95204">Bind empty map of spawned entities</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.92624"
+       y="57.584084"
+       id="text361622"><tspan
+         sodipodi:role="line"
+         id="tspan361620"
+         style="stroke-width:0.264583"
+         x="115.92624"
+         y="57.584084">Frame Start</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.56543"
+       y="234.92824"
+       id="text368676"><tspan
+         sodipodi:role="line"
+         id="tspan368674"
+         style="stroke-width:0.264583"
+         x="115.56543"
+         y="234.92824">Frame End</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.69793"
+       y="72.674484"
+       id="text377311"><tspan
+         sodipodi:role="line"
+         id="tspan377309"
+         style="stroke-width:0.264583"
+         x="115.69793"
+         y="72.674484">Calculate time for next vblank</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.69281"
+       y="79.410858"
+       id="text380847"><tspan
+         sodipodi:role="line"
+         id="tspan380845"
+         style="stroke-width:0.264583"
+         x="115.69281"
+         y="79.410858">Poll window events</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.88512"
+       y="85.00843"
+       id="text383207"><tspan
+         sodipodi:role="line"
+         id="tspan383205"
+         style="stroke-width:0.264583"
+         x="115.88512"
+         y="85.00843">Spin until we're within a</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="115.88512"
+         y="89.418144"
+         id="tspan385519">frame of the next vblank</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.68116"
+       y="96.505951"
+       id="text389001"><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="115.68116"
+         y="96.505951"
+         id="tspan389003">Take all simulated states up until the first</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="115.68116"
+         y="100.91566"
+         id="tspan389005">one after the next vblank, and save it and</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="115.68116"
+         y="105.32538"
+         id="tspan389013">the one just before as the current states</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.57148"
+       y="112.07427"
+       id="text401903"><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="115.57148"
+         y="112.07427"
+         id="tspan401905">Collect every render event from all the states taken,</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="115.57148"
+         y="116.48399"
+         id="tspan401909">including the ones before the two current states,</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="115.57148"
+         y="120.8937"
+         id="tspan414607">and apply them to the current resource map</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.41557"
+       y="48.114399"
+       id="text419481"><tspan
+         sodipodi:role="line"
+         id="tspan419479"
+         style="stroke-width:0.264583"
+         x="115.41557"
+         y="48.114399">Construct an empty resource map</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.31354"
+       y="224.92888"
+       id="text436415"><tspan
+         sodipodi:role="line"
+         id="tspan436413"
+         style="stroke-width:0.264583"
+         x="115.31354"
+         y="224.92888">Measure frame time. If we're behind, skip the next</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="115.31354"
+         y="229.33859"
+         id="tspan436417">vblank. This will appear as dropped frames.</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.26905"
+       y="219.03798"
+       id="text444931"><tspan
+         sodipodi:role="line"
+         id="tspan444929"
+         style="stroke-width:0.264583"
+         x="115.26905"
+         y="219.03798">Swap the framebuffer</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.29218"
+       y="129.201"
+       id="text446793"><tspan
+         sodipodi:role="line"
+         id="tspan446791"
+         style="stroke-width:0.264583"
+         x="115.29218"
+         y="129.201">Construct a new game state interpolated from the</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="115.29218"
+         y="133.61072"
+         id="tspan446795">two current ones for the next vblank time</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.57556"
+       y="141.15935"
+       id="text453955"><tspan
+         sodipodi:role="line"
+         id="tspan453953"
+         style="stroke-width:0.264583"
+         x="115.57556"
+         y="141.15935">Run each of a list of render systems on the</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="115.57556"
+         y="145.56906"
+         id="tspan453957">interpolated state and collect render ops</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.43453"
+       y="158.50336"
+       id="text462249"><tspan
+         sodipodi:role="line"
+         id="tspan462247"
+         style="stroke-width:0.264583"
+         x="115.43453"
+         y="158.50336">Run each render op, a small function which</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="115.43453"
+         y="162.91307"
+         id="tspan462251">performs OpenGL operations</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="scale(0.26458333)"
+       id="text463937"
+       style="line-height:1.25;font-family:sans-serif;font-size:13.33333302px;-inkscape-font-specification:'sans-serif, Normal';white-space:pre;shape-inside:url(#rect463939)" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.34299"
+       y="177.8022"
+       id="text467905"><tspan
+         sodipodi:role="line"
+         id="tspan467903"
+         style="stroke-width:0.264583"
+         x="115.34299"
+         y="177.8022">Collect lists of dependencies from the render ops</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.37838"
+       y="188.44904"
+       id="text472113"><tspan
+         sodipodi:role="line"
+         id="tspan472111"
+         style="stroke-width:0.264583"
+         x="115.37838"
+         y="188.44904">Spin off thread jobs to load resources from disk</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52777px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';stroke-width:0.264583"
+       x="115.39727"
+       y="204.50943"
+       id="text476231"><tspan
+         sodipodi:role="line"
+         id="tspan476229"
+         style="stroke-width:0.264583"
+         x="115.39727"
+         y="204.50943">For completed resources, load them into OpenGL</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="115.39727"
+         y="208.91914"
+         id="tspan476233">on this thread and register them as loaded resources</tspan></text>
+  </g>
+</svg>
