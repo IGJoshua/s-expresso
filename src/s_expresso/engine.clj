@@ -169,14 +169,14 @@
           (.start))
         ;; Set the render thread to max priority
         old-priority (.getPriority (Thread/currentThread))
-        _ (.setPriority (Thread/currentThread) Thread/MAX_PRIORITY)
-        ret (render window init-render-state)]
-    ;; Send a kill signal to the simulation and wait for it
-    (a/put! close-simulation true)
-    (.join simulation-thread)
-    ;; Return this thread to the old priority and return
-    (.setPriority (Thread/currentThread) old-priority)
-    ret))
+        _ (.setPriority (Thread/currentThread) Thread/MAX_PRIORITY)]
+    (try (render window init-render-state)
+         (finally
+           ;; Send a kill signal to the simulation and wait for it
+           (a/put! close-simulation true)
+           (.join simulation-thread)
+           ;; Return this thread to the old priority and return
+           (.setPriority (Thread/currentThread) old-priority)))))
 (s/fdef start-engine
   :args (s/cat :window (partial instance? Window)
                :init-game-state ::game-state
