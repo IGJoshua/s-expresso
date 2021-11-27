@@ -63,6 +63,7 @@
     (when-not (a/poll! close-ch)
 
       ;; Spin waiting for the next frametime to start
+      ;; TODO(Joshua): Maybe make this sleep for long wait times?
       (let [t (- next-frame dt)]       ; Set t to one dt before the frametime
         (while (pos? (- t (w/time))))) ; Wait until t
 
@@ -99,6 +100,7 @@
     (w/poll-events)
 
     ;; Spin waiting for being within one vblank of the next one
+    ;; TODO(Joshua): Maybe make this sleep for long wait times?
     (when next-vblank
       (let [t (+ next-vblank (::step render-state))]
         (while (pos? (- t (w/time))))))
