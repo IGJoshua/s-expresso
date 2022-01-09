@@ -21,8 +21,10 @@
 (s/def ::scene-system (s/fspec :args (s/cat :scene ::scene
                                             :dt float?)
                                :ret ::scene))
-(s/def ::systems (s/coll-of (s/or :scene-system ::scene-system
+(s/def ::coll-of-systems (s/coll-of (s/or :scene-system ::scene-system
                                   :entity-systems ::entity-systems)))
+(s/def ::systems (s/or :const ::coll-of-systems
+                       :var (s/and var? #(s/valid? ::coll-of-systems (deref %)))))
 
 (s/def ::target ::entity-id)
 (s/def ::source (s/or :entity ::entity-id
@@ -58,34 +60,38 @@
 
   Entity specfic systems must return a map of entities, and if the entity the
   system was called on is not included in that map, no further systems are run
-  on that entity."
+  on that entity.
+
+  If the systems stored in the scene is a var, it will be derefed once at the
+  start of the step, and its contents used as the remaining systems."
   [scene dt]
-  (loop [remaining-systems (::systems scene)
-         scene scene]
-    (if (seq remaining-systems)
-      (let [system (first remaining-systems)]
-        (if-not (vector? system)
-          (recur (rest remaining-systems)
-                 (binding [*events-to-send* []]
-                   (update (system scene dt)
-                           ::events-to-send concat *events-to-send*)))
-          (letfn [(apply-systems [entity-id entity]
-                    (reduce (fn [{entity entity-id} system]
-                              (let [new-entities (system scene entity-id entity dt)]
-                                (if (new-entities entity-id)
-                                  new-entities
-                                  (reduced new-entities))))
-                            {entity-id entity}
-                            system))]
-            (recur
-             (rest remaining-systems)
-             (let [[scene events]
+  (let [systems (get scene ::systems)]
+    (loop [remaining-systems (cond-> systems (var? systems) deref)
+           scene scene]
+      (if (seq remaining-systems)
+        (let [system (first remaining-systems)]
+          (if-not (vector? system)
+            (recur (rest remaining-systems)
                    (binding [*events-to-send* []]
-                     [(update scene ::entities #(r/fold merge (r/map apply-systems %)))
-                      (concat (::events-to-send scene) *events-to-send*)])]
-               (assoc scene ::events-to-send events))))))
-      (assoc (dissoc scene ::events-to-send)
-             ::events (::events-to-send scene)))))
+                     (update (system scene dt)
+                             ::events-to-send concat *events-to-send*)))
+            (letfn [(apply-systems [entity-id entity]
+                      (reduce (fn [{entity entity-id} system]
+                                (let [new-entities (system scene entity-id entity dt)]
+                                  (if (new-entities entity-id)
+                                    new-entities
+                                    (reduced new-entities))))
+                              {entity-id entity}
+                              system))]
+              (recur
+               (rest remaining-systems)
+               (let [[scene events]
+                     (binding [*events-to-send* []]
+                       [(update scene ::entities #(r/fold merge (r/map apply-systems %)))
+                        (concat (::events-to-send scene) *events-to-send*)])]
+                 (assoc scene ::events-to-send events))))))
+        (assoc (dissoc scene ::events-to-send)
+               ::events (::events-to-send scene))))))
 (s/fdef step-scene
   :args (s/cat :scene ::scene
                :dt float?)
