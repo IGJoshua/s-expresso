@@ -102,6 +102,8 @@
 
     ;; Spin waiting for being within one vblank of the next one
     ;; TODO(Joshua): Maybe make this sleep for long wait times?
+    ;; TODO(Joshua): Determine if this is needed. For most cases I think it
+    ;; shouldn't be.
     (when next-vblank
       (let [t (+ next-vblank (::step render-state))]
         (when (pos? (- t (w/time)))
