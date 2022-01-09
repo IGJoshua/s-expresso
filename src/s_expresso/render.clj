@@ -33,7 +33,9 @@
 
 (s/def ::system (s/fspec :args (s/cat :state ::game-state)
                          :ret (s/coll-of (partial satisfies? RenderOp))))
-(s/def ::systems (s/coll-of ::system))
+(s/def ::coll-of-systems (s/coll-of ::system))
+(s/def ::systems (s/or :const ::coll-of-systems
+                       :var (s/and var? #(s/valid? ::coll-of-systems (deref %)))))
 (s/def ::interpolator (s/fspec :args (s/cat :new-state ::game-state
                                             :old-state ::game-state
                                             :factor float?)
@@ -57,7 +59,9 @@
                       (::interpolator game-state)
                       factor)
                  ((::interpolator game-state) last-state factor))
-         systems (::systems state)]
+         systems (::systems state)
+         systems (cond-> systems
+                   (var? systems) deref)]
      (mapcat #(% state) systems))))
 (s/fdef prepare-ops
   :args (s/cat :game-state ::game-state
