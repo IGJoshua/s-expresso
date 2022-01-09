@@ -4,6 +4,7 @@
   (:require
    [clojure.core.async :as a]
    [clojure.spec.alpha :as s]
+   [clojure.tools.logging :as log]
    [s-expresso.ecs :as ecs]
    [s-expresso.render :as r]
    [s-expresso.window :as w])
@@ -82,7 +83,7 @@
                        amount-behind (- current-time next-frame)]
                    (if (>= amount-behind 0.1)
                      (do
-                       (println "SIMULATION BEHIND! Dropping" amount-behind "seconds of real time.")
+                       (log/warn (str "SIMULATION BEHIND! Dropping " amount-behind " seconds of real time."))
                        (+ current-time dt))
                      next-frame))))))))
 
@@ -103,7 +104,9 @@
     ;; TODO(Joshua): Maybe make this sleep for long wait times?
     (when next-vblank
       (let [t (+ next-vblank (::step render-state))]
-        (while (pos? (- t (w/time))))))
+        (when (pos? (- t (w/time)))
+          (log/warn "Not within 1 timestep of vblank")
+          (while (pos? (- t (w/time)))))))
 
     (let [last-state (volatile! nil)
           next-state (volatile! nil)
