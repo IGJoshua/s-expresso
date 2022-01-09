@@ -76,7 +76,7 @@
                              conj (assoc scene ::time next-frame
                                          ::events *render-events-to-send*))
                       scene))]
-        (when (and scene (not (::should-close? scene)))
+        (when (and scene (not (get scene ::should-close?)))
           (recur scene
                  (let [next-frame (+ next-frame dt)
                        current-time (w/time)
@@ -111,32 +111,34 @@
     (let [last-state (volatile! nil)
           next-state (volatile! nil)
           events (volatile! nil)
+          step (get render-state ::step)
           _ (swap-vals! simulated-states
                         (fn [ss]
-                          (let [[past-states future-states] (if (::step render-state)
-                                                              (split-with #(> next-vblank (::time %)) ss)
+                          (let [[past-states future-states] (if step
+                                                              (split-with #(> next-vblank (get % ::time)) ss)
                                                               (split-at (dec (count ss)) ss))
                                 prev-state (last past-states)]
-                            (when (::step render-state)
+                            (when step
                               (vreset! last-state prev-state))
                             (vreset! next-state (first future-states))
-                            (vreset! events (concat (apply concat (keep ::events past-states))
-                                                    (::events (first future-states))))
+                            (vreset! events (concat (apply concat (keep #(get % ::events) past-states))
+                                                    (get (first future-states) ::events)))
                             (vec (cond->> (cons (dissoc (first future-states) ::events)
                                                 (rest future-states))
                                    prev-state (cons (dissoc prev-state ::events)))))))
-          render-state (reduce (::event-handler @next-state) render-state @events)
+          render-state (reduce (get @next-state ::event-handler) render-state @events)
+          last-time (get ::time @last-state)
           render-state (if (and @next-state @last-state)
                          (r/step-renderer! render-state @next-state @last-state
-                                           (/ (- next-vblank (::time @last-state))
-                                              (- (::time @next-state) (::time @last-state))))
+                                           (/ (- next-vblank last-time)
+                                              (- (get @next-state ::time) last-time)))
                          (when @next-state
                            (r/step-renderer! render-state @next-state)))]
       (w/swap-buffers window)
-      (if (and (not (::should-close? @next-state)) ; don't want to close
-               (or @next-state (not @last-state))) ; and this isn't a nil state after the first
+      (if (and (not (get @next-state ::should-close?)) ; don't want to close
+               (or @next-state (not @last-state)))     ; and this isn't a nil state after the first
         (recur render-state
-               (when-let [step (::step render-state)]
+               (when step
                  (let [current-frame (- (w/time) step)
                        frames-behind (Math/floor (/ (- current-frame next-vblank) step))]
                    (+ (or next-vblank current-frame)
