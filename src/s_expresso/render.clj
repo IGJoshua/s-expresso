@@ -79,6 +79,11 @@
                             resolvers)
         resources (into (::resources render-state)
                         (comp (filter (comp realized-keys key))
+                              ;; TODO(Joshua): Maybe limit the number of things
+                              ;; that get loaded per frame to prevent stuttering
+                              ;; while loading assets? This may not be a
+                              ;; priority, but would cause issues in
+                              ;; streaming-based games
                               (map (juxt key (comp (util/when-pred delay? deref) deref val))))
                         resolvers)]
     (assoc render-state
