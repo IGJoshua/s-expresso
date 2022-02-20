@@ -3,6 +3,7 @@
   (:require
    [clojure.set :as set]
    [clojure.spec.alpha :as s]
+   [clojure.tools.logging :as log]
    [s-expresso.resource :as res]
    [s-expresso.util :as util]))
 
@@ -88,7 +89,13 @@
                               ;; while loading assets? This may not be a
                               ;; priority, but would cause issues in
                               ;; streaming-based games
-                              (map (juxt key (comp (util/when-pred delay? deref) deref val))))
+                              (keep #(try [(key %)
+                                           (-> %
+                                               val
+                                               deref
+                                               (util/when-pred delay? deref))]
+                                          (catch Exception e
+                                            (log/error e "Exception while resolving a resource")))))
                         resolvers)]
     (assoc render-state
            ::resolvers new-resolvers
@@ -100,7 +107,11 @@
 (defn render-scene!
   "Runs all the render operations in sequence."
   [ops render-state]
-  (run! #(apply-op! % render-state) ops))
+  (run! #(try (apply-op! % render-state)
+              (catch Exception e
+                (log/error e (str "Exception while applying an operation of type: "
+                                  (.getName (class %))))))
+        ops))
 (s/fdef render-scene!
   :args (s/cat :ops (partial satisfies? RenderOp)
                :render-state ::render-state)
@@ -112,7 +123,15 @@
   This assumes that each resource will have a unique key, or that if both keys
   are the same, the resolvers will load the same resource."
   [ops]
-  (reduce merge (map op-deps ops)))
+  (reduce merge
+          (keep #(try (op-deps %)
+                      (catch Exception e
+                        (log/error e (str "Exception while collecting dependencies for an operation of type: "
+                                          (.getName (class %))))
+                        ;; NOTE(Joshua): return nil to remove this dependency
+                        ;; from the list
+                        nil))
+                ops)))
 (s/fdef collect-deps
   :args (s/cat :ops (partial satisfies? RenderOp))
   :ret ::resolvers)
@@ -130,7 +149,13 @@
      (let [active-resources (::active-resources render-state #{})
            new-deps (sequence
                      (comp (filter (comp (complement active-resources) key))
-                           (map (juxt key (comp #(%) val))))
+                           (keep #(try [(key %)
+                                        ((val %))]
+                                       (catch Exception e
+                                         (log/error e "Exception while attempting to construct a resolver")
+                                         ;; NOTE(Joshua): return nil to remove this resource
+                                         ;; from the list
+                                         nil))))
                      (collect-deps ops))
            new-resources (into {}
                                (filter (comp (complement future?) second))
