@@ -2,7 +2,9 @@
   "Defines a protocol for unmanaged system resources.
 
   Such resources must be handled manually, like GPU memory, OS windows, etc.,
-  and require special code to be released.")
+  and require special code to be released."
+  (:import
+   (java.io Closeable)))
 
 (defprotocol Resource
   "Resources handle the process of freeing unmanaged resources."
@@ -14,7 +16,10 @@
   (free [_] nil)
 
   Object
-  (free [_] nil))
+  (free [_] nil)
+
+  Closeable
+  (free [res] (.close res)))
 
 (defmacro with-free
   [bindings & body]
