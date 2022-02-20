@@ -9,6 +9,13 @@
   :extend-via-metadata true
   (free [live-resource] "Frees a live resource"))
 
+(extend-protocol Resource
+  nil
+  (free [_] nil)
+
+  Object
+  (free [_] nil))
+
 (defmacro with-free
   [bindings & body]
   (assert (even? (count bindings)))
