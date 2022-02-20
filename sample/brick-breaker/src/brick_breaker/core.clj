@@ -38,6 +38,36 @@
   (sfx/shutdown-openal)
   (wnd/shutdown-glfw))
 
+(defn- default-log-fn
+  [& args]
+  (apply log/warn "UNKNOWN SEVERITY:" args))
+(def glenum->log-function
+  "Map from GLEnum values to logging functions representing severity of a message."
+  {GL45/GL_DEBUG_SEVERITY_NOTIFICATION log/info
+   GL45/GL_DEBUG_SEVERITY_LOW log/warn
+   GL45/GL_DEBUG_SEVERITY_MEDIUM log/error
+   GL45/GL_DEBUG_SEVERITY_HIGH log/fatal})
+
+(def glenum->source-description
+  "Map from GLEnum values to strings representing the source of a message."
+  {GL45/GL_DEBUG_SOURCE_API "OpenGL API"
+   GL45/GL_DEBUG_SOURCE_WINDOW_SYSTEM "Windowing System"
+   GL45/GL_DEBUG_SOURCE_SHADER_COMPILER "Shader Compiler"
+   GL45/GL_DEBUG_SOURCE_THIRD_PARTY "Third Party Integration"
+   GL45/GL_DEBUG_SOURCE_APPLICATION "Application-generated"
+   GL45/GL_DEBUG_SOURCE_OTHER "Unspecified"})
+
+(def glenum->type-description
+  "Map from GLEnum values to strings representing the type of message."
+  {GL45/GL_DEBUG_TYPE_ERROR "Error"
+   GL45/GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR "Deprecated"
+   GL45/GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR "Undefined Behavior"
+   GL45/GL_DEBUG_TYPE_PORTABILITY "Portability"
+   GL45/GL_DEBUG_TYPE_PERFORMANCE "Performance"
+   GL45/GL_DEBUG_TYPE_PUSH_GROUP "Push Group"
+   GL45/GL_DEBUG_TYPE_POP_GROUP "Pop Group"
+   GL45/GL_DEBUG_TYPE_OTHER "Unspecified"})
+
 (defn enable-debug-logging!
   []
   (let [flags (int-array 1)]
@@ -53,8 +83,14 @@
                                   true)
       (GL45/glDebugMessageCallback
        (reify GLDebugMessageCallbackI
-         (invoke [this source type id severity length message user-param]
-           (log/debug (GLDebugMessageCallback/getMessage length message))))
+         (invoke [_this source type id severity length message _user-param]
+           (let [log-fn (get glenum->log-function severity default-log-fn)]
+             (log-fn (str "{"
+                          "Source=" (get glenum->source-description source "Unknown") ", "
+                          "Type=" (get glenum->type-description type "Unknown") ", "
+                          "Id=" id
+                          "}")
+                     (GLDebugMessageCallback/getMessage length message)))))
        0))))
 
 (defonce input-events (atom []))
