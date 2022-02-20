@@ -25,7 +25,7 @@
 
 (defn init
   []
-  (wnd/init-glfw)
+  (wnd/init-glfw {:error-callback #(log/error (str "GLFW Error: " %1 "\n" %2))})
   (wnd/set-joystick-callback
    (fn [jid event]
      (case event
