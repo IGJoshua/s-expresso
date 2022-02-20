@@ -39,14 +39,14 @@
   (wnd/shutdown-glfw))
 
 (defn- default-log-fn
-  [& args]
-  (apply log/warn "UNKNOWN SEVERITY:" args))
+  [info-map message]
+  (log/warn info-map "UNKNOWN SEVERITY:" message))
 (def glenum->log-function
   "Map from GLEnum values to logging functions representing severity of a message."
-  {GL45/GL_DEBUG_SEVERITY_NOTIFICATION log/info
-   GL45/GL_DEBUG_SEVERITY_LOW log/warn
-   GL45/GL_DEBUG_SEVERITY_MEDIUM log/error
-   GL45/GL_DEBUG_SEVERITY_HIGH log/fatal})
+  {GL45/GL_DEBUG_SEVERITY_NOTIFICATION #(log/info %1 %2)
+   GL45/GL_DEBUG_SEVERITY_LOW #(log/warn %1 %2)
+   GL45/GL_DEBUG_SEVERITY_MEDIUM #(log/error %1 %2)
+   GL45/GL_DEBUG_SEVERITY_HIGH #(log/fatal %1 %2)})
 
 (def glenum->source-description
   "Map from GLEnum values to strings representing the source of a message."
@@ -93,7 +93,8 @@
                      (GLDebugMessageCallback/getMessage length message)))))
        0))))
 
-(defonce input-events (atom []))
+(defonce ^{:doc "An atom with a vector of input events since the last frame."}
+  input-events (atom []))
 (def window-opts
   {:key-callback (fn [_window key _scancode action mods]
                    (swap! input-events (fnil conj [])
