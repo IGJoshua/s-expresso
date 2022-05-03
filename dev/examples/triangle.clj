@@ -85,8 +85,13 @@
 
 (defn clear-screen
   [_game-state]
-  (GL45/glClearColor 0.1 0.15 0.2 1.0)
-  (GL45/glClear (bit-or GL45/GL_COLOR_BUFFER_BIT GL45/GL_DEPTH_BUFFER_BIT)))
+  (list
+   (reify
+     (op-deps [_this]
+       {})
+     (apply-op! [_this _render-state]
+       (GL45/glClearColor 0.1 0.15 0.2 1.0)
+       (GL45/glClear (bit-or GL45/GL_COLOR_BUFFER_BIT GL45/GL_DEPTH_BUFFER_BIT))))))
 
 (defsystem wiggle [::position]
   [_game-state _id entity _dt]
