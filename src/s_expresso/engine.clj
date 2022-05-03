@@ -39,7 +39,7 @@
   [event]
   (when-not *render-events-to-send*
     (throw (ex-info "Attempted to send a render event outside of a binding." {:event event})))
-  (set! *render-events-to-send* (conj *render-events-to-send* event))
+  (swap! *render-events-to-send* conj event)
   nil)
 (s/fdef send-render-event!
   :args (s/cat :event ::event)
@@ -68,7 +68,7 @@
       (let [t (- next-frame dt)]       ; Set t to one dt before the frametime
         (while (pos? (- t (w/time))))) ; Wait until t
 
-      (let [scene (binding [*render-events-to-send* []]
+      (let [scene (binding [*render-events-to-send* (atom [])]
                     (let [scene (ecs/step-scene scene dt)]
                       ;; TODO(Joshua): Make this wait for the renderer to catch
                       ;; up if there's too many

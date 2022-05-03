@@ -45,7 +45,7 @@
   [event]
   (when-not *events-to-send*
     (throw (ex-info "Attempted to send an event outside of a system." {:event event})))
-  (set! *events-to-send* (conj *events-to-send* event))
+  (swap! *events-to-send* conj event)
   nil)
 (s/fdef send-event!
   :args (s/cat :event ::event)
@@ -72,7 +72,7 @@
         (let [system (first remaining-systems)]
           (if-not (vector? system)
             (recur (rest remaining-systems)
-                   (binding [*events-to-send* []]
+                   (binding [*events-to-send* (atom [])]
                      (update (system scene dt)
                              ::events-to-send concat *events-to-send*)))
             (letfn [(apply-systems [entity-id entity]
@@ -86,7 +86,7 @@
               (recur
                (rest remaining-systems)
                (let [[scene events]
-                     (binding [*events-to-send* []]
+                     (binding [*events-to-send* (atom [])]
                        [(update scene ::entities #(r/fold merge (r/map apply-systems %)))
                         (concat (::events-to-send scene) *events-to-send*)])]
                  (assoc scene ::events-to-send events))))))
@@ -111,7 +111,7 @@
   (when-not *entities-to-spawn*
     (ex-info "Attempted to spawn an entity outside of a per-entity system." {:entity entity}))
   (let [uuid (next-entity-id)]
-    (set! *entities-to-spawn* (assoc *entities-to-spawn* uuid entity))
+    (swap! *entities-to-spawn* assoc uuid entity)
     uuid))
 (s/fdef spawn-entity!
   :args (s/cat :entity ::entity)
@@ -136,7 +136,7 @@
        [~@gen-bindings]
        (let [~bindings [~@gen-bindings]]
          (if (every? #(contains? ~entity %) ~required-keys)
-           (binding [*entities-to-spawn* {}]
+           (binding [*entities-to-spawn* (atom {})]
              (let [new-entity# (do ~@body)]
                (assoc *entities-to-spawn* ~entity-id new-entity#)))
            {~entity-id ~entity})))))
