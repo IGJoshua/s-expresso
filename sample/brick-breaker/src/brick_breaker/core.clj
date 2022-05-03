@@ -232,7 +232,7 @@
 (defn texture-resolver
   [sprite-key]
   #(future
-     (let [image (tex/load-image (get-in asset-files (cons :images sprite-key)))]
+     (let [image (tex/load-image (str "assets/" (get-in asset-files (cons :images sprite-key))))]
        (delay
          (tex/make-texture {:internal-format :rgb8
                             :dimensions (:dimensions image)}
