@@ -190,7 +190,7 @@
                                                            :type :float
                                                            :count 2}
                                                           {:name :uv
-                                                           :type :half-float
+                                                           :type :float
                                                            :count 2}]
                                          :interleaved true}]
                        :element-type :triangle-fan})
