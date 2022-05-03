@@ -216,7 +216,7 @@
    vert-uv :in
    frag-uv :out}
   (set! frag-uv vert-uv)
-  (set! gl_Position (/ (vec4 vert-pos 0 1) scale)))
+  (set! gl_Position (/ (vec4 (+ vert-pos pos) 0 1) scale)))
 
 (sl/defuniform sam "sampler2D")
 (sl/defparam target-color "vec4")
