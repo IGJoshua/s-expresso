@@ -255,7 +255,8 @@
         (sh/with-shader-program sprite-shader
           (tex/with-texture texture 0
             (sh/upload-uniform-int sprite-shader (sl/sym->ident `sam) 0)
-            (sh/upload-uniform-floats sprite-shader 2 (sl/sym->ident `pos) position)
+            (let [[x y] position]
+              (sh/upload-uniform-float sprite-shader (sl/sym->ident `pos) x y))
             (sh/upload-uniform-float sprite-shader (sl/sym->ident `scale) (/ zoom))
             (m/draw-mesh quad)))))))
 
