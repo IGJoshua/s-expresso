@@ -260,7 +260,18 @@
             (sh/upload-uniform-float sprite-shader (sl/sym->ident `scale) (/ zoom))
             (m/draw-mesh quad)))))))
 
-(def render-systems [])
+(defn clear-screen
+  [game-state]
+  (list
+   (reify r/RenderOp
+     (op-deps [_]
+       {})
+     (apply-op! [_ _]
+       (let [[r g b] (::background-color game-state)]
+         (GL45/glClearColor (float r) (float g) (float b) 1.0)
+         (GL45/glClear (bit-or GL45/GL_COLOR_BUFFER_BIT GL45/GL_DEPTH_BUFFER_BIT)))))))
+
+(def render-systems [#'clear-screen])
 
 (def init-game-state
   (let [player (ecs/next-entity-id)]
@@ -269,7 +280,8 @@
      ::ecs/events []
      ::e/events []
      ::e/event-handler #'handle-render-event
-     ::r/systems #'render-systems}))
+     ::r/systems #'render-systems
+     ::background-color [0.1 0.15 0.2]}))
 
 (def init-render-state
   {::r/resolvers {}
