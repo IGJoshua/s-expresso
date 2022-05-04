@@ -74,7 +74,7 @@
             (recur (rest remaining-systems)
                    (binding [*events-to-send* (atom [])]
                      (update (system scene dt)
-                             ::events-to-send concat *events-to-send*)))
+                             ::events-to-send concat @*events-to-send*)))
             (letfn [(apply-systems [entity-id entity]
                       (reduce (fn [{entity entity-id} system]
                                 (let [new-entities (system scene entity-id entity dt)]
@@ -88,7 +88,7 @@
                (let [[scene events]
                      (binding [*events-to-send* (atom [])]
                        [(update scene ::entities #(r/fold merge (r/map apply-systems %)))
-                        (concat (::events-to-send scene) *events-to-send*)])]
+                        (concat (::events-to-send scene) @*events-to-send*)])]
                  (assoc scene ::events-to-send events))))))
         (assoc (dissoc scene ::events-to-send)
                ::events (::events-to-send scene))))))
@@ -138,7 +138,7 @@
          (if (every? #(contains? ~entity %) ~required-keys)
            (binding [*entities-to-spawn* (atom {})]
              (let [new-entity# (do ~@body)]
-               (assoc *entities-to-spawn* ~entity-id new-entity#)))
+               (swap! *entities-to-spawn* assoc ~entity-id new-entity#)))
            {~entity-id ~entity})))))
 (s/fdef defsystem
   :args (s/cat :symbol symbol?

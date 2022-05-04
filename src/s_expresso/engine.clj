@@ -74,7 +74,7 @@
                       ;; up if there's too many
                       (swap! simulated-states
                              conj (assoc scene ::time next-frame
-                                         ::events *render-events-to-send*))
+                                         ::events @*render-events-to-send*))
                       scene))]
         (when (and scene (not (get scene ::should-close?)))
           (recur scene
