@@ -227,7 +227,10 @@
   (set! target-color (texture sam frag-uv)))
 
 (def sprite-shader
-  #(sh/make-shader-program-from-sources [vert-shader frag-shader]))
+  #(sh/make-shader-program-from-sources [{:source (::sl/source vert-shader)
+                                          :stage :vertex}
+                                         {:source (::sl/source frag-shader)
+                                          :stage :fragment}]))
 
 (defn texture-resolver
   [sprite-key]
