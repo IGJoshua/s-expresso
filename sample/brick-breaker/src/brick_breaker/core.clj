@@ -21,6 +21,8 @@
    (org.lwjgl.opengl
     GL GL45 GLDebugMessageCallback GLDebugMessageCallbackI)))
 
+(mat/set-current-implementation :vectorz)
+
 (def asset-files (edn/read (PushbackReader. (io/reader (io/resource "assets.edn")))))
 
 (defonce connected-joysticks (atom #{}))
