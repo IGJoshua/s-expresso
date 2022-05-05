@@ -159,12 +159,12 @@
           buffer (volatile!
                   (if (instance? File file-or-buffer)
                     (with-heap-allocator
-                      (try (far/wrap-exceptions
-                             (read-file-to-byte-buffer file-or-buffer))
-                           (catch FileNotFoundException e
-                             (far/error :s-expresso/file-not-found
-                                        :file file-or-buffer
-                                        :cause e))))
+                      (far/wrap-exceptions
+                       (try (read-file-to-byte-buffer file-or-buffer)
+                            (catch FileNotFoundException e
+                              (far/error :s-expresso/file-not-found
+                                         :file file-or-buffer
+                                         :cause e)))))
                     file-or-buffer))
           audio-buffer (STBVorbis/stb_vorbis_decode_memory @buffer channels sample-rate)]
       (when audio-buffer
