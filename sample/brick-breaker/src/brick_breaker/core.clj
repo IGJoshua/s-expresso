@@ -268,6 +268,17 @@
             (sh/upload-uniform-float sprite-shader (sl/sym->ident `aspect-ratio) (/ 4 3))
             (m/draw-mesh quad)))))))
 
+(defn draw-sprites
+  [game-state]
+  (let [camera-pos (mat/array [0 0])
+        zoom (/ 15)]
+    (sequence
+     (comp (filter ::sprite-path)
+           (map #(sprite (::sprite-path %) zoom
+                         (mat/sub (::position %) camera-pos)
+                         (/ 50))))
+     (vals (::ecs/entities game-state)))))
+
 (defn clear-screen
   [game-state]
   (list
@@ -279,7 +290,7 @@
          (GL45/glClearColor (float r) (float g) (float b) 1.0)
          (GL45/glClear (bit-or GL45/GL_COLOR_BUFFER_BIT GL45/GL_DEPTH_BUFFER_BIT)))))))
 
-(def render-systems [#'clear-screen])
+(def render-systems [#'clear-screen #'draw-sprites])
 
 (def init-game-state
   (let [player (ecs/next-entity-id)]
