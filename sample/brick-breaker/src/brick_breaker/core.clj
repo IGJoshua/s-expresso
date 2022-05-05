@@ -1,7 +1,9 @@
 (ns brick-breaker.core
   (:require
    [cljsl.compiler :as sl]
+   [clojure.core.matrix :as mat]
    [clojure.edn :as edn]
+   [clojure.math :as math]
    [clojure.java.io :as io]
    [s-expresso.audio :as sfx]
    [s-expresso.engine :as e]
@@ -179,7 +181,66 @@
       (println events))
     (reduce input-event scene events)))
 
-(def systems [#'input])
+(defn move-paddle
+  [world dt]
+  (let [paddle-id (::player world)
+        paddle (get-in world [::ecs/entities paddle-id])
+        paddle-x (mat/mget (::position paddle) 0)
+        direction (and (= 1 (count (::direction world)))
+                       (first (::direction world)))]
+    (if (and direction
+             (case direction
+               :left (> paddle-x (- (/ (::width world) 2)))
+               :right (< paddle-x (/ (::width world) 2))))
+      (update-in world [::ecs/entities paddle-id ::position]
+                 mat/add
+                 (mat/array [(case direction
+                               :left (* dt -1 (::speed paddle 10))
+                               :right (* dt (::speed paddle 10)))
+                             0]))
+      world)))
+
+(defsystem move-balls [::velocity ::position]
+  [_ _ ball dt]
+  (update ball ::position mat/add (mat/scale (::velocity ball) dt)))
+
+(defsystem recover-lost-balls [::velocity ::position]
+  [world _ ball _]
+  (if (< (mat/mget (::position ball) 1) (- (::height world)))
+    (assoc ball ::position (mat/array [0 (- (/ (::height world) 2) 2)]))
+    ball))
+
+(defsystem wall-bounce [::velocity ::position]
+  [world _ ball _]
+  (let [horiz-dist (/ (::width world) 2)
+        vert-dist (/ (::height world) 2)
+        [x y] (seq (::position ball))]
+    (cond-> ball
+      (pos? (- (abs x) horiz-dist))
+      (-> (update ::velocity mat/mul (mat/array [-1 1]))
+          (update ::position mat/sub (mat/array [(* 2 (math/signum x) (- (abs x) horiz-dist)) 0])))
+
+      (> y vert-dist)
+      (-> (update ::velocity mat/mul (mat/array [1 -1]))
+          (update ::position mat/sub (mat/array [0 (* 2 (- y vert-dist))]))))))
+
+(defsystem paddle-bounce [::velocity ::position]
+  [world _ ball _]
+  (let [paddle (get-in world [::ecs/entities (::player world)])
+        [paddle-x paddle-y] (seq (::position paddle))
+        [ball-x ball-y] (seq (::position ball))
+        dist-from-paddle (- ball-x paddle-x)]
+    (if (and (neg? ball-y)
+             (< (abs (- ball-y paddle-y)) 0.3)
+             (< (abs dist-from-paddle) (::width paddle)))
+      (-> ball
+          (update ::velocity mat/mul (mat/array [1 -1.05]))
+          (update ::velocity mat/add (mat/array [(* (/ dist-from-paddle (::width paddle))
+                                                    (rand (::spread paddle)))
+                                                 0])))
+      ball)))
+
+(def systems [#'input #'move-paddle [#'move-balls #'recover-lost-balls #'wall-bounce #'paddle-bounce]])
 
 (def quad-mesh-data {:vertices [{:pos [-0.5 -0.5] :uv [0 0]}
                                 {:pos [ 0.5 -0.5] :uv [1 0]}
@@ -293,14 +354,25 @@
 (def render-systems [#'clear-screen #'draw-sprites])
 
 (def init-game-state
-  (let [player (ecs/next-entity-id)]
-    {::ecs/entities {player {::position [0 -10]}}
+  (let [player (ecs/next-entity-id)
+        ball (ecs/next-entity-id)]
+    {::ecs/entities {player {::position (mat/array [0 -10])
+                             ::sprite-path [:paddle]
+                             ::width 1.2
+                             ::spread 3
+                             ::speed 10}
+                     ball {::position (mat/array [0 0])
+                           ::sprite-path [:ball]
+                           ::velocity (mat/array [(* 10 (- (rand) 0.5)) 5])}}
      ::ecs/systems #'systems
      ::ecs/events []
      ::e/events []
      ::e/event-handler #'handle-render-event
      ::r/systems #'render-systems
-     ::background-color [0.1 0.15 0.2]}))
+     ::background-color [0.1 0.15 0.2]
+     ::width 25
+     ::height 20
+     ::player player}))
 
 (def init-render-state
   {::r/resolvers {}
