@@ -160,12 +160,12 @@
 
 (defmethod input-event :keyboard
   [scene event]
-  (case (:button event)
+  (case (:key event)
     (:left :right)
-    (update scene :direction (if (#{:press} (:action event))
-                               conj
-                               disj)
-            (:button event))
+    (update scene ::direction (if (#{:press :repeat} (:action event))
+                                (fnil conj #{})
+                                disj)
+            (:key event))
 
     :escape
     (assoc scene ::e/should-close? true)
