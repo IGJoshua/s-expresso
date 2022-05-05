@@ -227,14 +227,14 @@
     (GL45/glLinkProgram program)
     (let [status (int-array 1)]
       (GL45/glGetProgramiv program GL45/GL_LINK_STATUS status)
-      (when (zero? (first status))
+      (if (zero? (first status))
         (let [info-log (GL45/glGetProgramInfoLog program)]
           (log/error (format "Shader program failed to link with message: %s\n%s"
                              info-log
                              (apply str (interpose "\n\n\n" (map :source shaders)))))
           (GL45/glDeleteProgram program)
-          nil)))
-    (->ShaderProgram program shaders (uniform-map program))))
+          nil)
+        (->ShaderProgram program shaders (uniform-map program))))))
 (s/fdef link-shader-program
   :args (s/cat :shaders (s/coll-of (partial instance? Shader)))
   :ret (s/nilable (partial instance? ShaderProgram)))
