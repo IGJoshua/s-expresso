@@ -209,14 +209,17 @@
 (sl/defparam frag-uv "vec2")
 
 (sl/defuniform pos "vec2")
-(sl/defuniform scale "float")
+(sl/defuniform zoom "float")
+(sl/defuniform dims "vec2")
+(sl/defuniform aspect-ratio "float")
 
 (sl/defshader vert-shader
   {vert-pos :in
    vert-uv :in
    frag-uv :out}
   (set! frag-uv vert-uv)
-  (set! gl_Position (/ (vec4 (+ vert-pos pos) 0 1) scale)))
+  (let [^"vec2" pos (* (+ (* vert-pos dims) pos) zoom)]
+    (set! gl_Position (vec4 (:x pos) (* (:y pos) aspect-ratio) 0 1))))
 
 (sl/defuniform sam "sampler2D")
 (sl/defparam target-color "vec4")
@@ -227,24 +230,26 @@
   (set! target-color (texture sam frag-uv)))
 
 (def sprite-shader
-  #(sh/make-shader-program-from-sources [{:source (::sl/source vert-shader)
-                                          :stage :vertex}
-                                         {:source (::sl/source frag-shader)
-                                          :stage :fragment}]))
+  #(sh/make-shader-program-from-sources
+    [{:stage :vertex
+      :source (::sl/source vert-shader)}
+     {:stage :fragment
+      :source (::sl/source frag-shader)}]))
 
 (defn texture-resolver
   [sprite-key]
   #(future
      (let [image (tex/load-image (str "assets/" (get-in asset-files (cons :images sprite-key))))]
        (delay
-         (tex/make-texture {:internal-format :rgb8
-                            :dimensions (:dimensions image)}
-                           {:format :rgb
-                            :data-type :unsigned-byte
-                            :data (:data image)})))))
+         {::data (tex/make-texture {:internal-format :rgba8
+                                    :dimensions (:dimensions image)}
+                                   {:format :rgba
+                                    :data-type :unsigned-byte
+                                    :data (:data image)})
+          ::dimensions (:dimensions image)}))))
 
 (defn sprite
-  [sprite-key zoom position]
+  [sprite-key zoom position scale]
   (reify r/RenderOp
     (op-deps [_]
       {::quad quad-mesh
@@ -253,11 +258,14 @@
     (apply-op! [_ {{::keys [quad sprite-shader] texture [::texture sprite-key]} ::r/resources}]
       (when (and quad sprite-shader texture)
         (sh/with-shader-program sprite-shader
-          (tex/with-texture texture 0
+          (tex/with-texture (::data texture) 0
             (sh/upload-uniform-int sprite-shader (sl/sym->ident `sam) 0)
-            (let [[x y] position]
+            (let [[x y] (map (partial * scale) (::dimensions texture))]
+              (sh/upload-uniform-float sprite-shader (sl/sym->ident `dims) x y))
+            (let [[x y] (seq position)]
               (sh/upload-uniform-float sprite-shader (sl/sym->ident `pos) x y))
-            (sh/upload-uniform-float sprite-shader (sl/sym->ident `scale) (/ zoom))
+            (sh/upload-uniform-float sprite-shader (sl/sym->ident `zoom) zoom)
+            (sh/upload-uniform-float sprite-shader (sl/sym->ident `aspect-ratio) (/ 4 3))
             (m/draw-mesh quad)))))))
 
 (defn clear-screen
