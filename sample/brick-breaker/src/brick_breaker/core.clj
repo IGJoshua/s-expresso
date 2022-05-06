@@ -318,7 +318,7 @@
            (finally (res/free image)))))))
 
 (defn sprite
-  [sprite-key zoom position scale]
+  [sprite-key camera-zoom position scale]
   (reify r/RenderOp
     (op-deps [_]
       {::quad quad-mesh
@@ -328,13 +328,13 @@
       (when (and quad sprite-shader texture)
         (sh/with-shader-program sprite-shader
           (tex/with-texture (::data texture) 0
-            (sh/upload-uniform-int sprite-shader (sl/sym->ident `sam) 0)
+            (sh/upload-uniform-int sprite-shader (::sl/ident sam) 0)
             (let [[x y] (map (partial * scale) (::dimensions texture))]
-              (sh/upload-uniform-float sprite-shader (sl/sym->ident `dims) x y))
+              (sh/upload-uniform-float sprite-shader (::sl/ident dims) x y))
             (let [[x y] (seq position)]
-              (sh/upload-uniform-float sprite-shader (sl/sym->ident `pos) x y))
-            (sh/upload-uniform-float sprite-shader (sl/sym->ident `zoom) zoom)
-            (sh/upload-uniform-float sprite-shader (sl/sym->ident `aspect-ratio) (/ 4 3))
+              (sh/upload-uniform-float sprite-shader (::sl/ident pos) x y))
+            (sh/upload-uniform-float sprite-shader (::sl/ident zoom) camera-zoom)
+            (sh/upload-uniform-float sprite-shader (::sl/ident aspect-ratio) (/ 4 3))
             (m/draw-mesh quad)))))))
 
 (defn draw-sprites
