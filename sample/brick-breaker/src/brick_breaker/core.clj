@@ -308,12 +308,14 @@
   #(future
      (let [image (tex/load-image (str "assets/" (get-in asset-files (cons :images sprite-key))))]
        (delay
-         {::data (tex/make-texture {:internal-format :rgba8
-                                    :dimensions (:dimensions image)}
-                                   {:format :rgba
-                                    :data-type :unsigned-byte
-                                    :data (:data image)})
-          ::dimensions (:dimensions image)}))))
+         (try
+           {::data (tex/make-texture {:internal-format :rgba8
+                                      :dimensions (:dimensions image)}
+                                     {:format :rgba
+                                      :data-type :unsigned-byte
+                                      :data (:data image)})
+            ::dimensions (:dimensions image)}
+           (finally (res/free image)))))))
 
 (defn sprite
   [sprite-key zoom position scale]
