@@ -259,10 +259,8 @@
                        :element-type :triangle-fan})
 
 (def quad-mesh
-  #(mem/with-heap-allocator
-     (future
-       (let [mesh (m/pack-verts quad-mesh-layout quad-mesh-data)]
-         (delay (m/make-mesh quad-mesh-layout mesh))))))
+  (r/resolver [mesh (m/pack-verts quad-mesh-layout quad-mesh-data)]
+    (m/make-mesh quad-mesh-layout mesh)))
 
 (sl/defparam vert-pos "vec2"
   :layout {"location" 0})
@@ -305,18 +303,14 @@
 
 (defn texture-resolver
   [sprite-key]
-  #(future
-     (let [image (tex/load-image (str "assets/" (get-in asset-files (cons :images sprite-key))))]
-       (delay
-         (try
-           ^{`res/free (fn [{::keys [data]}] (res/free data))}
-           {::data (tex/make-texture {:internal-format :rgba8
-                                      :dimensions (:dimensions image)}
-                                     {:format :rgba
-                                      :data-type :unsigned-byte
-                                      :data (:data image)})
-            ::dimensions (:dimensions image)}
-           (finally (res/free image)))))))
+  (r/resolver [image (tex/load-image (str "assets/" (get-in asset-files (cons :images sprite-key))))]
+    ^{`res/free (fn [{::keys [data]}] (res/free data))}
+    {::data (tex/make-texture {:internal-format :rgba8
+                               :dimensions (:dimensions image)}
+                              {:format :rgba
+                               :data-type :unsigned-byte
+                               :data (:data image)})
+     ::dimensions (:dimensions image)}))
 
 (defn sprite
   [sprite-key camera-zoom position scale]

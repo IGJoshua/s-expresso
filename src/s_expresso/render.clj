@@ -4,6 +4,7 @@
    [clojure.set :as set]
    [clojure.spec.alpha :as s]
    [clojure.tools.logging :as log]
+   [s-expresso.memory :as mem]
    [s-expresso.resource :as res]
    [s-expresso.util :as util]))
 
@@ -46,6 +47,34 @@
 (s/def ::resolvers (s/map-of ::resource-id future?))
 (s/def ::resources (s/map-of ::resource-id any?))
 (s/def ::active-resources (s/coll-of ::resource-id :kind set?))
+
+(defmacro resolver
+  "Constructs a resolver for loading resources off the render thread.
+
+  All the bindings are constructed off the render thread in-order, with a heap
+  allocator to ensure they can be used correctly from the render thread.
+
+  The body itself will be run from the render thread and is where all operations
+  that require access to the OpenGL context should be run from. The resulting
+  value is what is placed in the resource map.
+
+  Once the body is completed but before the render thread returns all of the
+  bindings will be [[res/free]]'d in reverse order."
+  {:style/indent 1}
+  [bindings & body]
+  (let [binding-syms (map second (partition 2 bindings))]
+    `(fn []
+       (mem/with-heap-allocator
+         (future
+           (let [~@bindings]
+             (delay
+               (try ~@body
+                    (finally ~@(map #(-> `(res/free ~%))
+                                    (reverse binding-syms)))))))))))
+(s/fdef resolver
+  :args (s/cat :bindings (s/spec (s/* (s/cat :binding simple-symbol?
+                                             :value any?)))
+               :body (s/* any?)))
 
 (defn prepare-ops
   "Collects all the [[RenderOps]] from the `game-state`.
