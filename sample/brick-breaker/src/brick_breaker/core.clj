@@ -309,6 +309,7 @@
      (let [image (tex/load-image (str "assets/" (get-in asset-files (cons :images sprite-key))))]
        (delay
          (try
+           ^{`res/free (fn [{::keys [data]}] (res/free data))}
            {::data (tex/make-texture {:internal-format :rgba8
                                       :dimensions (:dimensions image)}
                                      {:format :rgba
