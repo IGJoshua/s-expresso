@@ -8,7 +8,6 @@
    [s-expresso.audio :as sfx]
    [s-expresso.engine :as e]
    [s-expresso.ecs :as ecs :refer [defsystem]]
-   [s-expresso.memory :as mem]
    [s-expresso.mesh :as m]
    [s-expresso.render :as r]
    [s-expresso.resource :as res]
@@ -356,6 +355,29 @@
 
 (def render-systems [#'clear-screen #'draw-sprites])
 
+(defn lerp
+  [a b t]
+  (doto (mat/sub b a)
+    (mat/scale! t)
+    (mat/add! a)))
+
+(defn interpolate
+  [game-state last-state factor]
+  (try (let [last-entities (::ecs/entities last-state)]
+         (update game-state ::ecs/entities
+                 (fn [entities]
+                   (persistent!
+                    (reduce-kv
+                     (fn [m k v]
+                       (assoc! m k
+                               (if-some [old-pos (get-in last-entities [k ::position])]
+                                 (update v ::position (partial lerp old-pos) factor)
+                                 v)))
+                     (transient {}) entities)))))
+       (catch Exception e
+         (println e)
+         game-state)))
+
 (def init-game-state
   (let [player (ecs/next-entity-id)
         ball (ecs/next-entity-id)]
@@ -372,6 +394,7 @@
      ::e/events []
      ::e/event-handler #'handle-render-event
      ::r/systems #'render-systems
+     ::r/interpolator #'interpolate
      ::background-color [0.1 0.15 0.2]
      ::width 25
      ::height 20
@@ -385,7 +408,9 @@
   []
   (let [wnd (make-window window-opts)]
     (try (let [[_game-state render-state]
-               (e/start-engine wnd init-game-state init-render-state (/ 100))]
+               (e/start-engine wnd init-game-state
+                               (assoc init-render-state ::e/step (double (/ 165)))
+                               (double (/ 100)))]
            (r/shutdown-state render-state))
          (finally (shutdown-window wnd)))))
 
