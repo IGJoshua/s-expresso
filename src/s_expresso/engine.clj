@@ -83,6 +83,8 @@
                        amount-behind (- current-time next-frame)]
                    (if (>= amount-behind 0.1)
                      (do
+                       ;; TODO(Joshua): Determine why this appears to never be
+                       ;; called after recent changes
                        (log/warn (str "SIMULATION BEHIND! Dropping " amount-behind " seconds of real time."))
                        (+ current-time dt))
                      next-frame))))))))
