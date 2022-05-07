@@ -96,18 +96,17 @@
   Returns when `::should-close?` is set on the game state."
   [window init-state]
   (loop [render-state init-state
-         next-vblank (when (::step render-state)
-                       (- (w/time) (::step render-state)))]
+         next-vblank (when (get render-state ::step)
+                       (- (w/time) (get render-state ::step)))]
     (w/poll-events)
 
-    ;; Spin waiting for being within one vblank of the next one
-    ;; TODO(Joshua): Maybe make this sleep for long wait times?
-    ;; TODO(Joshua): Determine if this is needed. For most cases I think it
-    ;; shouldn't be.
+    ;; Spin waiting for being within one vblank of the next one. This is
+    ;; generally unnecessary, but if a target framerate is set when no hard
+    ;; vsync is imposed (e.g. setting a frame limiter on a non-fullscreen
+    ;; window) then it will be used.
     (when next-vblank
-      (let [t (+ next-vblank (::step render-state))]
+      (let [t (+ next-vblank (get render-state ::step))]
         (when (pos? (- t (w/time)))
-          (log/warn "Not within 1 timestep of vblank")
           (while (pos? (- t (w/time)))))))
 
     (let [last-state (volatile! nil)
@@ -122,23 +121,32 @@
                                 prev-state (last past-states)]
                             (when step
                               (vreset! last-state prev-state))
-                            (vreset! next-state (first future-states))
+                            (vreset! next-state (if (seq future-states)
+                                                  (first future-states)
+                                                  @last-state))
                             (vreset! events (concat (apply concat (keep #(get % ::events) past-states))
                                                     (get (first future-states) ::events)))
-                            (vec (cond->> (cons (dissoc (first future-states) ::events)
-                                                (rest future-states))
+                            (vec (cond->> (rest future-states)
+                                   (seq future-states) (cons (dissoc (first future-states) ::events))
                                    prev-state (cons (dissoc prev-state ::events)))))))
-          render-state (reduce (get @next-state ::event-handler) render-state @events)
-          last-time (get ::time @last-state)
-          render-state (if (and @next-state @last-state)
-                         (r/step-renderer! render-state @next-state @last-state
+          last-state @last-state
+          next-state @next-state
+          render-state (reduce (get next-state ::event-handler) render-state @events)
+          last-time (get last-state ::time)
+          render-state (cond
+                         (and next-state last-state (not (identical? next-state last-state)))
+                         (r/step-renderer! render-state next-state last-state
                                            (/ (- next-vblank last-time)
-                                              (- (get @next-state ::time) last-time)))
-                         (when @next-state
-                           (r/step-renderer! render-state @next-state)))]
+                                              (- (get next-state ::time) last-time)))
+
+                         next-state
+                         (r/step-renderer! render-state next-state)
+
+                         :else
+                         render-state)]
       (w/swap-buffers window)
-      (if (and (not (get @next-state ::should-close?)) ; don't want to close
-               (or @next-state (not @last-state)))     ; and this isn't a nil state after the first
+      (if (and (not (get next-state ::should-close?)) ; don't want to close
+               (or next-state (not last-state)))     ; and this isn't a nil state after the first
         (recur render-state
                (when step
                  (let [current-frame (- (w/time) step)
@@ -147,7 +155,7 @@
                       (if (< frames-behind 2)
                         step
                         (* step frames-behind))))))
-        [@next-state render-state]))))
+        [next-state render-state]))))
 
 (defn start-engine
   "Starts a game loop.
