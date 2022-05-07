@@ -5,6 +5,7 @@
    [clojure.edn :as edn]
    [clojure.math :as math]
    [clojure.java.io :as io]
+   [net.cgrand.xforms :as xf]
    [s-expresso.audio :as sfx]
    [s-expresso.engine :as e]
    [s-expresso.ecs :as ecs :refer [defsystem]]
@@ -311,36 +312,47 @@
                                :data (:data image)})
      ::dimensions (:dimensions image)}))
 
-(defn sprite
-  [sprite-key camera-zoom position scale]
-  (reify r/RenderOp
-    (op-deps [_]
-      {::quad quad-mesh
-       ::sprite-shader sprite-shader
-       [::texture sprite-key] (texture-resolver sprite-key)})
-    (apply-op! [_ {{::keys [quad sprite-shader] texture [::texture sprite-key]} ::r/resources}]
-      (when (and quad sprite-shader texture)
-        (sh/with-shader-program sprite-shader
-          (tex/with-texture (::data texture) 0
-            (sh/upload-uniform-int sprite-shader (::sl/ident sam) 0)
-            (let [[x y] (map (partial * scale) (::dimensions texture))]
-              (sh/upload-uniform-float sprite-shader (::sl/ident dims) x y))
-            (let [[x y] (seq position)]
-              (sh/upload-uniform-float sprite-shader (::sl/ident pos) x y))
-            (sh/upload-uniform-float sprite-shader (::sl/ident zoom) camera-zoom)
-            (sh/upload-uniform-float sprite-shader (::sl/ident aspect-ratio) (/ 4 3))
-            (m/draw-mesh quad)))))))
+(defn sprite-batch
+  [sprite-key camera-pos camera-zoom scale positions]
+  (let [sprites
+        (for [position positions]
+          (reify r/RenderOp
+            (op-deps [_]
+              {::quad quad-mesh
+               ::sprite-shader sprite-shader
+               [::texture sprite-key] (texture-resolver sprite-key)})
+            (apply-op! [_ {{::keys [quad sprite-shader] texture [::texture sprite-key]} ::r/resources}]
+              (when (and quad sprite-shader texture)
+                (let [[x y] (seq (mat/sub position camera-pos))]
+                  (sh/upload-uniform-float sprite-shader (::sl/ident pos) x y))
+                (m/draw-mesh quad)))))
+        deps (r/collect-deps sprites)]
+    (reify r/RenderOp
+      (op-deps [_]
+        deps)
+      (apply-op! [_ {:as render-state {::keys [quad sprite-shader] texture [::texture sprite-key]} ::r/resources}]
+        (when (and quad sprite-shader texture)
+          (sh/with-shader-program sprite-shader
+            (tex/with-texture (::data texture) 0
+              (sh/upload-uniform-int sprite-shader (::sl/ident sam) 0)
+              (let [[x y] (map (partial * scale) (::dimensions texture))]
+                (sh/upload-uniform-float sprite-shader (::sl/ident dims) x y))
+              (sh/upload-uniform-float sprite-shader (::sl/ident zoom) camera-zoom)
+              (sh/upload-uniform-float sprite-shader (::sl/ident aspect-ratio) (/ 4 3))
+              (r/render-scene! sprites render-state))))))))
 
 (defn draw-sprites
   [game-state]
   (let [camera-pos (mat/array [0 0])
-        zoom (/ 15)]
+        zoom (/ 15)
+        scale (/ 50)]
     (sequence
-     (comp (filter ::sprite-path)
-           (map #(sprite (::sprite-path %) zoom
-                         (mat/sub (::position %) camera-pos)
-                         (/ 50))))
-     (vals (::ecs/entities game-state)))))
+     (comp (map val)
+           (filter ::sprite-path)
+           (xf/by-key ::sprite-path (comp (map ::position)
+                                          (xf/into [])))
+           (map #(sprite-batch (first %) camera-pos zoom scale (second %))))
+     (::ecs/entities game-state))))
 
 (defn clear-screen
   [game-state]

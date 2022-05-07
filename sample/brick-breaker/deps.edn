@@ -3,6 +3,8 @@
         net.mikera/core.matrix {:mvn/version "0.62.0"}
         net.mikera/vectorz-clj {:mvn/version "0.48.0"}
 
+        net.cgrand/xforms {:mvn/version "0.19.2"}
+
         org.lwjgl/lwjgl {:mvn/version "3.3.0"}
         org.lwjgl/lwjgl-opengl {:mvn/version "3.3.0"}
 
