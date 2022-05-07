@@ -196,7 +196,7 @@
                                ::resolvers merge new-resolvers)
                        ::resources merge new-resources)
                ::active-resources set/union (into #{} (map first) new-deps))))))
-(s/fdef step-renderer
+(s/fdef step-renderer!
   :args (s/cat :render-state ::render-state
                :game-state ::game-state
                :optional-args
