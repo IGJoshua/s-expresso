@@ -88,7 +88,7 @@
                  (and last-state
                       (::interpolator game-state)
                       factor)
-                 ((::interpolator game-state) last-state factor))
+                 ((util/when-pred (::interpolator game-state) var? deref) last-state factor))
          systems (::systems state)
          systems (cond-> systems
                    (var? systems) deref)]
