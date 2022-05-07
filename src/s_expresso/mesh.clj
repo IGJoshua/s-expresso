@@ -365,6 +365,8 @@
                :packed-mesh ::packed-mesh)
   :ret (partial instance? Mesh))
 
+;; TODO(Joshua): Add a way to register and upload instance data
+
 (defn draw-mesh
   "Draws the `mesh` with the current shader pipeline."
   [mesh]
