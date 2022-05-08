@@ -296,10 +296,9 @@
   {frag-uv :in
    target-color :out}
   (let [^"vec4" tex-color (set! target-color (texture sam frag-uv))]
-    ;; HACK(Joshua): use `cond` because there's a bug with `if` in cljsl
-    (cond
-      (> (:a tex-color) 0.5) (set! target-color tex-color)
-      :else (discard))))
+    (if (> (:a tex-color) 0.5)
+      (set! target-color tex-color)
+      (discard))))
 
 (def sprite-shader
   #(sh/make-shader-program-from-sources

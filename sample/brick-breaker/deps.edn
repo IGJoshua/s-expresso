@@ -8,7 +8,7 @@
         org.lwjgl/lwjgl {:mvn/version "3.3.0"}
         org.lwjgl/lwjgl-opengl {:mvn/version "3.3.0"}
 
-        io.github.IGJoshua/cljsl {:git/sha "81f7cbaa3423d177849e52688a8d1a89d0272919"}
+        io.github.IGJoshua/cljsl {:git/sha "bfa687967b0317c0d1c093296fc48dc42a0a53a8"}
         io.github.IGJoshua/s-expresso {:local/root "../../"}
 
         com.taoensso/timbre {:mvn/version "4.10.0"}}

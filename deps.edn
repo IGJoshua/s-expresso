@@ -24,10 +24,10 @@
                          org.lwjgl/lwjgl-stb$natives-windows {:mvn/version "3.3.0"}}}
   :dev {:extra-paths ["dev"]
         :extra-deps {com.taoensso/timbre {:mvn/version "4.10.0"}
-                     io.github.IGJoshua/cljsl {:git/sha "5d8bc2bfccb2bc05a5075564d3802919ba9052d8"}}}
+                     io.github.IGJoshua/cljsl {:git/sha "bfa687967b0317c0d1c093296fc48dc42a0a53a8"}}}
   :example {:extra-paths ["dev"]
             :extra-deps {com.taoensso/timbre {:mvn/version "4.10.0"}
-                         io.github.IGJoshua/cljsl {:git/sha "5d8bc2bfccb2bc05a5075564d3802919ba9052d8"}}
+                         io.github.IGJoshua/cljsl {:git/sha "bfa687967b0317c0d1c093296fc48dc42a0a53a8"}}
             :ns-default examples}
   :debug/leak-check {:jvm-opts ["-Dorg.lwjgl.util.Debug=true"]}
   :test {:extra-paths ["test"]
