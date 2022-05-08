@@ -409,19 +409,31 @@
 
 (defn draw-mesh
   "Draws the `mesh` with the current shader pipeline."
-  [mesh]
-  (let [old-bound (GL45/glGetInteger GL45/GL_VERTEX_ARRAY_BINDING)]
-    (GL45/glBindVertexArray (:vao-id mesh))
-    (if (:index-type mesh)
-      (GL45/glDrawElements (:element-type mesh)
-                           (:element-count mesh)
-                           (:index-type mesh)
-                           (:start-offset mesh))
-      (GL45/glDrawArrays (:element-type mesh)
-                         (:start-offset mesh)
-                         (:element-count mesh)))
-    (GL45/glBindVertexArray old-bound))
-  nil)
+  ([mesh] (draw-mesh mesh nil))
+  ([mesh instance-count]
+   (let [old-bound (GL45/glGetInteger GL45/GL_VERTEX_ARRAY_BINDING)]
+     (GL45/glBindVertexArray (:vao-id mesh))
+     (if instance-count
+       (if (:index-type mesh)
+         (GL45/glDrawElementsInstanced (:element-type mesh)
+                                       (:element-count mesh)
+                                       (:index-type mesh)
+                                       (:start-offset mesh)
+                                       instance-count)
+         (GL45/glDrawArraysInstanced (:element-type mesh)
+                                     (:start-offset mesh)
+                                     (:element-count mesh)
+                                     instance-count))
+       (if (:index-type mesh)
+         (GL45/glDrawElements (:element-type mesh)
+                              (:element-count mesh)
+                              (:index-type mesh)
+                              (:start-offset mesh))
+         (GL45/glDrawArrays (:element-type mesh)
+                            (:start-offset mesh)
+                            (:element-count mesh))))
+     (GL45/glBindVertexArray old-bound))
+   nil))
 (s/fdef draw-mesh
   :args (s/cat :mesh (partial instance? Mesh))
   :ret nil?)
