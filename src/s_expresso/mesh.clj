@@ -204,7 +204,7 @@
                                       ::element-type]
                              :opt-un [:s-expresso.mesh.layout/indices]))
 
-(defrecord Mesh [^int vao-id ^IntBuffer buffers index-type element-count element-type start-offset]
+(defrecord Mesh [^int vao-id ^IntBuffer buffers vertex-attrib-count index-type element-count element-type start-offset]
   Resource
   (free [_mesh]
     (GL45/glDeleteBuffers buffers)
@@ -349,12 +349,14 @@
              (and (not (:indices layout))
                   (not (:indices packed-mesh))))]}
   (let [vao (GL45/glCreateVertexArrays)
-        buffers ^IntBuffer (MemoryUtil/memAllocInt (+ (if (:indices packed-mesh) 1 0)
-                                                      (count (:buffers packed-mesh))))
+        buffers ^IntBuffer (MemoryUtil/memAllocInt
+                            (+ (if (:indices layout) 1 0)
+                               (count (:vertex-layouts layout))
+                               (count (:instance-layouts layout))))
         ;; NOTE(Joshua): This starts at -1 because [[swap!]] returns the new
         ;; value and we always use it from a swap with [[inc]].
         attrib-idx (volatile! -1)]
-    (when (:indices packed-mesh)
+    (when (:indices layout)
       (let [idx-buffer (GL45/glCreateBuffers)]
         (.put buffers (int idx-buffer))
         (GL45/glNamedBufferStorage idx-buffer ^ByteBuffer (:indices packed-mesh)
@@ -363,7 +365,7 @@
                                         #{})))
         (GL45/glVertexArrayElementBuffer vao idx-buffer)))
     (doseq [[idx buffer-layout buffer] (map vector
-                                            (range (count (:buffers packed-mesh)))
+                                            (range (count (:vertex-layouts layout)))
                                             (:vertex-layouts layout)
                                             (:buffers packed-mesh))
             :let [buffer-array (GL45/glCreateBuffers)]]
@@ -374,10 +376,23 @@
        vao buffer-array idx
        (update buffer-layout :attrib-layouts (partial mapv #(assoc % :attrib-idx (vswap! attrib-idx inc))))
        (:element-count packed-mesh)))
+    (doseq [[idx buffer-layout] (map vector
+                                    (range (count (:instance-layouts layout)))
+                                    (:instance-layouts layout))
+            :let [buffer-array (GL45/glCreateBuffers)]]
+      (.put buffers (int buffer-array))
+      (configure-buffer-layout!
+       vao buffer-array (+ idx (count (:vertex-layouts layout)))
+       (update buffer-layout :attrib-layouts (partial mapv #(assoc % :attrib-idx (vswap! attrib-idx inc))))
+       ;; NOTE(Joshua): Instance data can't be non-interleaved, as the length of
+       ;; the data may change.
+       nil))
     (.flip buffers)
-    (->Mesh vao buffers (when (:indices packed-mesh)
-                          (attrib-type->glenum (or (:type (:indices layout))
-                                                   :uint)))
+    (->Mesh vao buffers
+            (count (:vertex-layouts layout))
+            (when (:indices packed-mesh)
+              (attrib-type->glenum (or (:type (:indices layout))
+                                       :uint)))
             (:element-count packed-mesh)
             (element-type->glenum (:element-type layout))
             (:offset packed-mesh))))
@@ -386,7 +401,11 @@
                :packed-mesh ::packed-mesh)
   :ret (partial instance? Mesh))
 
-;; TODO(Joshua): Add a way to register and upload instance data
+(defn set-instance-buffer-contents!
+  [mesh idx contents]
+  ;; TODO(Joshua): Determine if other access patterns will be allowed
+  (let [vbo (.get ^IntBuffer (:buffers mesh) (int (+ (:vertex-attrib-count mesh) idx)))]
+    (GL45/glNamedBufferData vbo ^ByteBuffer contents GL45/GL_STATIC_DRAW)))
 
 (defn draw-mesh
   "Draws the `mesh` with the current shader pipeline."
