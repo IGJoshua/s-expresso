@@ -9,6 +9,7 @@
    [s-expresso.audio :as sfx]
    [s-expresso.engine :as e]
    [s-expresso.ecs :as ecs :refer [defsystem]]
+   [s-expresso.memory :as mem]
    [s-expresso.mesh :as m]
    [s-expresso.render :as r]
    [s-expresso.resource :as res]
@@ -256,6 +257,9 @@
                                                            :type :half-float
                                                            :count 2}]
                                          :interleaved true}]
+                       :instance-layouts [{:attrib-layouts [{:name :pos
+                                                             :type :float
+                                                             :count 2}]}]
                        :element-type :triangle-fan})
 
 (def quad-mesh
@@ -266,10 +270,12 @@
   :layout {"location" 0})
 (sl/defparam vert-uv "vec2"
   :layout {"location" 1})
+(sl/defparam instance-pos "vec2"
+  :layout {"location" 2})
 
 (sl/defparam frag-uv "vec2")
 
-(sl/defuniform pos "vec2")
+(sl/defuniform cam-pos "vec2")
 (sl/defuniform zoom "float")
 (sl/defuniform dims "vec2")
 (sl/defuniform aspect-ratio "float")
@@ -277,9 +283,10 @@
 (sl/defshader vert-shader
   {vert-pos :in
    vert-uv :in
+   instance-pos :in
    frag-uv :out}
   (set! frag-uv vert-uv)
-  (let [^"vec2" pos (* (+ (* vert-pos dims) pos) zoom)]
+  (let [^"vec2" pos (* (- (+ (* vert-pos dims) instance-pos) cam-pos) zoom)]
     (set! gl_Position (vec4 (:x pos) (* (:y pos) aspect-ratio) 0 1))))
 
 (sl/defuniform sam "sampler2D")
@@ -314,32 +321,51 @@
 
 (defn sprite-batch
   [sprite-key camera-pos camera-zoom scale positions]
-  (let [sprites
-        (for [position positions]
-          (reify r/RenderOp
-            (op-deps [_]
-              {::quad quad-mesh
-               ::sprite-shader sprite-shader
-               [::texture sprite-key] (texture-resolver sprite-key)})
-            (apply-op! [_ {{::keys [quad sprite-shader] texture [::texture sprite-key]} ::r/resources}]
-              (when (and quad sprite-shader texture)
-                (let [[x y] (seq (mat/sub position camera-pos))]
-                  (sh/upload-uniform-float sprite-shader (::sl/ident pos) x y))
-                (m/draw-mesh quad)))))
-        deps (r/collect-deps sprites)]
-    (reify r/RenderOp
-      (op-deps [_]
-        deps)
-      (apply-op! [_ {:as render-state {::keys [quad sprite-shader] texture [::texture sprite-key]} ::r/resources}]
-        (when (and quad sprite-shader texture)
-          (sh/with-shader-program sprite-shader
-            (tex/with-texture (::data texture) 0
-              (sh/upload-uniform-int sprite-shader (::sl/ident sam) 0)
-              (let [[x y] (map (partial * scale) (::dimensions texture))]
-                (sh/upload-uniform-float sprite-shader (::sl/ident dims) x y))
-              (sh/upload-uniform-float sprite-shader (::sl/ident zoom) camera-zoom)
-              (sh/upload-uniform-float sprite-shader (::sl/ident aspect-ratio) (/ 4 3))
-              (r/render-scene! sprites render-state))))))))
+  (reify r/RenderOp
+    (op-deps [_]
+      {::quad quad-mesh
+       ::sprite-shader sprite-shader
+       [::texture sprite-key] (texture-resolver sprite-key)
+       ::batch-instance-loaded? #(volatile! false)})
+    (apply-op! [_ {{::keys [quad sprite-shader batch-instance-loaded?] texture [::texture sprite-key]} ::r/resources}]
+      (when (and quad batch-instance-loaded? (not @batch-instance-loaded?))
+        (mem/with-stack-allocator
+          (m/set-instance-buffer-contents! quad 0 (mem/alloc-bytes (* 2 Float/SIZE 512))))
+        (vreset! batch-instance-loaded? true))
+      (when (and quad sprite-shader texture)
+        (sh/with-shader-program sprite-shader
+          (tex/with-texture (::data texture) 0
+            (sh/upload-uniform-int sprite-shader (::sl/ident sam) 0)
+            (let [[x y] (map (partial * scale) (::dimensions texture))]
+              (sh/upload-uniform-float sprite-shader (::sl/ident dims) x y))
+            (sh/upload-uniform-float sprite-shader (::sl/ident zoom) camera-zoom)
+            (sh/upload-uniform-float sprite-shader (::sl/ident aspect-ratio) (/ 4 3))
+            (let [[x y] (seq camera-pos)]
+              (sh/upload-uniform-float sprite-shader (::sl/ident cam-pos) x y))
+            (mem/with-stack-allocator
+              (let [last-batch
+                    (mem/with-stack-allocator
+                      (let [instance-positions (mem/alloc-bytes (* 2 Float/SIZE 512))]
+                        (loop [[pos & more] (partition-all 512 positions)]
+                          (if (seq more)
+                            (do
+                              (mem/put-seq instance-positions
+                                           (->> pos
+                                                (mapcat seq)
+                                                (map float)))
+                              (.flip instance-positions)
+                              (m/set-instance-buffer-sub-contents! quad 0 0 instance-positions)
+                              (m/draw-mesh quad 512)
+                              (recur more))
+                            (vec pos)))))
+                    instance-positions (mem/alloc-bytes (* 2 Float/SIZE (count last-batch)))]
+                (mem/put-seq instance-positions
+                             (->> last-batch
+                                  (mapcat seq)
+                                  (map float)))
+                (.flip instance-positions)
+                (m/set-instance-buffer-sub-contents! quad 0 0 instance-positions)
+                (m/draw-mesh quad (count last-batch))))))))))
 
 (defn draw-sprites
   [game-state]
