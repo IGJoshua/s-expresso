@@ -64,7 +64,7 @@
 (def tri-mesh-data {:vertices [{:pos [-0.1 -0.1 0.0]}
                                {:pos [0.1 -0.1 0.0]}
                                {:pos [0.0 0.1 0.0]}]})
-(def tri-mesh-layout {:buffer-layouts [{:attrib-layouts [{:name :pos
+(def tri-mesh-layout {:vertex-layouts [{:attrib-layouts [{:name :pos
                                                           :type :float
                                                           :count 3}]}]
                       :element-type :triangles})

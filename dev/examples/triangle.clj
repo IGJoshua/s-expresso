@@ -44,7 +44,7 @@
                                {:pos [0.5 -0.5 0.0]}
                                {:pos [0.0 0.5 0.0]}]})
 
-(def pos-mesh-layout {:buffer-layouts [{:attrib-layouts [{:name :pos
+(def pos-mesh-layout {:vertex-layouts [{:attrib-layouts [{:name :pos
                                                           :type :float
                                                           :count 3}]}]
                       :element-type :triangles})

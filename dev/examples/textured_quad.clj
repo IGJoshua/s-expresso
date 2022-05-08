@@ -49,7 +49,7 @@
                                  :uv [1.0 1.0]}]
                      :indices [0 1 2 2 1 3]})
 
-(def pos-mesh-layout {:buffer-layouts [{:attrib-layouts [{:name :pos
+(def pos-mesh-layout {:vertex-layouts [{:attrib-layouts [{:name :pos
                                                           :type :float
                                                           :count 3}
                                                          {:name :uv

@@ -175,7 +175,11 @@
                                                         (:count %)))
                                                 (:attrib-layouts layout)))
                                   true))))
-(s/def ::buffer-layouts (s/coll-of ::buffer-layout :kind vector?))
+(s/def ::divisor pos-int?)
+(s/def ::vertex-layouts (s/coll-of ::buffer-layout :kind vector?))
+(s/def ::instance-layouts (s/coll-of (s/merge ::buffer-layout
+                                              (s/keys :opt-un [::divisor]))
+                                     :kind vector?))
 (s/def :s-expresso.mesh.layout/indices (s/nilable
                                         (s/keys :opt-un [::usage-flags ::type])))
 
@@ -195,7 +199,9 @@
    :patches GL45/GL_PATCHES})
 (def element-types (set (keys element-type->glenum)))
 (s/def ::element-type element-types)
-(s/def ::mesh-layout (s/keys :req-un [::buffer-layouts ::element-type]
+(s/def ::mesh-layout (s/keys :req-un [::vertex-layouts
+                                      ::instance-layouts
+                                      ::element-type]
                              :opt-un [:s-expresso.mesh.layout/indices]))
 
 (defrecord Mesh [^int vao-id ^IntBuffer buffers index-type element-count element-type start-offset]
@@ -234,7 +240,7 @@
                     (.flip)))
         vert-count (count (:vertices mesh))
         buffers (vec
-                 (for [buffer (:buffer-layouts layout)]
+                 (for [buffer (:vertex-layouts layout)]
                    (let [stride (reduce (fn [acc v]
                                           (+ acc (* (attrib-type->size-in-bytes (:type v))
                                                     (:count v))))
@@ -336,7 +342,7 @@
   number of buffers the `layout` expects matches the number of buffers in the
   `packed-mesh`, and that if one has indices, both do."
   [layout packed-mesh]
-  {:pre [(= (count (:buffer-layouts layout))
+  {:pre [(= (count (:vertex-layouts layout))
             (count (:buffers packed-mesh)))
          (or (and (:indices layout)
                   (:indices packed-mesh))
@@ -358,7 +364,7 @@
         (GL45/glVertexArrayElementBuffer vao idx-buffer)))
     (doseq [[idx buffer-layout buffer] (map vector
                                             (range (count (:buffers packed-mesh)))
-                                            (:buffer-layouts layout)
+                                            (:vertex-layouts layout)
                                             (:buffers packed-mesh))
             :let [buffer-array (GL45/glCreateBuffers)]]
       (.put buffers (int buffer-array))

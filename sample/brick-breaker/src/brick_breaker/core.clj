@@ -249,7 +249,7 @@
                                 {:pos [ 0.5  0.5] :uv [1 1]}
                                 {:pos [-0.5  0.5] :uv [0 1]}]})
 
-(def quad-mesh-layout {:buffer-layouts [{:attrib-layouts [{:name :pos
+(def quad-mesh-layout {:vertex-layouts [{:attrib-layouts [{:name :pos
                                                            :type :float
                                                            :count 2}
                                                           {:name :uv
