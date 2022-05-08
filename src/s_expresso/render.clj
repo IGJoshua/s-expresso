@@ -62,7 +62,7 @@
   bindings will be [[res/free]]'d in reverse order."
   {:style/indent 1}
   [bindings & body]
-  (let [binding-syms (map second (partition 2 bindings))]
+  (let [binding-syms (map first (partition 2 bindings))]
     `(fn []
        (mem/with-heap-allocator
          (future
