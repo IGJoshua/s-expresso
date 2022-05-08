@@ -204,7 +204,7 @@
                                       ::element-type]
                              :opt-un [:s-expresso.mesh.layout/indices]))
 
-(defrecord Mesh [^int vao-id ^IntBuffer buffers vertex-attrib-count index-type element-count element-type start-offset]
+(defrecord Mesh [^int vao-id ^IntBuffer buffers vertex-buffer-count index-type element-count element-type start-offset]
   Resource
   (free [_mesh]
     (GL45/glDeleteBuffers buffers)
@@ -383,7 +383,9 @@
       (.put buffers (int buffer-array))
       (configure-buffer-layout!
        vao buffer-array (+ idx (count (:vertex-layouts layout)))
-       (update buffer-layout :attrib-layouts (partial mapv #(assoc % :attrib-idx (vswap! attrib-idx inc))))
+       (-> buffer-layout
+           (update :attrib-layouts (partial mapv #(assoc % :attrib-idx (vswap! attrib-idx inc))))
+           (update :divisor (fnil identity 1)))
        ;; NOTE(Joshua): Instance data can't be non-interleaved, as the length of
        ;; the data may change.
        nil))
@@ -402,10 +404,15 @@
   :ret (partial instance? Mesh))
 
 (defn set-instance-buffer-contents!
-  [mesh idx contents]
+  [mesh buffer-idx contents]
   ;; TODO(Joshua): Determine if other access patterns will be allowed
-  (let [vbo (.get ^IntBuffer (:buffers mesh) (int (+ (:vertex-attrib-count mesh) idx)))]
-    (GL45/glNamedBufferData vbo ^ByteBuffer contents GL45/GL_STATIC_DRAW)))
+  (let [vbo (.get ^IntBuffer (:buffers mesh) (int (+ (:vertex-buffer-count mesh) buffer-idx)))]
+    (GL45/glNamedBufferData vbo ^ByteBuffer contents GL45/GL_DYNAMIC_DRAW)))
+
+(defn set-instance-buffer-sub-contents!
+  [mesh buffer-idx offset contents]
+  (let [vbo (.get ^IntBuffer (:buffers mesh) (int (+ (:vertex-buffer-count mesh) buffer-idx)))]
+    (GL45/glNamedBufferSubData vbo (int offset) ^ByteBuffer contents)))
 
 (defn draw-mesh
   "Draws the `mesh` with the current shader pipeline."
