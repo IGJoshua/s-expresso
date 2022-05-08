@@ -275,6 +275,60 @@
                :mesh ::mesh-data)
   :ret ::packed-mesh)
 
+(defn- configure-vertex-attribute!
+  [vao buffer-idx attrib-idx layout offset]
+  (let [attrib-count (:count layout)
+        type-glenum (attrib-type->glenum (:type layout))]
+    (GL45/glEnableVertexArrayAttrib vao attrib-idx)
+    (GL45/glVertexArrayAttribBinding vao attrib-idx buffer-idx)
+    (condp contains? (:type layout)
+      #{:double}
+      (GL45/glVertexArrayAttribLFormat vao attrib-idx
+                                       attrib-count
+                                       type-glenum
+                                       offset)
+      #{:float :half-float}
+      (GL45/glVertexArrayAttribFormat vao attrib-idx
+                                      attrib-count
+                                      type-glenum
+                                      (boolean (:normalized layout))
+                                      offset)
+      #{:byte :short :int
+        :ubyte :ushort :uint}
+      (GL45/glVertexArrayAttribIFormat vao attrib-idx
+                                       attrib-count
+                                       type-glenum
+                                       offset))))
+
+(defn- configure-buffer-layout!
+  [vao vbo idx layout element-count]
+  (GL45/glVertexArrayVertexBuffer
+   vao idx vbo 0
+   (or (:stride layout)
+       (if (:interleaved layout)
+         (transduce
+          (map #(* (attrib-type->size-in-bytes (:type %))
+                   (:count %)))
+          + 0 (:attrib-layouts layout))
+         (let [v (first (:attrib-layouts layout))]
+           (* (attrib-type->size-in-bytes (:type v))
+              (:count v))))))
+  (when (:divisor layout)
+    (GL45/glVertexArrayBindingDivisor vao idx (:divisor layout)))
+  (loop [attrib-layouts (:attrib-layouts layout)
+         offset 0]
+    (let [attrib-layout (first attrib-layouts)]
+      (configure-vertex-attribute! vao idx (:attrib-idx attrib-layout) attrib-layout offset)
+      (when (seq (rest attrib-layouts))
+        (recur (rest attrib-layouts)
+               (long
+                (+ offset (* (or (:stride layout)
+                                 (* (attrib-type->size-in-bytes (:type attrib-layout))
+                                    (:count attrib-layout)))
+                             (if-not (:interleaved layout)
+                               element-count
+                               1)))))))))
+
 (defn make-mesh
   "Takes a `layout` and a `packed-mesh`, and returns a [[Mesh]] [[Resource]].
 
@@ -291,7 +345,9 @@
   (let [vao (GL45/glCreateVertexArrays)
         buffers ^IntBuffer (MemoryUtil/memAllocInt (+ (if (:indices packed-mesh) 1 0)
                                                       (count (:buffers packed-mesh))))
-        attrib-idx (volatile! 0)]
+        ;; NOTE(Joshua): This starts at -1 because [[swap!]] returns the new
+        ;; value and we always use it from a swap with [[inc]].
+        attrib-idx (volatile! -1)]
     (when (:indices packed-mesh)
       (let [idx-buffer (GL45/glCreateBuffers)]
         (.put buffers (int idx-buffer))
@@ -303,56 +359,15 @@
     (doseq [[idx buffer-layout buffer] (map vector
                                             (range (count (:buffers packed-mesh)))
                                             (:buffer-layouts layout)
-                                            (:buffers packed-mesh))]
-      (let [buffer-array (GL45/glCreateBuffers)
-            ;; TODO(Joshua): Audit this code for non-interleaved support
-            stride (if (:interleaved buffer-layout)
-                     (transduce
-                      (map #(* (attrib-type->size-in-bytes (:type %))
-                               (:count %)))
-                      + 0 (:attrib-layouts buffer-layout))
-                     ;; TODO(Joshua): Add support for stride
-                     (let [v (first (:attrib-layouts buffer-layout))]
-                       (* (attrib-type->size-in-bytes (:type v))
-                          (:count v))))]
-        (.put buffers (int buffer-array))
-        (GL45/glNamedBufferStorage buffer-array ^ByteBuffer buffer
-                                   (usage-flags->flags-int (:usage-flags buffer-layout)))
-        (GL45/glVertexArrayVertexBuffer vao idx buffer-array 0 stride)
-        (loop [attrib-layouts (:attrib-layouts buffer-layout)
-               offset 0]
-          (let [attrib-layout (first attrib-layouts)
-                attrib-count (:count attrib-layout)
-                type-glenum (attrib-type->glenum (:type attrib-layout))]
-            (GL45/glEnableVertexArrayAttrib vao @attrib-idx)
-            (GL45/glVertexArrayAttribBinding vao @attrib-idx idx)
-            (condp contains? (:type attrib-layout)
-              #{:double}
-              (GL45/glVertexArrayAttribLFormat vao @attrib-idx
-                                               attrib-count
-                                               type-glenum
-                                               offset)
-              #{:float :half-float}
-              (GL45/glVertexArrayAttribFormat vao @attrib-idx
-                                              attrib-count
-                                              type-glenum
-                                              (boolean (:normalized attrib-layout))
-                                              offset)
-              #{:byte :short :int
-                :ubyte :ushort :uint}
-              (GL45/glVertexArrayAttribIFormat vao @attrib-idx
-                                               attrib-count
-                                               type-glenum
-                                               offset))
-            (vswap! attrib-idx inc)
-            (when (seq (rest attrib-layouts))
-              (recur (rest attrib-layouts)
-                     (long
-                      (+ offset (* (attrib-type->size-in-bytes (:type attrib-layout))
-                                   (:count attrib-layout)
-                                   (if-not (:interleaved buffer-layout)
-                                     (:element-count packed-mesh)
-                                     1))))))))))
+                                            (:buffers packed-mesh))
+            :let [buffer-array (GL45/glCreateBuffers)]]
+      (.put buffers (int buffer-array))
+      (GL45/glNamedBufferStorage buffer-array ^ByteBuffer buffer
+                                 (usage-flags->flags-int (:usage-flags buffer-layout)))
+      (configure-buffer-layout!
+       vao buffer-array idx
+       (update buffer-layout :attrib-layouts (partial mapv #(assoc % :attrib-idx (vswap! attrib-idx inc))))
+       (:element-count packed-mesh)))
     (.flip buffers)
     (->Mesh vao buffers (when (:indices packed-mesh)
                           (attrib-type->glenum (or (:type (:indices layout))
