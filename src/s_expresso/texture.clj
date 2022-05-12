@@ -408,6 +408,8 @@
   Whatever texture was bound before this call will be re-bound after it exits,
   even in the case an exception is thrown."
   [texture tex-unit & body]
+  ;; TODO(Joshua): Remove the calls to glActiveTexture after validating it's not
+  ;; necessary with the glBindTextureUnit calls.
   `(let [active-texture# (GL45/glGetInteger GL45/GL_ACTIVE_TEXTURE)
          _# (GL45/glActiveTexture (+ GL45/GL_TEXTURE0 ~tex-unit))
          old-texture# (GL45/glGetInteger GL45/GL_TEXTURE_BINDING_2D)
