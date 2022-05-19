@@ -55,6 +55,13 @@
   (run! #(put % buf) (seq s))
   buf)
 
+(defn put-into
+  "Puts the `v` into `buf` as [[put]], but with arguments swapped for [[doto]]."
+  ([buf v]
+   (put v buf))
+  ([buf v byte-offset]
+   (put-at v buf byte-offset)))
+
 (extend-protocol IntoByteBuffer
   Float
   (put [v buf]
